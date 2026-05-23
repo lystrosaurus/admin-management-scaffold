@@ -13,10 +13,10 @@ class BaseEntityTest {
     BaseEntity entity = new BaseEntity() {};
 
     assertNull(entity.getId());
-    assertNull(entity.getCreateTime());
-    assertNull(entity.getUpdateTime());
-    assertNull(entity.getCreateBy());
-    assertNull(entity.getUpdateBy());
+    assertNull(entity.getCreatedAt());
+    assertNull(entity.getUpdatedAt());
+    assertNull(entity.getCreatedBy());
+    assertNull(entity.getUpdatedBy());
     assertNull(entity.getDeleted());
     assertNull(entity.getVersion());
   }
@@ -26,24 +26,24 @@ class BaseEntityTest {
     BaseEntity entity = new BaseEntity() {};
     Long id = 1L;
     LocalDateTime now = LocalDateTime.now();
-    String createBy = "testUser";
-    String updateBy = "testUser";
+    String createdBy = "testUser";
+    String updatedBy = "testUser";
     Integer deleted = 0;
     Integer version = 1;
 
     entity.setId(id);
-    entity.setCreateTime(now);
-    entity.setUpdateTime(now);
-    entity.setCreateBy(createBy);
-    entity.setUpdateBy(updateBy);
+    entity.setCreatedAt(now);
+    entity.setUpdatedAt(now);
+    entity.setCreatedBy(createdBy);
+    entity.setUpdatedBy(updatedBy);
     entity.setDeleted(deleted);
     entity.setVersion(version);
 
     assertEquals(id, entity.getId());
-    assertEquals(now, entity.getCreateTime());
-    assertEquals(now, entity.getUpdateTime());
-    assertEquals(createBy, entity.getCreateBy());
-    assertEquals(updateBy, entity.getUpdateBy());
+    assertEquals(now, entity.getCreatedAt());
+    assertEquals(now, entity.getUpdatedAt());
+    assertEquals(createdBy, entity.getCreatedBy());
+    assertEquals(updatedBy, entity.getUpdatedBy());
     assertEquals(deleted, entity.getDeleted());
     assertEquals(version, entity.getVersion());
   }
