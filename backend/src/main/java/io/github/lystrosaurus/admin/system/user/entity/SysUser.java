@@ -1,0 +1,51 @@
+package io.github.lystrosaurus.admin.system.user.entity;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import io.github.lystrosaurus.admin.entity.BaseEntity;
+import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * 系统用户实体
+ *
+ * <p>对应数据库表 sys_user
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("sys_user")
+public class SysUser extends BaseEntity {
+
+  /** 用户名 */
+  private String username;
+
+  /** 密码哈希 */
+  private String passwordHash;
+
+  /** 昵称 */
+  private String nickname;
+
+  /** 头像文件ID */
+  private Long avatarFileId;
+
+  /** 手机号 */
+  private String phone;
+
+  /** 邮箱 */
+  private String email;
+
+  /** 员工ID */
+  private Long employeeId;
+
+  /** 状态：ENABLED, DISABLED, LOCKED */
+  private String status;
+
+  /** Token版本号 */
+  private Integer tokenVersion;
+
+  /** 最后登录时间 */
+  private LocalDateTime lastLoginAt;
+
+  /** 最后登录IP */
+  private String lastLoginIp;
+}
