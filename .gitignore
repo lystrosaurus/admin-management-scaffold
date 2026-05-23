@@ -28,3 +28,5 @@ backend/target/
 
 # MyBatis XML 占位目录
 backend/src/main/resources/mapper/.gitkeep
+.qwen/settings.json  
+.qwen/settings.json.orig  
