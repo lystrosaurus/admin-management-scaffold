@@ -58,8 +58,8 @@ public class IdentityLinkCandidateServiceImpl implements IdentityLinkCandidateSe
     principal.setId(candidate.getSourcePrincipalId());
     principal.setLinkStatus("MANUAL_LINKED");
     principal.setCanonicalType(candidate.getCandidateType());
-    principal.setCanonicalId(String.valueOf(candidate.getCandidateId()));
-    extPrincipalDAO.updateById(principal);
+    principal.setCanonicalId(candidate.getCandidateId());
+    extPrincipalDAO.update(principal);
   }
 
   @Override

@@ -29,7 +29,13 @@ class ErrorCodeTest {
               || category.equals("DATA")
               || category.equals("PASSWORD")
               || category.equals("EMPLOYEE")
-              || category.equals("ORG"),
+              || category.equals("ORG")
+              || category.equals("SOURCE")
+              || category.equals("PRINCIPAL")
+              || category.equals("CANDIDATE")
+              || category.equals("AUTH_PROVIDER")
+              || category.equals("EXTERNAL_ACCOUNT")
+              || category.equals("EXTERNAL"),
           "ErrorCode 类别应该是有效的: " + category);
     }
   }

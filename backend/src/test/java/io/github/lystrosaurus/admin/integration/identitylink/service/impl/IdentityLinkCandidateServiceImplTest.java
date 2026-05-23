@@ -107,12 +107,12 @@ class IdentityLinkCandidateServiceImplTest {
 
     // 验证外部主体更新
     ArgumentCaptor<ExtPrincipal> principalCaptor = ArgumentCaptor.forClass(ExtPrincipal.class);
-    verify(extPrincipalDAO).updateById(principalCaptor.capture());
+    verify(extPrincipalDAO).update(principalCaptor.capture());
     ExtPrincipal updatedPrincipal = principalCaptor.getValue();
     assertEquals(100L, updatedPrincipal.getId());
     assertEquals("MANUAL_LINKED", updatedPrincipal.getLinkStatus());
     assertEquals("USER", updatedPrincipal.getCanonicalType());
-    assertEquals("200", updatedPrincipal.getCanonicalId());
+    assertEquals(200L, updatedPrincipal.getCanonicalId());
   }
 
   @Test
@@ -126,7 +126,7 @@ class IdentityLinkCandidateServiceImplTest {
         assertThrows(BusinessException.class, () -> candidateService.confirm(999L, "admin"));
     assertEquals(ErrorCode.CANDIDATE_NOT_FOUND.getCode(), exception.getCode());
     verify(candidateDAO, never()).updateById(any());
-    verify(extPrincipalDAO, never()).updateById(any());
+    verify(extPrincipalDAO, never()).update(any());
   }
 
   @Test
@@ -141,7 +141,7 @@ class IdentityLinkCandidateServiceImplTest {
         assertThrows(BusinessException.class, () -> candidateService.confirm(1L, "admin"));
     assertEquals(ErrorCode.CANDIDATE_ALREADY_HANDLED.getCode(), exception.getCode());
     verify(candidateDAO, never()).updateById(any());
-    verify(extPrincipalDAO, never()).updateById(any());
+    verify(extPrincipalDAO, never()).update(any());
   }
 
   @Test
