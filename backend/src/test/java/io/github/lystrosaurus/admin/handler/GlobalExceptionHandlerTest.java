@@ -45,7 +45,7 @@ class GlobalExceptionHandlerTest {
 
     ApiResponse<Void> response = globalExceptionHandler.handleValidationException(exception);
 
-    assertEquals(ErrorCode.BAD_REQUEST.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_400.getCode(), response.getCode());
     assertEquals("错误消息", response.getMessage());
     assertNull(response.getData());
   }
@@ -62,7 +62,7 @@ class GlobalExceptionHandlerTest {
 
     ApiResponse<Void> response = globalExceptionHandler.handleBindException(exception);
 
-    assertEquals(ErrorCode.BAD_REQUEST.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_400.getCode(), response.getCode());
     assertEquals("绑定错误", response.getMessage());
     assertNull(response.getData());
   }
@@ -73,8 +73,8 @@ class GlobalExceptionHandlerTest {
 
     ApiResponse<Void> response = globalExceptionHandler.handleRuntimeException(exception);
 
-    assertEquals(ErrorCode.INTERNAL_ERROR.getCode(), response.getCode());
-    assertEquals(ErrorCode.INTERNAL_ERROR.getMessage(), response.getMessage());
+    assertEquals(ErrorCode.SYSTEM_500.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_500.getMessage(), response.getMessage());
     assertNull(response.getData());
   }
 
@@ -84,8 +84,8 @@ class GlobalExceptionHandlerTest {
 
     ApiResponse<Void> response = globalExceptionHandler.handleException(exception);
 
-    assertEquals(ErrorCode.INTERNAL_ERROR.getCode(), response.getCode());
-    assertEquals(ErrorCode.INTERNAL_ERROR.getMessage(), response.getMessage());
+    assertEquals(ErrorCode.SYSTEM_500.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_500.getMessage(), response.getMessage());
     assertNull(response.getData());
   }
 }

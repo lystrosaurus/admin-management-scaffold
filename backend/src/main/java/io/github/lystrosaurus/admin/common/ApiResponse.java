@@ -36,17 +36,19 @@ public class ApiResponse<T> {
 
   /** 成功响应（无数据） */
   public static <T> ApiResponse<T> success() {
-    return new ApiResponse<>(200, "操作成功", null);
+    return new ApiResponse<>(
+        ErrorCode.SYSTEM_SUCCESS.getCode(), ErrorCode.SYSTEM_SUCCESS.getMessage(), null);
   }
 
   /** 成功响应（带数据） */
   public static <T> ApiResponse<T> success(T data) {
-    return new ApiResponse<>(200, "操作成功", data);
+    return new ApiResponse<>(
+        ErrorCode.SYSTEM_SUCCESS.getCode(), ErrorCode.SYSTEM_SUCCESS.getMessage(), data);
   }
 
   /** 成功响应（带消息和数据） */
   public static <T> ApiResponse<T> success(String message, T data) {
-    return new ApiResponse<>(200, message, data);
+    return new ApiResponse<>(ErrorCode.SYSTEM_SUCCESS.getCode(), message, data);
   }
 
   /** 失败响应 */

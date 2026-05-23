@@ -30,7 +30,7 @@ class BusinessExceptionTest {
     String message = "自定义错误消息";
     BusinessException exception = new BusinessException(message);
 
-    assertEquals(ErrorCode.INTERNAL_ERROR.getCode(), exception.getCode());
+    assertEquals(ErrorCode.SYSTEM_500.getCode(), exception.getCode());
     assertEquals(message, exception.getMessage());
   }
 
