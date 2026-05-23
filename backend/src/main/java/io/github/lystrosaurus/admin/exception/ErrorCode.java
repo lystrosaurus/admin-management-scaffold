@@ -41,7 +41,16 @@ public enum ErrorCode {
 
   // 数据相关错误码 (DATA_xxx)
   DATA_INTEGRITY_VIOLATION(6001, "数据完整性违反"),
-  DATA_DUPLICATE_KEY(6002, "数据重复");
+  DATA_DUPLICATE_KEY(6002, "数据重复"),
+
+  // 员工相关错误码 (EMPLOYEE_xxx)
+  EMPLOYEE_NOT_FOUND(7001, "员工不存在"),
+  EMPLOYEE_ALREADY_EXISTS(7002, "员工已存在"),
+
+  // 组织单元相关错误码 (ORG_UNIT_xxx)
+  ORG_UNIT_NOT_FOUND(8001, "组织单元不存在"),
+  ORG_UNIT_ALREADY_EXISTS(8002, "组织单元已存在"),
+  ORG_UNIT_HAS_CHILDREN(8003, "组织单元存在子节点，无法删除");
 
   private final int code;
   private final String message;
