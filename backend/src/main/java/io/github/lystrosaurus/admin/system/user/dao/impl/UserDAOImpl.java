@@ -145,4 +145,10 @@ public class UserDAOImpl implements UserDAO {
     wrapper.orderByDesc(SysUser::getCreatedAt);
     return wrapper;
   }
+
+  @Override
+  public SysUser findByEmployeeId(Long employeeId) {
+    return userMapper.selectOne(
+        new LambdaQueryWrapper<SysUser>().eq(SysUser::getEmployeeId, employeeId));
+  }
 }

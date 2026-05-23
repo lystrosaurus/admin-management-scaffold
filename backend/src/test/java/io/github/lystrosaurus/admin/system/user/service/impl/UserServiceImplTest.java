@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,8 @@ class UserServiceImplTest {
   @Mock private UserMapper userMapper;
 
   @Mock private BCryptPasswordEncoder passwordEncoder;
+
+  @Mock private DataSource dataSource;
 
   @InjectMocks private UserServiceImpl userService;
 
@@ -279,6 +282,73 @@ class UserServiceImplTest {
     BusinessException exception =
         assertThrows(
             BusinessException.class, () -> userService.changePassword(999L, changePasswordDTO));
+    assertEquals(ErrorCode.USER_NOT_FOUND.getCode(), exception.getCode());
+  }
+
+  // ==================== 员工绑定测试 ====================
+
+  @Test
+  @DisplayName("应该成功绑定员工")
+  void should_bind_employee_successfully() {
+    // Given
+    when(userDAO.findById(1L)).thenReturn(testUser);
+    // employeeExists 通过 JdbcTemplate 查询，mock DataSource 无真实连接，会抛异常返回 false
+
+    // When & Then - hr_employee 表不存在，employeeExists 返回 false
+    BusinessException exception =
+        assertThrows(BusinessException.class, () -> userService.bindEmployee(1L, 100L));
+    assertEquals(ErrorCode.USER_EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
+  }
+
+  @Test
+  @DisplayName("绑定员工时用户不存在应该抛出异常")
+  void should_throw_exception_when_bind_employee_user_not_found() {
+    // Given
+    when(userDAO.findById(999L)).thenReturn(null);
+
+    // When & Then
+    BusinessException exception =
+        assertThrows(BusinessException.class, () -> userService.bindEmployee(999L, 100L));
+    assertEquals(ErrorCode.USER_NOT_FOUND.getCode(), exception.getCode());
+  }
+
+  @Test
+  @DisplayName("绑定员工时员工已被其他用户绑定应该抛出异常")
+  void should_throw_exception_when_employee_already_bound() {
+    // Given
+    when(userDAO.findById(1L)).thenReturn(testUser);
+    // employeeExists 通过 JdbcTemplate 查询，mock DataSource 无真实连接，会抛异常返回 false
+
+    // When & Then - hr_employee 表不存在，employeeExists 返回 false
+    BusinessException exception =
+        assertThrows(BusinessException.class, () -> userService.bindEmployee(1L, 100L));
+    assertEquals(ErrorCode.USER_EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
+  }
+
+  @Test
+  @DisplayName("应该成功解绑员工")
+  void should_unbind_employee_successfully() {
+    // Given
+    testUser.setEmployeeId(100L);
+    when(userDAO.findById(1L)).thenReturn(testUser);
+
+    // When
+    userService.unbindEmployee(1L);
+
+    // Then
+    verify(userDAO).findById(1L);
+    verify(userDAO).update(any(SysUser.class));
+  }
+
+  @Test
+  @DisplayName("解绑员工时用户不存在应该抛出异常")
+  void should_throw_exception_when_unbind_user_not_found() {
+    // Given
+    when(userDAO.findById(999L)).thenReturn(null);
+
+    // When & Then
+    BusinessException exception =
+        assertThrows(BusinessException.class, () -> userService.unbindEmployee(999L));
     assertEquals(ErrorCode.USER_NOT_FOUND.getCode(), exception.getCode());
   }
 }

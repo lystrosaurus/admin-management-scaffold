@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.system.user.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -16,6 +17,7 @@ import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.system.user.dto.ChangePasswordDTO;
+import io.github.lystrosaurus.admin.system.user.dto.EmployeeBindDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserCreateDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserUpdateDTO;
 import io.github.lystrosaurus.admin.system.user.service.UserService;
@@ -239,5 +241,90 @@ class UserControllerTest extends SaTokenTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidDTO)))
         .andExpect(status().isBadRequest());
+  }
+
+  // ==================== 员工绑定测试 ====================
+
+  @Test
+  @DisplayName("应该成功绑定员工")
+  void should_bind_employee_successfully() throws Exception {
+    EmployeeBindDTO bindDTO = new EmployeeBindDTO(100L);
+    doNothing().when(userService).bindEmployee(1L, 100L);
+
+    mockMvc
+        .perform(
+            post("/app/users/1/employee")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bindDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value(200));
+  }
+
+  @Test
+  @DisplayName("应该返回400当员工ID为空")
+  void should_return_400_when_employee_id_is_null() throws Exception {
+    // 构造 employeeId 为 null 的 JSON
+    mockMvc
+        .perform(
+            post("/app/users/1/employee")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":null}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("应该返回错误码当员工不存在")
+  void should_return_error_when_employee_not_found() throws Exception {
+    EmployeeBindDTO bindDTO = new EmployeeBindDTO(999L);
+    doThrow(new BusinessException(ErrorCode.USER_EMPLOYEE_NOT_FOUND))
+        .when(userService)
+        .bindEmployee(1L, 999L);
+
+    mockMvc
+        .perform(
+            post("/app/users/1/employee")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bindDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value(ErrorCode.USER_EMPLOYEE_NOT_FOUND.getCode()));
+  }
+
+  @Test
+  @DisplayName("应该返回错误码当员工已被其他用户绑定")
+  void should_return_error_when_employee_already_bound() throws Exception {
+    EmployeeBindDTO bindDTO = new EmployeeBindDTO(100L);
+    doThrow(new BusinessException(ErrorCode.USER_EMPLOYEE_ALREADY_BOUND))
+        .when(userService)
+        .bindEmployee(2L, 100L);
+
+    mockMvc
+        .perform(
+            post("/app/users/2/employee")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bindDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value(ErrorCode.USER_EMPLOYEE_ALREADY_BOUND.getCode()));
+  }
+
+  @Test
+  @DisplayName("应该成功解绑员工")
+  void should_unbind_employee_successfully() throws Exception {
+    doNothing().when(userService).unbindEmployee(1L);
+
+    mockMvc
+        .perform(delete("/app/users/1/employee"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value(200));
+  }
+
+  @Test
+  @DisplayName("应该返回错误码当解绑时用户不存在")
+  void should_return_error_when_unbind_user_not_found() throws Exception {
+    doThrow(new BusinessException(ErrorCode.USER_NOT_FOUND)).when(userService).unbindEmployee(999L);
+
+    mockMvc
+        .perform(delete("/app/users/999/employee"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value(ErrorCode.USER_NOT_FOUND.getCode()));
   }
 }

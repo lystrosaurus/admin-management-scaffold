@@ -153,4 +153,32 @@ class ArchitectureTest {
         .allowEmptyShould(true)
         .check(classes);
   }
+
+  // ==================== Organization 模块约束 ====================
+
+  @Test
+  @DisplayName("Organization Controller 不应依赖 DAO/Mapper/Entity")
+  void organization_controller_should_not_depend_on_dao_mapper_entity() {
+    classes()
+        .that()
+        .resideInAPackage("..organization..controller..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackages("..dao..", "..mapper..", "..entity..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
+
+  @Test
+  @DisplayName("Organization Service 不应依赖 Mapper")
+  void organization_service_should_not_depend_on_mapper() {
+    classes()
+        .that()
+        .resideInAPackage("..organization..service..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackage("..mapper..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
 }

@@ -12,7 +12,7 @@ spring:
       password:
       database: 1
 
-# Flyway 配置
+# Flyway 配置（测试环境禁用自动配置，由 TestDatabaseInitializer 手动执行）
 spring.flyway:
   enabled: true
   locations: classpath:db/migration

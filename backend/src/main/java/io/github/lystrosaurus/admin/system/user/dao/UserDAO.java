@@ -107,4 +107,12 @@ public interface UserDAO {
    * @param userId 用户ID
    */
   void removeRoles(Long userId);
+
+  /**
+   * 根据绑定员工ID查找用户
+   *
+   * @param employeeId 员工ID
+   * @return 用户实体，不存在时返回null
+   */
+  SysUser findByEmployeeId(Long employeeId);
 }

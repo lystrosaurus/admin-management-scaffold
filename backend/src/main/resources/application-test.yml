@@ -33,12 +33,9 @@ sa-token:
   is-read-cookie: false
   is-read-body: false
 
-# Flyway 配置
+# Flyway 配置（测试环境禁用自动配置，由 TestDatabaseInitializer 手动执行）
 spring.flyway:
-  enabled: true
-  locations: classpath:db/migration
-  baseline-on-migrate: true
-  validate-on-migrate: true
+  enabled: false
 
 # 日志级别（测试环境）
 logging:

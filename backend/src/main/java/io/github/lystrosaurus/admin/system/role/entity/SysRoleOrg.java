@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
-/** 角色-组织关联实体（物理删除，不做逻辑删除） */
+/** 角色-组织关联实体（数据权限 CUSTOM/ORG_TREE/ORG_ONLY 范围） */
 @Getter
 @Setter
 @TableName("sys_role_org")
