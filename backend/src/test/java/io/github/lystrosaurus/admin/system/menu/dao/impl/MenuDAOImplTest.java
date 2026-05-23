@@ -60,16 +60,14 @@ class MenuDAOImplTest {
     testMenu = new SysMenu();
     testMenu.setId(1L);
     testMenu.setParentId(0L);
-    testMenu.setTitle("系统管理");
-    testMenu.setRoutePath("/system");
-    testMenu.setRouteName("System");
-    testMenu.setComponentPath("Layout");
+    testMenu.setName("系统管理");
+    testMenu.setPath("/system");
+    testMenu.setComponent("Layout");
     testMenu.setIcon("setting");
     testMenu.setPermissionCode("system:view");
-    testMenu.setVisible(1);
-    testMenu.setKeepAlive(1);
+    testMenu.setVisible((byte) 1);
     testMenu.setSortOrder(1);
-    testMenu.setStatus("ENABLED");
+    testMenu.setStatus((byte) 1);
     testMenu.setCreatedAt(LocalDateTime.now());
     testMenu.setUpdatedAt(LocalDateTime.now());
   }
@@ -85,7 +83,7 @@ class MenuDAOImplTest {
 
     // Then
     assertNotNull(result);
-    assertEquals("系统管理", result.getTitle());
+    assertEquals("系统管理", result.getName());
     verify(menuMapper).selectById(1L);
   }
 
@@ -155,7 +153,7 @@ class MenuDAOImplTest {
     // Then
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals("系统管理", result.get(0).getTitle());
+    assertEquals("系统管理", result.get(0).getName());
     verify(menuMapper).selectList(any(LambdaQueryWrapper.class));
   }
 
@@ -166,10 +164,9 @@ class MenuDAOImplTest {
     SysMenu childMenu = new SysMenu();
     childMenu.setId(2L);
     childMenu.setParentId(1L);
-    childMenu.setTitle("用户管理");
-    childMenu.setRoutePath("/system/user");
-    childMenu.setRouteName("SystemUser");
-    childMenu.setStatus("ENABLED");
+    childMenu.setName("用户管理");
+    childMenu.setPath("/system/user");
+    childMenu.setStatus((byte) 1);
 
     List<SysMenu> expectedMenus = Arrays.asList(childMenu);
     when(menuMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(expectedMenus);
@@ -180,7 +177,7 @@ class MenuDAOImplTest {
     // Then
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals("用户管理", result.get(0).getTitle());
+    assertEquals("用户管理", result.get(0).getName());
     assertEquals(1L, result.get(0).getParentId());
     verify(menuMapper).selectList(any(LambdaQueryWrapper.class));
   }
@@ -207,7 +204,7 @@ class MenuDAOImplTest {
     // Then
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals("系统管理", result.get(0).getTitle());
+    assertEquals("系统管理", result.get(0).getName());
     verify(roleMenuMapper).selectList(any(LambdaQueryWrapper.class));
     verify(menuMapper).selectList(any(LambdaQueryWrapper.class));
   }
@@ -242,7 +239,7 @@ class MenuDAOImplTest {
     // Then
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals("系统管理", result.get(0).getTitle());
+    assertEquals("系统管理", result.get(0).getName());
     verify(userRoleMapper).selectList(any(LambdaQueryWrapper.class));
     verify(roleMenuMapper).selectList(any(LambdaQueryWrapper.class));
     verify(menuMapper).selectList(any(LambdaQueryWrapper.class));

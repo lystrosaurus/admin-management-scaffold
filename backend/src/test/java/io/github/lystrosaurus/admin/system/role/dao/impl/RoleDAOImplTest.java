@@ -85,10 +85,9 @@ class RoleDAOImplTest {
 
     testMenu = new SysMenu();
     testMenu.setId(1L);
-    testMenu.setTitle("用户管理");
-    testMenu.setRoutePath("/system/user");
-    testMenu.setRouteName("SystemUser");
-    testMenu.setStatus("ENABLED");
+    testMenu.setName("用户管理");
+    testMenu.setPath("/system/user");
+    testMenu.setStatus((byte) 1);
   }
 
   @Test
@@ -359,7 +358,7 @@ class RoleDAOImplTest {
     // Then
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals("用户管理", result.get(0).getTitle());
+    assertEquals("用户管理", result.get(0).getName());
     verify(roleMenuMapper).selectList(any(LambdaQueryWrapper.class));
     verify(menuMapper).selectList(any(LambdaQueryWrapper.class));
   }
