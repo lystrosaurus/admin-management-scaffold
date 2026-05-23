@@ -1,0 +1,43 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: admin-management-scaffold
+
+# 通用配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: assign_id
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  token-style: uuid
+  is-log: false
+  jwt-secret-key: "admin-scaffold-jwt-secret-key-2024"
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    io.github.lystrosaurus.admin: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
