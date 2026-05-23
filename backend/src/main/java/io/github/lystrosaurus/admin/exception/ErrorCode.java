@@ -73,7 +73,23 @@ public enum ErrorCode {
 
   // 三方账号相关错误码 (EXTERNAL_ACCOUNT_xxx)
   EXTERNAL_ACCOUNT_NOT_FOUND(9401, "三方账号不存在"),
-  EXTERNAL_ACCOUNT_ALREADY_BOUND(9402, "三方账号已绑定");
+  EXTERNAL_ACCOUNT_ALREADY_BOUND(9402, "三方账号已绑定"),
+
+  // OAuth 相关错误码 (OAUTH_xxx)
+  OAUTH_STATE_INVALID(9501, "OAuth state 无效"),
+  OAUTH_STATE_EXPIRED(9502, "OAuth state 已过期"),
+  OAUTH_CODE_EXCHANGE_FAILED(9503, "授权码换取 access_token 失败"),
+  OAUTH_USERINFO_FAILED(9504, "获取三方用户信息失败"),
+  OAUTH_PROVIDER_NOT_FOUND(9505, "OAuth 提供方不存在"),
+  OAUTH_PROVIDER_DISABLED(9506, "OAuth 提供方已禁用"),
+  OAUTH_REDIRECT_URI_INVALID(9507, "redirect_uri 不合法"),
+  OAUTH_NONCE_INVALID(9510, "OAuth nonce 无效"),
+
+  // 绑定相关错误码 (BIND_xxx)
+  BIND_ACCOUNT_ALREADY_EXISTS(9508, "该三方账号已被其他用户绑定"),
+
+  // 解绑相关错误码 (UNBIND_xxx)
+  UNBIND_LAST_LOGIN_METHOD(9509, "无法解绑：这是您唯一的登录方式");
 
   private final int code;
   private final String message;

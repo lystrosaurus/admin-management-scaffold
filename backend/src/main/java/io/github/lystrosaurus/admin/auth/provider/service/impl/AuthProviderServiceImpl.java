@@ -82,4 +82,26 @@ public class AuthProviderServiceImpl implements AuthProviderService {
     }
     return providerMapStruct.toVO(entity);
   }
+
+  @Override
+  public AuthProviderVO getEnabledByCode(String code) {
+    AuthProvider entity = providerDAO.findByCode(code);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
+    }
+    if (entity.getEnabled() == null || entity.getEnabled() != 1) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_DISABLED);
+    }
+    return providerMapStruct.toVO(entity);
+  }
+
+  @Override
+  public String getClientSecret(String code) {
+    AuthProvider entity = providerDAO.findByCode(code);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
+    }
+    // V1 直接返回明文（clientSecretEncrypted 字段直接存储明文）
+    return entity.getClientSecretEncrypted();
+  }
 }

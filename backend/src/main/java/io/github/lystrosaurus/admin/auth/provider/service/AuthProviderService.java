@@ -54,4 +54,21 @@ public interface AuthProviderService {
    * @return 认证源VO
    */
   AuthProviderVO getByCode(String code);
+
+  /**
+   * 根据编码获取已启用的认证源
+   *
+   * @param code 认证源编码
+   * @return 认证源VO
+   * @throws io.github.lystrosaurus.admin.exception.BusinessException 认证源不存在或已禁用
+   */
+  AuthProviderVO getEnabledByCode(String code);
+
+  /**
+   * 获取认证源的客户端密钥（V1 直接返回明文）
+   *
+   * @param code 认证源编码
+   * @return 客户端密钥
+   */
+  String getClientSecret(String code);
 }

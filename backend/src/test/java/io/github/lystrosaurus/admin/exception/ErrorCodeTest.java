@@ -35,7 +35,10 @@ class ErrorCodeTest {
               || category.equals("CANDIDATE")
               || category.equals("AUTH_PROVIDER")
               || category.equals("EXTERNAL_ACCOUNT")
-              || category.equals("EXTERNAL"),
+              || category.equals("EXTERNAL")
+              || category.equals("OAUTH")
+              || category.equals("BIND")
+              || category.equals("UNBIND"),
           "ErrorCode 类别应该是有效的: " + category);
     }
   }
