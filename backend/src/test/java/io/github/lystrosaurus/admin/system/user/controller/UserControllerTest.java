@@ -276,7 +276,7 @@ class UserControllerTest extends SaTokenTest {
   @DisplayName("应该返回错误码当员工不存在")
   void should_return_error_when_employee_not_found() throws Exception {
     EmployeeBindDTO bindDTO = new EmployeeBindDTO(999L);
-    doThrow(new BusinessException(ErrorCode.USER_EMPLOYEE_NOT_FOUND))
+    doThrow(new BusinessException(ErrorCode.EMPLOYEE_NOT_FOUND))
         .when(userService)
         .bindEmployee(1L, 999L);
 
@@ -286,7 +286,7 @@ class UserControllerTest extends SaTokenTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(bindDTO)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.code").value(ErrorCode.USER_EMPLOYEE_NOT_FOUND.getCode()));
+        .andExpect(jsonPath("$.code").value(ErrorCode.EMPLOYEE_NOT_FOUND.getCode()));
   }
 
   @Test

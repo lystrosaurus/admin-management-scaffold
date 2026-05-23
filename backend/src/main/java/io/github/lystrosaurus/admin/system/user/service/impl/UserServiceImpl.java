@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
 
     // 检查员工是否存在（通过 hr_employee 表查询）
     if (!employeeExists(employeeId)) {
-      throw new BusinessException(ErrorCode.USER_EMPLOYEE_NOT_FOUND);
+      throw new BusinessException(ErrorCode.EMPLOYEE_NOT_FOUND);
     }
 
     // 检查该员工是否已被其他用户绑定

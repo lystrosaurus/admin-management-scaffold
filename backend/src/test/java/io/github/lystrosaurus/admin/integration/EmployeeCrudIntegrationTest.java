@@ -43,7 +43,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
     // When
     int rows =
         jdbc.update(
-            "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '测试员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+            "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '测试员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
             empId,
             empNo);
 
@@ -64,7 +64,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
     String empNo = "EMP_DUP_001";
 
     jdbc.update(
-        "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '员工A', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+        "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '员工A', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
         empId1,
         empNo);
 
@@ -73,7 +73,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
         Exception.class,
         () ->
             jdbc.update(
-                "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '员工B', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+                "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '员工B', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
                 empId2,
                 empNo));
   }
@@ -84,7 +84,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
     // Given
     Long empId = 1004L;
     jdbc.update(
-        "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, 'EMP_FIND_001', '查询员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+        "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, 'EMP_FIND_001', '查询员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
         empId);
 
     // When
@@ -102,7 +102,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
     // Given
     Long empId = 1005L;
     jdbc.update(
-        "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, 'EMP_UPD_001', '更新前', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+        "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, 'EMP_UPD_001', '更新前', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
         empId);
 
     // When
@@ -123,7 +123,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
     // Given
     Long empId = 1006L;
     jdbc.update(
-        "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, 'EMP_DEL_001', '删除员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+        "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, 'EMP_DEL_001', '删除员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
         empId);
 
     // When
@@ -144,7 +144,7 @@ class EmployeeCrudIntegrationTest extends IntegrationTest {
     // Given - 插入多条员工记录
     for (int i = 0; i < 5; i++) {
       jdbc.update(
-          "INSERT INTO hr_employee (id, org_id, employee_no, name, status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '分页员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
+          "INSERT INTO hr_employee (id, primary_org_id, employee_no, name, employment_status, created_at, updated_at, created_by, updated_by, deleted, version) VALUES (?, 101, ?, '分页员工', 'ACTIVE', NOW(), NOW(), 'test', 'test', 0, 1)",
           1010L + i,
           "EMP_PAGE_" + i);
     }

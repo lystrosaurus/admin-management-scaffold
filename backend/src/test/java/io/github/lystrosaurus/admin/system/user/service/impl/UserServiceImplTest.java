@@ -297,7 +297,7 @@ class UserServiceImplTest {
     // When & Then - hr_employee 表不存在，employeeExists 返回 false
     BusinessException exception =
         assertThrows(BusinessException.class, () -> userService.bindEmployee(1L, 100L));
-    assertEquals(ErrorCode.USER_EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
+    assertEquals(ErrorCode.EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
   }
 
   @Test
@@ -322,7 +322,7 @@ class UserServiceImplTest {
     // When & Then - hr_employee 表不存在，employeeExists 返回 false
     BusinessException exception =
         assertThrows(BusinessException.class, () -> userService.bindEmployee(1L, 100L));
-    assertEquals(ErrorCode.USER_EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
+    assertEquals(ErrorCode.EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
   }
 
   @Test

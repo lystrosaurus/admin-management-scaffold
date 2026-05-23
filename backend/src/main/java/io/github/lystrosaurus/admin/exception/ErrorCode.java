@@ -39,8 +39,7 @@ public enum ErrorCode {
   MENU_NOT_FOUND(5001, "菜单不存在"),
   MENU_ALREADY_EXISTS(5002, "菜单已存在"),
 
-  // 用户-员工绑定相关错误码 (USER_EMPLOYEE_xxx)
-  USER_EMPLOYEE_NOT_FOUND(7001, "员工不存在"),
+  // 用户-员工绑定相关错误码
   USER_EMPLOYEE_ALREADY_BOUND(2008, "该员工已绑定其他用户"),
 
   // 数据相关错误码 (DATA_xxx)
