@@ -53,7 +53,15 @@ public enum ErrorCode {
   // 组织单元相关错误码 (ORG_UNIT_xxx)
   ORG_UNIT_NOT_FOUND(8001, "组织单元不存在"),
   ORG_UNIT_ALREADY_EXISTS(8002, "组织单元已存在"),
-  ORG_UNIT_HAS_CHILDREN(8003, "组织单元存在子节点，无法删除");
+  ORG_UNIT_HAS_CHILDREN(8003, "组织单元存在子节点，无法删除"),
+
+  // 外部身份源相关错误码 (SOURCE_xxx)
+  SOURCE_NOT_FOUND(9001, "外部身份源不存在"),
+  SOURCE_ALREADY_EXISTS(9002, "外部身份源已存在"),
+
+  // 外部主体相关错误码 (PRINCIPAL_xxx)
+  PRINCIPAL_NOT_FOUND(9101, "外部主体不存在"),
+  PRINCIPAL_ALREADY_EXISTS(9102, "外部主体已存在");
 
   private final int code;
   private final String message;
