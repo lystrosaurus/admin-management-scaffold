@@ -53,7 +53,19 @@ public enum ErrorCode {
   // 组织单元相关错误码 (ORG_UNIT_xxx)
   ORG_UNIT_NOT_FOUND(8001, "组织单元不存在"),
   ORG_UNIT_ALREADY_EXISTS(8002, "组织单元已存在"),
-  ORG_UNIT_HAS_CHILDREN(8003, "组织单元存在子节点，无法删除");
+  ORG_UNIT_HAS_CHILDREN(8003, "组织单元存在子节点，无法删除"),
+
+  // 身份匹配候选相关错误码 (CANDIDATE_xxx)
+  CANDIDATE_NOT_FOUND(9201, "候选记录不存在"),
+  CANDIDATE_ALREADY_HANDLED(9202, "候选记录已处理"),
+
+  // 认证源相关错误码 (AUTH_PROVIDER_xxx)
+  AUTH_PROVIDER_NOT_FOUND(9301, "认证源不存在"),
+  AUTH_PROVIDER_ALREADY_EXISTS(9302, "认证源编码已存在"),
+
+  // 三方账号相关错误码 (EXTERNAL_ACCOUNT_xxx)
+  EXTERNAL_ACCOUNT_NOT_FOUND(9401, "三方账号不存在"),
+  EXTERNAL_ACCOUNT_ALREADY_BOUND(9402, "三方账号已绑定");
 
   private final int code;
   private final String message;
