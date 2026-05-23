@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.system.role.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * 角色创建DTO
  *
@@ -10,4 +12,8 @@ package io.github.lystrosaurus.admin.system.role.dto;
  * @param dataScopeType 数据权限范围
  */
 public record RoleCreateDTO(
-    String code, String name, String description, Integer sortOrder, String dataScopeType) {}
+    @NotBlank(message = "角色编码不能为空") String code,
+    @NotBlank(message = "角色名称不能为空") String name,
+    String description,
+    Integer sortOrder,
+    String dataScopeType) {}
