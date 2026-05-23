@@ -19,6 +19,20 @@ spring:
       - org.redisson.spring.starter.RedissonAutoConfigurationV2
       - org.redisson.spring.starter.RedissonPropertiesConfiguration
 
+# Sa-Token 测试配置
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  timeout: 7200           # token有效期(秒) 2小时
+  active-timeout: -1      # 临时有效期(-1表示不限制)
+  is-concurrent: true     # 是否允许同一账号并发登录
+  is-share: false         # 多次登录创建新Token
+  token-style: jwt        # JWT风格
+  jwt-secret-key: test-jwt-secret-key-at-least-32-chars-long
+  is-read-header: true
+  is-read-cookie: false
+  is-read-body: false
+
 # Flyway 配置
 spring.flyway:
   enabled: true

@@ -26,7 +26,8 @@ class ErrorCodeTest {
               || category.equals("ROLE")
               || category.equals("PERMISSION")
               || category.equals("MENU")
-              || category.equals("DATA"),
+              || category.equals("DATA")
+              || category.equals("PASSWORD"),
           "ErrorCode 类别应该是有效的: " + category);
     }
   }
