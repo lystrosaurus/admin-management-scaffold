@@ -17,6 +17,7 @@ spring.flyway:
   enabled: true
   locations: classpath:db/migration
   baseline-on-migrate: true
+  baseline-version: 0
   validate-on-migrate: false
 
 # 日志级别（测试环境）
