@@ -181,4 +181,60 @@ class ArchitectureTest {
         .allowEmptyShould(true)
         .check(classes);
   }
+
+  // ==================== Integration 模块约束 ====================
+
+  @Test
+  @DisplayName("Integration Controller 不应依赖 DAO/Mapper/Entity")
+  void integration_controller_should_not_depend_on_dao_mapper_entity() {
+    classes()
+        .that()
+        .resideInAPackage("..integration..controller..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackages("..dao..", "..mapper..", "..entity..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
+
+  @Test
+  @DisplayName("Integration Service 不应依赖 Mapper")
+  void integration_service_should_not_depend_on_mapper() {
+    classes()
+        .that()
+        .resideInAPackage("..integration..service..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackage("..mapper..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
+
+  // ==================== Auth 模块约束 ====================
+
+  @Test
+  @DisplayName("Auth Controller 不应依赖 DAO/Mapper/Entity")
+  void auth_controller_should_not_depend_on_dao_mapper_entity() {
+    classes()
+        .that()
+        .resideInAPackage("..auth..controller..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackages("..dao..", "..mapper..", "..entity..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
+
+  @Test
+  @DisplayName("Auth Service 不应依赖 Mapper")
+  void auth_service_should_not_depend_on_mapper() {
+    classes()
+        .that()
+        .resideInAPackage("..auth..service..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackage("..mapper..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
 }
