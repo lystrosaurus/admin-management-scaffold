@@ -68,6 +68,13 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
+        <!-- MyBatis-Plus JSqlParser（分页插件 PaginationInnerInterceptor 需要） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
         <!-- mybatis-spring -->
         <dependency>
             <groupId>org.mybatis</groupId>

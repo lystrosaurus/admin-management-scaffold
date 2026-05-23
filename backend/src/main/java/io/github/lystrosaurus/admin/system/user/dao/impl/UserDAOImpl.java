@@ -56,6 +56,7 @@ public class UserDAOImpl implements UserDAO {
 
   @Override
   public List<SysUser> findByCondition(String username, String status, int page, int size) {
+    // page 参数约定为 1-based（与 MyBatis-Plus Page 一致）
     Page<SysUser> pageParam = new Page<>(page, size);
     LambdaQueryWrapper<SysUser> wrapper = buildConditionWrapper(username, status);
     return userMapper.selectPage(pageParam, wrapper).getRecords();

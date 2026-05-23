@@ -26,3 +26,4 @@ logging:
     io.github.lystrosaurus.admin: DEBUG
     com.baomidou.mybatisplus: WARN
     org.springframework: WARN
+    org.flywaydb: DEBUG

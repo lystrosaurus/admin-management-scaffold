@@ -12,23 +12,57 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @TestConfiguration
 public class TestDatabaseInitializer {
 
+  /** 创建并清理测试数据库 — 确保 Flyway 每次从零开始执行 */
   @Bean
   public DataSource testDataSource() {
     // 先连接到 MySQL 默认数据库创建测试数据库
-    DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-    dataSource.setUrl(
+    DriverManagerDataSource adminDataSource = new DriverManagerDataSource();
+    adminDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+    adminDataSource.setUrl(
         "jdbc:mysql://localhost:3306?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true");
-    dataSource.setUsername("root");
-    dataSource.setPassword("root");
+    adminDataSource.setUsername("root");
+    adminDataSource.setPassword("root");
 
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(adminDataSource);
     try {
       jdbcTemplate.execute(
           "CREATE DATABASE IF NOT EXISTS admin_scaffold_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
       log.info("测试数据库 admin_scaffold_test 创建成功或已存在");
     } catch (Exception e) {
       log.error("创建测试数据库失败", e);
+    }
+
+    // 直接连接到测试数据库进行清理（USE 在 JDBC 中不跨 Statement 生效）
+    DriverManagerDataSource cleanupDataSource = new DriverManagerDataSource();
+    cleanupDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+    cleanupDataSource.setUrl(
+        "jdbc:mysql://localhost:3306/admin_scaffold_test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true");
+    cleanupDataSource.setUsername("root");
+    cleanupDataSource.setPassword("root");
+
+    JdbcTemplate cleanupJdbc = new JdbcTemplate(cleanupDataSource);
+    try {
+      cleanupJdbc.execute("SET FOREIGN_KEY_CHECKS = 0");
+      try {
+        cleanupJdbc.execute("DROP TABLE IF EXISTS flyway_schema_history");
+        for (String table :
+            new String[] {
+              "sys_role_menu",
+              "sys_role_permission",
+              "sys_user_role",
+              "sys_menu",
+              "sys_permission",
+              "sys_role",
+              "sys_user"
+            }) {
+          cleanupJdbc.execute("DROP TABLE IF EXISTS " + table);
+        }
+      } finally {
+        cleanupJdbc.execute("SET FOREIGN_KEY_CHECKS = 1");
+      }
+      log.info("测试数据库已清理，Flyway 将重新执行所有迁移");
+    } catch (Exception e) {
+      log.error("清理测试数据库失败", e);
     }
 
     // 返回实际的测试数据源
