@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
             .map(FieldError::getDefaultMessage)
             .collect(Collectors.joining(", "));
     log.warn("参数校验失败: {}", message);
-    return ApiResponse.error(ErrorCode.BAD_REQUEST.getCode(), message);
+    return ApiResponse.error(ErrorCode.SYSTEM_400.getCode(), message);
   }
 
   /** 处理绑定异常 */
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
             .map(FieldError::getDefaultMessage)
             .collect(Collectors.joining(", "));
     log.warn("参数绑定失败: {}", message);
-    return ApiResponse.error(ErrorCode.BAD_REQUEST.getCode(), message);
+    return ApiResponse.error(ErrorCode.SYSTEM_400.getCode(), message);
   }
 
   /** 处理运行时异常 */
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResponse<Void> handleRuntimeException(RuntimeException e) {
     log.error("运行时异常", e);
-    return ApiResponse.error(ErrorCode.INTERNAL_ERROR);
+    return ApiResponse.error(ErrorCode.SYSTEM_500);
   }
 
   /** 处理所有其他异常 */
@@ -63,6 +63,6 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ApiResponse<Void> handleException(Exception e) {
     log.error("系统异常", e);
-    return ApiResponse.error(ErrorCode.INTERNAL_ERROR);
+    return ApiResponse.error(ErrorCode.SYSTEM_500);
   }
 }

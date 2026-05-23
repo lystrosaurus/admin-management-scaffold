@@ -12,8 +12,8 @@ class ApiResponseTest {
   void should_create_success_response_when_calling_success() {
     ApiResponse<String> response = ApiResponse.success();
 
-    assertEquals(200, response.getCode());
-    assertEquals("操作成功", response.getMessage());
+    assertEquals(ErrorCode.SYSTEM_SUCCESS.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_SUCCESS.getMessage(), response.getMessage());
     assertNull(response.getData());
     assertTrue(response.getTimestamp() > 0);
   }
@@ -23,8 +23,8 @@ class ApiResponseTest {
     String testData = "test data";
     ApiResponse<String> response = ApiResponse.success(testData);
 
-    assertEquals(200, response.getCode());
-    assertEquals("操作成功", response.getMessage());
+    assertEquals(ErrorCode.SYSTEM_SUCCESS.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_SUCCESS.getMessage(), response.getMessage());
     assertEquals(testData, response.getData());
   }
 
@@ -35,7 +35,7 @@ class ApiResponseTest {
     String testData = "test data";
     ApiResponse<String> response = ApiResponse.success(message, testData);
 
-    assertEquals(200, response.getCode());
+    assertEquals(ErrorCode.SYSTEM_SUCCESS.getCode(), response.getCode());
     assertEquals(message, response.getMessage());
     assertEquals(testData, response.getData());
   }
@@ -53,10 +53,10 @@ class ApiResponseTest {
 
   @Test
   void should_create_error_response_when_calling_error_with_error_code() {
-    ApiResponse<Void> response = ApiResponse.error(ErrorCode.BAD_REQUEST);
+    ApiResponse<Void> response = ApiResponse.error(ErrorCode.SYSTEM_400);
 
-    assertEquals(ErrorCode.BAD_REQUEST.getCode(), response.getCode());
-    assertEquals(ErrorCode.BAD_REQUEST.getMessage(), response.getMessage());
+    assertEquals(ErrorCode.SYSTEM_400.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_400.getMessage(), response.getMessage());
     assertNull(response.getData());
   }
 }

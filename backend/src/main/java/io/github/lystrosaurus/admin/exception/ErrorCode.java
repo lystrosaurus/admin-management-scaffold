@@ -1,29 +1,44 @@
 package io.github.lystrosaurus.admin.exception;
 
-/** 错误码枚举 */
+/** 错误码枚举 - 使用 CATEGORY_NUMBER 格式 */
 public enum ErrorCode {
-  // 通用错误码
-  SUCCESS(200, "操作成功"),
-  BAD_REQUEST(400, "请求参数错误"),
-  UNAUTHORIZED(401, "未授权"),
-  FORBIDDEN(403, "禁止访问"),
-  NOT_FOUND(404, "资源不存在"),
-  INTERNAL_ERROR(500, "服务器内部错误"),
+  // 系统通用错误码 (SYSTEM_xxx)
+  SYSTEM_SUCCESS(200, "操作成功"),
+  SYSTEM_400(400, "请求参数错误"),
+  SYSTEM_401(401, "未授权"),
+  SYSTEM_403(403, "禁止访问"),
+  SYSTEM_404(404, "资源不存在"),
+  SYSTEM_409(409, "资源冲突"),
+  SYSTEM_429(429, "请求过于频繁"),
+  SYSTEM_500(500, "服务器内部错误"),
 
-  // 业务错误码 (1xxx)
-  USER_NOT_FOUND(1001, "用户不存在"),
-  USER_ALREADY_EXISTS(1002, "用户已存在"),
-  INVALID_PASSWORD(1003, "密码错误"),
-  ACCOUNT_DISABLED(1004, "账户已禁用"),
+  // 认证相关错误码 (AUTH_xxx)
+  AUTH_401(1001, "认证失败"),
+  AUTH_403(1003, "权限不足"),
+  AUTH_TOKEN_EXPIRED(1004, "Token 已过期"),
+  AUTH_TOKEN_INVALID(1005, "Token 无效"),
 
-  // 数据错误码 (2xxx)
-  DATA_INTEGRITY_VIOLATION(2001, "数据完整性违反"),
-  DUPLICATE_KEY(2002, "数据重复"),
+  // 用户相关错误码 (USER_xxx)
+  USER_NOT_FOUND(2001, "用户不存在"),
+  USER_ALREADY_EXISTS(2002, "用户已存在"),
+  USER_INVALID_PASSWORD(2003, "密码错误"),
+  USER_ACCOUNT_DISABLED(2004, "账户已禁用"),
 
-  // 认证错误码 (3xxx)
-  TOKEN_EXPIRED(3001, "Token 已过期"),
-  TOKEN_INVALID(3002, "Token 无效"),
-  PERMISSION_DENIED(3003, "权限不足");
+  // 角色相关错误码 (ROLE_xxx)
+  ROLE_NOT_FOUND(3001, "角色不存在"),
+  ROLE_ALREADY_EXISTS(3002, "角色已存在"),
+
+  // 权限相关错误码 (PERMISSION_xxx)
+  PERMISSION_DENIED(4001, "权限不足"),
+  PERMISSION_NOT_FOUND(4002, "权限不存在"),
+
+  // 菜单相关错误码 (MENU_xxx)
+  MENU_NOT_FOUND(5001, "菜单不存在"),
+  MENU_ALREADY_EXISTS(5002, "菜单已存在"),
+
+  // 数据相关错误码 (DATA_xxx)
+  DATA_INTEGRITY_VIOLATION(6001, "数据完整性违反"),
+  DATA_DUPLICATE_KEY(6002, "数据重复");
 
   private final int code;
   private final String message;
