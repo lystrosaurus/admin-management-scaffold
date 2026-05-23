@@ -50,6 +50,8 @@ public class TestDatabaseInitializer {
         cleanupJdbc.execute("DROP TABLE IF EXISTS flyway_schema_history");
         for (String table :
             new String[] {
+              "sys_login_log",
+              "sys_operation_log",
               "auth_external_account",
               "auth_provider",
               "identity_link_candidate",
