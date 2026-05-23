@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.system.permission.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * 权限创建DTO
  *
@@ -11,4 +13,9 @@ package io.github.lystrosaurus.admin.system.permission.dto;
  * @param action 操作类型
  */
 public record PermissionCreateDTO(
-    String code, String name, String type, String module, String resource, String action) {}
+    @NotBlank(message = "权限编码不能为空") String code,
+    @NotBlank(message = "权限名称不能为空") String name,
+    String type,
+    String module,
+    String resource,
+    String action) {}
