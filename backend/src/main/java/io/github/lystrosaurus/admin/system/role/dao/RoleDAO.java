@@ -131,4 +131,19 @@ public interface RoleDAO {
    * @param roleId 角色ID
    */
   void removeMenus(Long roleId);
+
+  /**
+   * 查找所有角色
+   *
+   * @return 角色列表
+   */
+  List<SysRole> findAll();
+
+  /**
+   * 根据用户ID查找角色列表
+   *
+   * @param userId 用户ID
+   * @return 角色列表
+   */
+  List<SysRole> findByUserId(Long userId);
 }

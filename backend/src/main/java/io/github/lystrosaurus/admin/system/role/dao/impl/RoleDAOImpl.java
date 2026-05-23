@@ -13,6 +13,8 @@ import io.github.lystrosaurus.admin.system.role.entity.SysRolePermission;
 import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMapper;
 import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMenuMapper;
 import io.github.lystrosaurus.admin.system.role.mapper.SysRolePermissionMapper;
+import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
+import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class RoleDAOImpl implements RoleDAO {
   private final SysRoleMenuMapper roleMenuMapper;
   private final SysPermissionMapper permissionMapper;
   private final SysMenuMapper menuMapper;
+  private final SysUserRoleMapper userRoleMapper;
 
   @Override
   public SysRole findById(Long id) {
@@ -166,6 +169,29 @@ public class RoleDAOImpl implements RoleDAO {
   @Override
   public void removeMenus(Long roleId) {
     roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, roleId));
+  }
+
+  @Override
+  public List<SysRole> findAll() {
+    return roleMapper.selectList(
+        new LambdaQueryWrapper<SysRole>().orderByAsc(SysRole::getSortOrder));
+  }
+
+  @Override
+  public List<SysRole> findByUserId(Long userId) {
+    // 先查询用户角色关联
+    List<SysUserRole> userRoles =
+        userRoleMapper.selectList(
+            new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId));
+
+    if (userRoles.isEmpty()) {
+      return List.of();
+    }
+
+    // 再查询角色详情
+    List<Long> roleIds =
+        userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+    return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 
   /**
