@@ -17,7 +17,9 @@ import io.github.lystrosaurus.admin.system.user.vo.UserDetailVO;
 import io.github.lystrosaurus.admin.system.user.vo.UserVO;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
   private final UserDAO userDAO;
   private final UserMapper userMapper;
   private final BCryptPasswordEncoder passwordEncoder;
+  private final DataSource dataSource;
 
   @Override
   @Transactional(rollbackFor = Exception.class)
@@ -150,5 +153,65 @@ public class UserServiceImpl implements UserService {
     // 更新密码
     user.setPasswordHash(passwordEncoder.encode(dto.newPassword()));
     userDAO.update(user);
+  }
+
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public void bindEmployee(Long userId, Long employeeId) {
+    // 检查用户是否存在
+    SysUser user = userDAO.findById(userId);
+    if (user == null) {
+      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    // 检查员工是否存在（通过 hr_employee 表查询）
+    if (!employeeExists(employeeId)) {
+      throw new BusinessException(ErrorCode.USER_EMPLOYEE_NOT_FOUND);
+    }
+
+    // 检查该员工是否已被其他用户绑定
+    SysUser existingUser = userDAO.findByEmployeeId(employeeId);
+    if (existingUser != null && !existingUser.getId().equals(userId)) {
+      throw new BusinessException(ErrorCode.USER_EMPLOYEE_ALREADY_BOUND);
+    }
+
+    // 绑定员工
+    user.setEmployeeId(employeeId);
+    userDAO.update(user);
+  }
+
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public void unbindEmployee(Long userId) {
+    // 检查用户是否存在
+    SysUser user = userDAO.findById(userId);
+    if (user == null) {
+      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    // 解绑员工
+    user.setEmployeeId(null);
+    userDAO.update(user);
+  }
+
+  /**
+   * 检查 hr_employee 表中是否存在指定员工
+   *
+   * @param employeeId 员工ID
+   * @return 存在返回 true
+   */
+  private boolean employeeExists(Long employeeId) {
+    try {
+      JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+      Integer count =
+          jdbc.queryForObject(
+              "SELECT COUNT(*) FROM hr_employee WHERE id = ? AND deleted = 0",
+              Integer.class,
+              employeeId);
+      return count != null && count > 0;
+    } catch (Exception e) {
+      // hr_employee 表不存在时，视为员工不存在
+      return false;
+    }
   }
 }

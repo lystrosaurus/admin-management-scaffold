@@ -528,7 +528,7 @@ DELETE /app/org-units/{id}      — 删除组织单元
 
 | 属性 | 值 |
 |------|-----|
-| 状态 | 📋 |
+| 状态 | 🟢 已完成 |
 | 优先级 | P0 |
 | 估算工时 | 10h |
 | 风险缓冲 | +2h |
@@ -542,11 +542,9 @@ DELETE /app/org-units/{id}      — 删除组织单元
 实现数据权限的核心基础设施。这是 M3 技术难度最高的任务。
 
 **需创建的文件**:
-1. `infra/persistence/datascope/DataScope.java` — 注解定义
-2. `infra/persistence/datascope/DataScopeType.java` — 枚举：ALL, ORG_TREE, ORG_ONLY, SELF, CUSTOM
-3. `infra/persistence/datascope/DataScopeInterceptor.java` — implements InnerInterceptor
-4. `infra/persistence/datascope/DataScopeContextHolder.java` — ThreadLocal 上下文（可选）
-5. `infra/persistence/datascope/DataScopeHelper.java` — 辅助类，负责 SQL 改写逻辑
+1. `web/datascope/DataScopeType.java` — 枚举：ALL, ORG_TREE, ORG_ONLY, SELF, CUSTOM
+2. `web/datascope/DataScope.java` — @Target METHOD, @Retention RUNTIME 注解
+3. `web/datascope/DataScopeHelper.java` — @Component 辅助类，getAccessibleOrgIds / hasSelfScope / hasAllScope
 
 **@DataScope 注解设计**:
 ```java
@@ -616,7 +614,7 @@ public @interface DataScope {
 
 | 属性 | 值 |
 |------|-----|
-| 状态 | 📋 |
+| 状态 | 🟢 已完成 |
 | 优先级 | P0 |
 | 估算工时 | 8h |
 | 风险缓冲 | +2h |
@@ -674,7 +672,7 @@ List<Long> findCustomOrgIdsByUserId(Long userId);
 
 | 属性 | 值 |
 |------|-----|
-| 状态 | 📋 |
+| 状态 | 🟢 已完成 |
 | 优先级 | P1 |
 | 估算工时 | 5h |
 | 风险缓冲 | +1h |
@@ -747,7 +745,7 @@ public record UserBindEmployeeDTO(@NotNull Long employeeId) {}
 
 | 属性 | 值 |
 |------|-----|
-| 状态 | 📋 |
+| 状态 | 🟢 已完成 |
 | 优先级 | P0 |
 | 估算工时 | 8h |
 | 风险缓冲 | +2h |
@@ -824,7 +822,7 @@ public record UserBindEmployeeDTO(@NotNull Long employeeId) {}
 
 | 属性 | 值 |
 |------|-----|
-| 状态 | 📋 |
+| 状态 | 🟢 已完成 |
 | 优先级 | P0 |
 | 估算工时 | 6h |
 | 风险缓冲 | +2h |

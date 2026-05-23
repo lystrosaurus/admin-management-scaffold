@@ -60,4 +60,19 @@ public interface UserService {
    * @param dto 修改密码DTO
    */
   void changePassword(Long id, ChangePasswordDTO dto);
+
+  /**
+   * 绑定员工
+   *
+   * @param userId 用户ID
+   * @param employeeId 员工ID
+   */
+  void bindEmployee(Long userId, Long employeeId);
+
+  /**
+   * 解绑员工
+   *
+   * @param userId 用户ID
+   */
+  void unbindEmployee(Long userId);
 }

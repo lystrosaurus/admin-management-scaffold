@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.system.user.controller;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.system.user.dto.ChangePasswordDTO;
+import io.github.lystrosaurus.admin.system.user.dto.EmployeeBindDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserCreateDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserQueryDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserUpdateDTO;
@@ -115,6 +116,32 @@ public class UserController {
   public ApiResponse<Void> changePassword(
       @PathVariable Long id, @RequestBody @Valid ChangePasswordDTO dto) {
     userService.changePassword(id, dto);
+    return ApiResponse.success();
+  }
+
+  /**
+   * 绑定员工
+   *
+   * @param id 用户ID
+   * @param dto 员工绑定DTO
+   * @return 空响应
+   */
+  @PostMapping("/{id}/employee")
+  public ApiResponse<Void> bindEmployee(
+      @PathVariable Long id, @RequestBody @Valid EmployeeBindDTO dto) {
+    userService.bindEmployee(id, dto.employeeId());
+    return ApiResponse.success();
+  }
+
+  /**
+   * 解绑员工
+   *
+   * @param id 用户ID
+   * @return 空响应
+   */
+  @DeleteMapping("/{id}/employee")
+  public ApiResponse<Void> unbindEmployee(@PathVariable Long id) {
+    userService.unbindEmployee(id);
     return ApiResponse.success();
   }
 }
