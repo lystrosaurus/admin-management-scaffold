@@ -23,6 +23,9 @@ public enum ErrorCode {
   USER_ALREADY_EXISTS(2002, "用户已存在"),
   USER_INVALID_PASSWORD(2003, "密码错误"),
   USER_ACCOUNT_DISABLED(2004, "账户已禁用"),
+  USER_DISABLED(2005, "用户已禁用"),
+  USER_LOCKED(2006, "用户已锁定"),
+  PASSWORD_MISMATCH(2007, "密码不匹配"),
 
   // 角色相关错误码 (ROLE_xxx)
   ROLE_NOT_FOUND(3001, "角色不存在"),
