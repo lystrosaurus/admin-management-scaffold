@@ -913,8 +913,120 @@ public record UserBindEmployeeDTO(@NotNull Long employeeId) {}
 | M2 现有测试 | | 383 |
 | **M3 完成后总计** | | **≥ 450** |
 
+---
+
+# M4: 外部身份源 + 映射表 + 身份匹配
+
+## Sprint 1: Source + Principal 全栈
+
+### T-042: Integration 模块 ErrorCode
+- **描述**: 在 ErrorCode.java 中新增 INTEGRATION 类别错误码
+- **错误码**: SOURCE_NOT_FOUND(9001), SOURCE_ALREADY_EXISTS(9002), PRINCIPAL_NOT_FOUND(9101), PRINCIPAL_ALREADY_EXISTS(9102)
+- **验证**: ErrorCodeTest 白名单更新，编译通过
+- **估算**: 0.5h
+- **状态**: 进行中
+
+### T-043: ExtSource 全栈
+- **描述**: integration/source/ 包下完整 CRUD 栈
+- **产出**: Entity + CreateDTO + UpdateDTO + VO + MapStruct + Mapper + DAO/Impl + Service/Impl
+- **业务规则**: code 唯一性检查，逻辑删除，按 priority desc 排序
+- **估算**: 3h
+- **状态**: 进行中
+
+### T-044: ExtPrincipal + ExtPrincipalIdentifier 全栈
+- **描述**: integration/principal/ 包下完整栈，含 identifiers 级联操作
+- **产出**: 2 个 Entity + DTO + VO + MapStruct + Mapper + DAO/Impl + Service/Impl
+- **业务规则**: (sourceId, principalType, externalKey) 唯一约束，级联删除 identifiers，linkStatus 更新
+- **估算**: 4h
+- **状态**: 进行中
+
+### T-045: Source/Principal 单元测试
+- **描述**: ExtSourceServiceImplTest + ExtPrincipalServiceImplTest
+- **验证**: CRUD + 唯一性冲突 + 不存在 + 级联操作
+- **估算**: 2h
+- **状态**: 待开始
+
+## Sprint 2: IdentityLink + Auth 全栈
+
+### T-046: IdentityLinkCandidate 全栈
+- **描述**: integration/identitylink/ 包下完整栈
+- **产出**: Entity + CreateDTO + VO + MapStruct + Mapper + DAO/Impl + Service/Impl
+- **业务规则**: confirm 更新 candidate 状态 + 更新 ext_principal linkStatus，reject 更新状态
+- **估算**: 3h
+- **状态**: 进行中
+
+### T-047: AuthProvider 全栈
+- **描述**: auth/provider/ 包下完整 CRUD 栈
+- **产出**: Entity + CreateDTO + UpdateDTO + VO + MapStruct + Mapper + DAO/Impl + Service/Impl
+- **业务规则**: code 唯一性，VO 不返回 clientSecretEncrypted
+- **估算**: 3h
+- **状态**: 进行中
+
+### T-048: AuthExternalAccount 全栈
+- **描述**: auth/external/ 包下完整栈
+- **产出**: Entity + BindDTO + VO + MapStruct + Mapper + DAO/Impl + Service/Impl
+- **业务规则**: bind 检查 providerId+providerUserId 和 providerId+userId 唯一性，unbind 更新状态
+- **估算**: 3h
+- **状态**: 进行中
+
+### T-049: IdentityLink/Auth 单元测试
+- **描述**: IdentityLinkCandidateServiceImplTest + AuthProviderServiceImplTest + ExternalAccountServiceImplTest
+- **验证**: confirm/reject 含 principal 更新 + secret 不泄露 + 重复绑定
+- **估算**: 2h
+- **状态**: 待开始
+
+## Sprint 3: Controller + 集成测试
+
+### T-050: IntegrationSourceController
+- **描述**: /app/integration/sources CRUD 5 个端点
+- **估算**: 1.5h
+- **状态**: 待开始
+
+### T-051: IntegrationPrincipalController
+- **描述**: /app/integration/principals CRUD + 按 sourceId/linkStatus 过滤
+- **估算**: 1.5h
+- **状态**: 待开始
+
+### T-052: IntegrationLinkCandidateController
+- **描述**: /app/integration/link-candidates 列表 + confirm + reject
+- **估算**: 1h
+- **状态**: 待开始
+
+### T-053: AuthExternalAccountController
+- **描述**: /app/auth/external-accounts 绑定/解绑/列表
+- **估算**: 1h
+- **状态**: 待开始
+
+### T-054: Controller MVC 测试
+- **描述**: 4 个 Controller 的 MockMvc 测试
+- **估算**: 3h
+- **状态**: 待开始
+
+### T-055: 集成测试
+- **描述**: Source CRUD + Principal CRUD + 身份匹配流程 + 账号绑定集成测试
+- **估算**: 4h
+- **状态**: 待开始
+
+### T-056: ArchUnit integration 包约束
+- **描述**: integration 包分层约束（controller 不依赖 dao/mapper/entity）
+- **估算**: 1h
+- **状态**: 待开始
+
+## 测试估算
+
+| 测试类型 | 来源 | 预估数量 |
+|---------|------|---------|
+| Service 单元测试 | T-045, T-049 | ~30 |
+| Controller MVC 测试 | T-054 | ~20 |
+| 集成测试 | T-055 | ~15 |
+| ArchUnit 测试 | T-056 | ~4 |
+| **合计新增** | | **~69** |
+| M3 现有测试 | | 485 |
+| **M4 完成后总计** | | **≥ 550** |
+
 ## 版本历史
 
 | 版本 | 日期 | 修改内容 | 修改人 |
 |------|------|---------|--------|
-| v1.0 | 2026-05-23 | 初始版本 | delivery-lead |
+| v1.0 | 2026-05-23 | M3 初始版本 | delivery-lead |
+| v2.0 | 2026-05-23 | M4 任务清单 | delivery-lead |
