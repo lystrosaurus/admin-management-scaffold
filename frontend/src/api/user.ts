@@ -3,31 +3,66 @@ import type { PageResult } from '@/types/api';
 import type { User, CreateUserRequest, UpdateUserRequest, UserQueryParams } from '@/types/user';
 
 /**
+ * 后端 UserVO → 前端 User 类型映射
+ * status: 'ENABLED' → 'ACTIVE', 'DISABLED' → 'INACTIVE'
+ */
+const mapUser = (raw: any): User => ({
+  id: raw.id,
+  username: raw.username,
+  nickname: raw.nickname,
+  email: raw.email,
+  phone: raw.phone,
+  avatar: raw.avatar,
+  status: raw.status === 'ENABLED' ? 'ACTIVE' : 'INACTIVE',
+  lastLoginAt: raw.lastLoginAt,
+  createdAt: raw.createdAt,
+  createdBy: raw.createdBy,
+  updatedAt: raw.updatedAt,
+  updatedBy: raw.updatedBy,
+});
+
+/**
+ * 前端 status → 后端 status 映射
+ */
+const toBackendStatus = (status?: string): string | undefined =>
+  status === 'ACTIVE' ? 'ENABLED' : status === 'INACTIVE' ? 'DISABLED' : status;
+
+/**
  * 获取用户列表（分页）
  */
-export const listUsers = (params?: UserQueryParams): Promise<PageResult<User>> => {
-  return get<PageResult<User>>('/app/users', { params });
+export const listUsers = async (params?: UserQueryParams): Promise<PageResult<User>> => {
+  const result = await get<PageResult<any>>('/app/users', { params });
+  return { ...result, items: result.items.map(mapUser) };
 };
 
 /**
  * 获取用户详情
  */
-export const getUser = (id: number): Promise<User> => {
-  return get<User>(`/app/users/${id}`);
+export const getUser = async (id: number): Promise<User> => {
+  const raw = await get<any>(`/app/users/${id}`);
+  return mapUser(raw);
 };
 
 /**
  * 创建用户
  */
-export const createUser = (data: CreateUserRequest): Promise<User> => {
-  return post<User>('/app/users', data);
+export const createUser = async (data: CreateUserRequest): Promise<User> => {
+  const raw = await post<any>('/app/users', {
+    ...data,
+    status: toBackendStatus(data.status),
+  });
+  return mapUser(raw);
 };
 
 /**
  * 更新用户
  */
-export const updateUser = (id: number, data: UpdateUserRequest): Promise<User> => {
-  return put<User>(`/app/users/${id}`, data);
+export const updateUser = async (id: number, data: UpdateUserRequest): Promise<User> => {
+  const raw = await put<any>(`/app/users/${id}`, {
+    ...data,
+    status: toBackendStatus(data.status),
+  });
+  return mapUser(raw);
 };
 
 /**
