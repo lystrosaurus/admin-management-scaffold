@@ -8,6 +8,8 @@ import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class ExternalAccountServiceImpl implements ExternalAccountService {
 
   private final AuthExternalAccountDAO accountDAO;
   private final ExternalAccountMapStruct accountMapStruct;
+  private final UserDAO userDAO;
 
   @Override
   @Transactional(rollbackFor = Exception.class)
@@ -52,8 +55,31 @@ public class ExternalAccountServiceImpl implements ExternalAccountService {
       throw new BusinessException(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND);
     }
 
+    // 解绑前安全检查：避免用户失去唯一登录方式
+    checkUnbindSafety(account.getUserId());
+
     account.setBindStatus("UNBOUND");
     accountDAO.updateById(account);
+  }
+
+  /**
+   * 解绑前安全检查：如果用户无密码且只剩 1 个有效绑定，拒绝解绑
+   *
+   * @param userId 用户ID
+   */
+  private void checkUnbindSafety(Long userId) {
+    // 检查用户是否有密码
+    SysUser user = userDAO.findById(userId);
+    boolean hasPassword =
+        user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
+
+    // 统计当前用户的有效绑定数
+    long activeBoundCount = accountDAO.countActiveBindsByUserId(userId);
+
+    // 如果无密码且只剩 1 个绑定，拒绝解绑
+    if (!hasPassword && activeBoundCount <= 1) {
+      throw new BusinessException(ErrorCode.UNBIND_LAST_LOGIN_METHOD);
+    }
   }
 
   @Override

@@ -62,4 +62,12 @@ public class AuthExternalAccountDAOImpl implements AuthExternalAccountDAO {
             .eq(AuthExternalAccount::getEmployeeId, employeeId)
             .orderByDesc(AuthExternalAccount::getCreatedAt));
   }
+
+  @Override
+  public long countActiveBindsByUserId(Long userId) {
+    return accountMapper.selectCount(
+        new LambdaQueryWrapper<AuthExternalAccount>()
+            .eq(AuthExternalAccount::getUserId, userId)
+            .eq(AuthExternalAccount::getBindStatus, "BOUND"));
+  }
 }

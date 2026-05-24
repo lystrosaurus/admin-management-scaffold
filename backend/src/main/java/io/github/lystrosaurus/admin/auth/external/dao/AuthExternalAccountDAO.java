@@ -61,4 +61,12 @@ public interface AuthExternalAccountDAO {
    * @return 三方账号列表
    */
   List<AuthExternalAccount> listByEmployeeId(Long employeeId);
+
+  /**
+   * 统计用户的有效绑定数（bindStatus=BOUND）
+   *
+   * @param userId 用户ID
+   * @return 有效绑定数量
+   */
+  long countActiveBindsByUserId(Long userId);
 }

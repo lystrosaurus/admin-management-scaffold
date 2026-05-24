@@ -11,6 +11,8 @@ import io.github.lystrosaurus.admin.auth.external.mapstruct.ExternalAccountMapSt
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +32,8 @@ class ExternalAccountServiceImplTest {
   @Mock private AuthExternalAccountDAO accountDAO;
 
   @Mock private ExternalAccountMapStruct accountMapStruct;
+
+  @Mock private UserDAO userDAO;
 
   @InjectMocks private ExternalAccountServiceImpl accountService;
 
@@ -136,8 +140,12 @@ class ExternalAccountServiceImplTest {
   @Test
   @DisplayName("应该成功解绑三方账号")
   void should_unbind_external_account_when_exists() {
-    // Given
+    // Given — 用户有密码且有2个绑定，允许解绑
+    SysUser userWithPassword = new SysUser();
+    userWithPassword.setPasswordHash("$2a$10$hashedPassword");
     when(accountDAO.findById(1L)).thenReturn(testAccount);
+    when(userDAO.findById(100L)).thenReturn(userWithPassword);
+    when(accountDAO.countActiveBindsByUserId(100L)).thenReturn(2L);
 
     // When
     accountService.unbind(1L);
@@ -246,6 +254,96 @@ class ExternalAccountServiceImplTest {
     BusinessException exception =
         assertThrows(BusinessException.class, () -> accountService.updateLastLoginAt(999L));
     assertEquals(ErrorCode.EXTERNAL_ACCOUNT_NOT_FOUND.getCode(), exception.getCode());
+    verify(accountDAO, never()).updateById(any());
+  }
+
+  // ==================== unbind 安全检查测试 ====================
+
+  @Test
+  @DisplayName("无密码 + 仅剩 1 个绑定 → 拒绝解绑（抛 UNBIND_LAST_LOGIN_METHOD）")
+  void should_reject_unbind_when_no_password_and_only_one_bind() {
+    // Given — 用户无密码，仅剩1个绑定
+    SysUser userNoPassword = new SysUser();
+    userNoPassword.setPasswordHash(null);
+    when(accountDAO.findById(1L)).thenReturn(testAccount);
+    when(userDAO.findById(100L)).thenReturn(userNoPassword);
+    when(accountDAO.countActiveBindsByUserId(100L)).thenReturn(1L);
+
+    // When & Then
+    BusinessException exception =
+        assertThrows(BusinessException.class, () -> accountService.unbind(1L));
+    assertEquals(ErrorCode.UNBIND_LAST_LOGIN_METHOD.getCode(), exception.getCode());
+    verify(accountDAO, never()).updateById(any());
+  }
+
+  @Test
+  @DisplayName("有密码 + 1 个绑定 → 允许解绑")
+  void should_allow_unbind_when_has_password_and_one_bind() {
+    // Given — 用户有密码，仅剩1个绑定
+    SysUser userWithPassword = new SysUser();
+    userWithPassword.setPasswordHash("$2a$10$hashedPassword");
+    when(accountDAO.findById(1L)).thenReturn(testAccount);
+    when(userDAO.findById(100L)).thenReturn(userWithPassword);
+    when(accountDAO.countActiveBindsByUserId(100L)).thenReturn(1L);
+
+    // When
+    accountService.unbind(1L);
+
+    // Then
+    assertEquals("UNBOUND", testAccount.getBindStatus());
+    verify(accountDAO).updateById(testAccount);
+  }
+
+  @Test
+  @DisplayName("无密码 + 2 个绑定 → 允许解绑")
+  void should_allow_unbind_when_no_password_and_multiple_binds() {
+    // Given — 用户无密码，有2个绑定
+    SysUser userNoPassword = new SysUser();
+    userNoPassword.setPasswordHash(null);
+    when(accountDAO.findById(1L)).thenReturn(testAccount);
+    when(userDAO.findById(100L)).thenReturn(userNoPassword);
+    when(accountDAO.countActiveBindsByUserId(100L)).thenReturn(2L);
+
+    // When
+    accountService.unbind(1L);
+
+    // Then
+    assertEquals("UNBOUND", testAccount.getBindStatus());
+    verify(accountDAO).updateById(testAccount);
+  }
+
+  @Test
+  @DisplayName("有密码 + 0 个绑定 → 允许解绑（防御性测试）")
+  void should_allow_unbind_when_has_password_and_zero_binds() {
+    // Given — 用户有密码，0个绑定（理论上不会出现，但防御性测试）
+    SysUser userWithPassword = new SysUser();
+    userWithPassword.setPasswordHash("$2a$10$hashedPassword");
+    when(accountDAO.findById(1L)).thenReturn(testAccount);
+    when(userDAO.findById(100L)).thenReturn(userWithPassword);
+    when(accountDAO.countActiveBindsByUserId(100L)).thenReturn(0L);
+
+    // When
+    accountService.unbind(1L);
+
+    // Then
+    assertEquals("UNBOUND", testAccount.getBindStatus());
+    verify(accountDAO).updateById(testAccount);
+  }
+
+  @Test
+  @DisplayName("无密码 + 空密码字符串 → 拒绝解绑")
+  void should_reject_unbind_when_blank_password_and_only_one_bind() {
+    // Given — 用户密码为空字符串，仅剩1个绑定
+    SysUser userBlankPassword = new SysUser();
+    userBlankPassword.setPasswordHash("   ");
+    when(accountDAO.findById(1L)).thenReturn(testAccount);
+    when(userDAO.findById(100L)).thenReturn(userBlankPassword);
+    when(accountDAO.countActiveBindsByUserId(100L)).thenReturn(1L);
+
+    // When & Then
+    BusinessException exception =
+        assertThrows(BusinessException.class, () -> accountService.unbind(1L));
+    assertEquals(ErrorCode.UNBIND_LAST_LOGIN_METHOD.getCode(), exception.getCode());
     verify(accountDAO, never()).updateById(any());
   }
 }
