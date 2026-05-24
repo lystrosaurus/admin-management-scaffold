@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.auth.log.service.impl;
 import io.github.lystrosaurus.admin.auth.log.dao.LoginLogDAO;
 import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
 import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
+import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,17 @@ public class LoginLogServiceImpl implements LoginLogService {
   }
 
   @Override
-  public List<LoginLog> getRecentLogins(Long userId, int limit) {
-    return loginLogDAO.listByUserId(userId, limit);
+  public List<LoginLogVO> getRecentLogins(Long userId, int limit) {
+    return loginLogDAO.listByUserId(userId, limit).stream()
+        .map(
+            log ->
+                new LoginLogVO(
+                    log.getId(),
+                    log.getLoginType(),
+                    log.getProviderCode(),
+                    log.getIpAddress(),
+                    log.getStatus(),
+                    log.getLoginAt()))
+        .toList();
   }
 }

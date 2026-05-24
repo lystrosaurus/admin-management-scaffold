@@ -3,13 +3,11 @@ package io.github.lystrosaurus.admin.auth.controller;
 import io.github.lystrosaurus.admin.auth.context.UserContext;
 import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
-import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
 import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
+import io.github.lystrosaurus.admin.auth.service.AuthService;
 import io.github.lystrosaurus.admin.auth.vo.SecurityProfileVO;
 import io.github.lystrosaurus.admin.common.ApiResponse;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SecurityProfileController {
 
-  private final UserDAO userDAO;
+  private final AuthService authService;
   private final ExternalAccountService externalAccountService;
   private final LoginLogService loginLogService;
 
@@ -39,28 +37,9 @@ public class SecurityProfileController {
   public ApiResponse<SecurityProfileVO> getSecurityProfile() {
     Long userId = UserContext.getCurrentUserId();
 
-    // 检查是否有密码
-    SysUser user = userDAO.findById(userId);
-    boolean hasPassword =
-        user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
-
-    // 查询绑定的三方账号
+    boolean hasPassword = authService.hasPassword(userId);
     List<ExternalAccountVO> boundAccounts = externalAccountService.listByUserId(userId);
-
-    // 查询最近登录记录
-    List<LoginLog> loginLogs = loginLogService.getRecentLogins(userId, 10);
-    List<LoginLogVO> recentLogins =
-        loginLogs.stream()
-            .map(
-                log ->
-                    new LoginLogVO(
-                        log.getId(),
-                        log.getLoginType(),
-                        log.getProviderCode(),
-                        log.getIpAddress(),
-                        log.getStatus(),
-                        log.getLoginAt()))
-            .toList();
+    List<LoginLogVO> recentLogins = loginLogService.getRecentLogins(userId, 10);
 
     return ApiResponse.success(new SecurityProfileVO(hasPassword, boundAccounts, recentLogins));
   }

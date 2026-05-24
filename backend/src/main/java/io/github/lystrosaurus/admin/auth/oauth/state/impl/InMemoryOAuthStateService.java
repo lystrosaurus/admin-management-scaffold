@@ -11,12 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 
 /** 内存实现的 OAuth 状态服务 */
 @Service
-@ConditionalOnMissingBean(OAuthStateService.class)
 public class InMemoryOAuthStateService implements OAuthStateService {
 
   private final ConcurrentHashMap<String, StateData> stateStore = new ConcurrentHashMap<>();

@@ -115,4 +115,10 @@ public class AuthServiceImpl implements AuthService {
 
     return new LoginVO(token, userVO);
   }
+
+  @Override
+  public boolean hasPassword(Long userId) {
+    SysUser user = userDAO.findById(userId);
+    return user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
+  }
 }

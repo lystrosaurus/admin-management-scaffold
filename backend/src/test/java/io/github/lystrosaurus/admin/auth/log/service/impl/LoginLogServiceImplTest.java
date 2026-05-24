@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.auth.log.dao.LoginLogDAO;
 import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
+import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -127,13 +128,15 @@ class LoginLogServiceImplTest {
     when(loginLogDAO.listByUserId(userId, limit)).thenReturn(Arrays.asList(log2, log1));
 
     // When
-    List<LoginLog> result = loginLogService.getRecentLogins(userId, limit);
+    List<LoginLogVO> result = loginLogService.getRecentLogins(userId, limit);
 
     // Then
     assertNotNull(result);
     assertEquals(2, result.size());
-    assertEquals(2L, result.get(0).getId());
-    assertEquals(1L, result.get(1).getId());
+    assertEquals(2L, result.get(0).id());
+    assertEquals("OAUTH_LARK", result.get(0).loginType());
+    assertEquals(1L, result.get(1).id());
+    assertEquals("PASSWORD", result.get(1).loginType());
     verify(loginLogDAO).listByUserId(userId, limit);
   }
 }

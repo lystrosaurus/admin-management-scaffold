@@ -1,6 +1,6 @@
 package io.github.lystrosaurus.admin.auth.log.service;
 
-import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
+import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import java.util.List;
 
 /** 登录日志服务接口 */
@@ -31,7 +31,7 @@ public interface LoginLogService {
    *
    * @param userId 用户ID
    * @param limit 限制数量
-   * @return 登录日志列表
+   * @return 登录日志VO列表
    */
-  List<LoginLog> getRecentLogins(Long userId, int limit);
+  List<LoginLogVO> getRecentLogins(Long userId, int limit);
 }

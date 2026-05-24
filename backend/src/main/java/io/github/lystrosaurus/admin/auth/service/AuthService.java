@@ -27,4 +27,12 @@ public interface AuthService {
    * @return 新的 Token
    */
   LoginVO refreshToken();
+
+  /**
+   * 判断用户是否设置了密码
+   *
+   * @param userId 用户ID
+   * @return true 表示已设置密码
+   */
+  boolean hasPassword(Long userId);
 }
