@@ -47,4 +47,11 @@ public interface PermissionService {
    * @return 权限列表
    */
   List<PermissionVO> findByUserId(Long userId);
+
+  /**
+   * 查询所有权限
+   *
+   * @return 全部权限列表
+   */
+  List<PermissionVO> findAll();
 }

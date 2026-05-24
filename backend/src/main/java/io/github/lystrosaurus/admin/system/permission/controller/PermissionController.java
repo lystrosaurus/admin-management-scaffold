@@ -30,6 +30,17 @@ public class PermissionController {
   private final PermissionService permissionService;
 
   /**
+   * 查询所有权限
+   *
+   * @return 权限列表
+   */
+  @GetMapping
+  public ApiResponse<List<PermissionVO>> findAll() {
+    List<PermissionVO> permissions = permissionService.findAll();
+    return ApiResponse.success(permissions);
+  }
+
+  /**
    * 创建权限
    *
    * @param dto 权限创建DTO

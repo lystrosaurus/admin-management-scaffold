@@ -107,4 +107,11 @@ public interface PermissionDAO {
    * @return 存在返回true，否则返回false
    */
   boolean existsByCodeAndIdNot(String code, Long id);
+
+  /**
+   * 查询所有权限
+   *
+   * @return 全部权限列表
+   */
+  List<SysPermission> findAll();
 }

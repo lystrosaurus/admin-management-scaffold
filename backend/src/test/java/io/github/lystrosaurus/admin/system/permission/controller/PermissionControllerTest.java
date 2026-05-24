@@ -110,4 +110,18 @@ class PermissionControllerTest extends SaTokenTest {
         .andExpect(jsonPath("$.data").isArray())
         .andExpect(jsonPath("$.data[0].code").value("user:create"));
   }
+
+  @Test
+  @DisplayName("应该成功查询所有权限")
+  void should_find_all_permissions() throws Exception {
+    when(permissionService.findAll()).thenReturn(List.of(permissionVO));
+
+    mockMvc
+        .perform(get("/app/permissions"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value(200))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data[0].code").value("user:create"))
+        .andExpect(jsonPath("$.data[0].name").value("创建用户"));
+  }
 }

@@ -96,4 +96,10 @@ public class PermissionServiceImpl implements PermissionService {
     List<SysPermission> permissions = permissionDAO.findByUserId(userId);
     return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
   }
+
+  @Override
+  public List<PermissionVO> findAll() {
+    List<SysPermission> permissions = permissionDAO.findAll();
+    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+  }
 }

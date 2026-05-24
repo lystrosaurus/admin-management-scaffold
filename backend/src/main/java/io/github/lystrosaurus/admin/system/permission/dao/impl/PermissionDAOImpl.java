@@ -140,6 +140,11 @@ public class PermissionDAOImpl implements PermissionDAO {
         > 0;
   }
 
+  @Override
+  public List<SysPermission> findAll() {
+    return permissionMapper.selectList(new LambdaQueryWrapper<SysPermission>().orderByAsc(SysPermission::getSortOrder));
+  }
+
   /**
    * 构建条件查询 Wrapper
    *
