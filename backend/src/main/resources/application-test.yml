@@ -15,9 +15,7 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
-      - org.redisson.spring.starter.RedissonAutoConfiguration
       - org.redisson.spring.starter.RedissonAutoConfigurationV2
-      - org.redisson.spring.starter.RedissonPropertiesConfiguration
 
 # Sa-Token 测试配置
 sa-token:
