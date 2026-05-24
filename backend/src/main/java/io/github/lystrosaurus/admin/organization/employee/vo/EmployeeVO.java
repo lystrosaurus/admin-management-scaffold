@@ -29,6 +29,7 @@ public record EmployeeVO(
     String jobTitle,
     String employmentStatus,
     Long primaryOrgId,
+    String orgUnitName,
     LocalDate entryDate,
     LocalDate leaveDate,
     LocalDateTime createdAt) {}

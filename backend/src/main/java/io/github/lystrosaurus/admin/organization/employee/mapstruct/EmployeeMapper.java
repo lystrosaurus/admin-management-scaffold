@@ -39,6 +39,7 @@ public interface EmployeeMapper {
    * @param entity 员工实体
    * @return 员工VO
    */
+  @Mapping(target = "orgUnitName", ignore = true)
   EmployeeVO toVO(HrEmployee entity);
 
   /**
@@ -48,5 +49,6 @@ public interface EmployeeMapper {
    * @return 员工详情VO
    */
   @Mapping(target = "orgs", ignore = true)
+  @Mapping(target = "orgUnitName", ignore = true)
   EmployeeDetailVO toDetailVO(HrEmployee entity);
 }

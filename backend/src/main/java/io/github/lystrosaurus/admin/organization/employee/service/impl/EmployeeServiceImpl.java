@@ -145,6 +145,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     // 构建详情VO
     EmployeeDetailVO detailVO = employeeMapper.toDetailVO(employee);
+    OrgUnit primaryOrg =
+        detailVO.primaryOrgId() != null ? orgMap.get(detailVO.primaryOrgId()) : null;
+    String orgUnitName = primaryOrg != null ? primaryOrg.getName() : null;
     return new EmployeeDetailVO(
         detailVO.id(),
         detailVO.employeeNo(),
@@ -155,6 +158,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         detailVO.jobTitle(),
         detailVO.employmentStatus(),
         detailVO.primaryOrgId(),
+        orgUnitName,
         detailVO.entryDate(),
         detailVO.leaveDate(),
         detailVO.createdAt(),
@@ -171,8 +175,42 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeDAO.countByCondition(dto.keyword(), dto.employmentStatus(), dto.primaryOrgId());
 
     // 转换为VO列表
-    List<EmployeeVO> employeeVOs =
+    List<EmployeeVO> baseVOs =
         employees.stream().map(employeeMapper::toVO).collect(Collectors.toList());
+
+    // 批量查询组织名称
+    List<Long> orgIds =
+        baseVOs.stream()
+            .map(EmployeeVO::primaryOrgId)
+            .filter(id -> id != null)
+            .distinct()
+            .collect(Collectors.toList());
+    Map<Long, String> orgNameMap =
+        orgIds.isEmpty()
+            ? Map.of()
+            : orgUnitDAO.findByIds(orgIds).stream()
+                .collect(Collectors.toMap(OrgUnit::getId, OrgUnit::getName));
+
+    // 补充 orgUnitName
+    List<EmployeeVO> employeeVOs =
+        baseVOs.stream()
+            .map(
+                vo ->
+                    new EmployeeVO(
+                        vo.id(),
+                        vo.employeeNo(),
+                        vo.name(),
+                        vo.preferredName(),
+                        vo.mobile(),
+                        vo.email(),
+                        vo.jobTitle(),
+                        vo.employmentStatus(),
+                        vo.primaryOrgId(),
+                        orgNameMap.get(vo.primaryOrgId()),
+                        vo.entryDate(),
+                        vo.leaveDate(),
+                        vo.createdAt()))
+            .collect(Collectors.toList());
 
     return new PageResult<>(employeeVOs, total, page, size);
   }

@@ -89,6 +89,7 @@ class EmployeeMapperTest {
     assertEquals("高级工程师", vo.jobTitle());
     assertEquals("ACTIVE", vo.employmentStatus());
     assertEquals(100L, vo.primaryOrgId());
+    assertNull(vo.orgUnitName());
     assertEquals(LocalDate.of(2024, 1, 15), vo.entryDate());
     assertNull(vo.leaveDate());
     assertEquals(LocalDateTime.of(2024, 1, 15, 10, 30), vo.createdAt());
@@ -113,6 +114,7 @@ class EmployeeMapperTest {
     assertEquals(1L, detailVO.id());
     assertEquals("EMP001", detailVO.employeeNo());
     assertEquals("张三", detailVO.name());
+    assertNull(detailVO.orgUnitName());
     assertNull(detailVO.orgs()); // orgs 应被忽略，由 Service 层单独填充
   }
 

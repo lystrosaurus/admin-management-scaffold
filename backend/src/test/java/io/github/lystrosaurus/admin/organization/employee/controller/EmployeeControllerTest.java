@@ -62,6 +62,7 @@ class EmployeeControllerTest extends SaTokenTest {
             "高级工程师",
             "ACTIVE",
             100L,
+            null,
             LocalDate.of(2024, 1, 15),
             null,
             LocalDateTime.now());
@@ -77,6 +78,7 @@ class EmployeeControllerTest extends SaTokenTest {
             "高级工程师",
             "ACTIVE",
             100L,
+            null,
             LocalDate.of(2024, 1, 15),
             null,
             LocalDateTime.now(),
@@ -179,6 +181,7 @@ class EmployeeControllerTest extends SaTokenTest {
             "技术总监",
             "ACTIVE",
             100L,
+            null,
             null,
             null,
             LocalDateTime.now());

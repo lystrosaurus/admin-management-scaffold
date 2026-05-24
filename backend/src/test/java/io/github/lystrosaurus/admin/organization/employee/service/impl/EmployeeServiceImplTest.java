@@ -92,6 +92,7 @@ class EmployeeServiceImplTest {
             "高级工程师",
             "ACTIVE",
             100L,
+            null,
             LocalDate.of(2024, 1, 15),
             null,
             LocalDateTime.now());
@@ -107,6 +108,7 @@ class EmployeeServiceImplTest {
             "高级工程师",
             "ACTIVE",
             100L,
+            null,
             LocalDate.of(2024, 1, 15),
             null,
             LocalDateTime.now(),
