@@ -53,12 +53,12 @@ const UserListPage = () => {
     setLoading(true);
     try {
       const params: UserQueryParams = {
-        current,
+        page: current,
         size: pageSize,
         ...searchParams,
       };
       const result = await listUsers(params);
-      setDataSource(result.records);
+      setDataSource(result.items);
       setTotal(result.total);
     } catch (error) {
       message.error((error as Error).message || '获取用户列表失败');

@@ -11,7 +11,7 @@ export interface ApiResponse<T> {
  * 分页查询参数
  */
 export interface PageParams {
-  current?: number;
+  page?: number;
   size?: number;
   [key: string]: unknown;
 }
@@ -20,9 +20,9 @@ export interface PageParams {
  * 分页结果
  */
 export interface PageResult<T> {
-  records: T[];
+  items: T[];
   total: number;
-  current: number;
+  page: number;
   size: number;
 }
 

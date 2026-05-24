@@ -17,14 +17,15 @@ export const bindAccount = (provider: string, data: OAuthBindRequest): Promise<v
 
 /**
  * 解绑 OAuth 账户
+ * 后端使用 Query Param: DELETE /app/auth/oauth/{provider}/unbind?accountId=xxx
  */
 export const unbindAccount = (provider: string, accountId: number): Promise<void> => {
-  return del<void>(`/app/auth/oauth/${provider}/unbind`, { data: { accountId } });
+  return del<void>(`/app/auth/oauth/${provider}/unbind`, { params: { accountId } });
 };
 
 /**
  * 获取已绑定的 OAuth 账户列表
  */
 export const listBoundAccounts = (): Promise<OAuthAccount[]> => {
-  return get<OAuthAccount[]>('/app/auth/oauth/accounts');
+  return get<OAuthAccount[]>('/app/profile/security');
 };

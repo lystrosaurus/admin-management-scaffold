@@ -72,7 +72,7 @@ const SecurityProfilePage = () => {
       setChangingPassword(true);
 
       await changePassword({
-        currentPassword: values.currentPassword,
+        oldPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
 

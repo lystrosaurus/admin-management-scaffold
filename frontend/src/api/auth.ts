@@ -1,25 +1,25 @@
-import { post, get } from './client';
-import type { LoginRequest, LoginResponse, UserProfile, OAuthAuthorizeUrl, OAuthBindRequest } from '@/types/auth';
+import { post, get, put } from './client';
+import type { LoginRequest, LoginResponse, ProfileVO, OAuthAuthorizeUrl, OAuthBindRequest } from '@/types/auth';
 
 /**
  * 用户登录
  */
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
-  return post<LoginResponse>('/auth/login', data);
+  return post<LoginResponse>('/public/auth/login', data);
 };
 
 /**
  * 用户登出
  */
 export const logout = (): Promise<void> => {
-  return post<void>('/auth/logout');
+  return post<void>('/public/auth/logout');
 };
 
 /**
  * 获取当前用户资料
  */
-export const getProfile = (): Promise<UserProfile> => {
-  return get<UserProfile>('/app/profile');
+export const getProfile = (): Promise<ProfileVO> => {
+  return get<ProfileVO>('/app/profile');
 };
 
 /**
@@ -47,8 +47,8 @@ export const unbindAccount = (provider: string, accountId: number): Promise<void
  * 修改密码
  */
 export const changePassword = (data: {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
 }): Promise<void> => {
-  return post<void>('/app/profile/password', data);
+  return put<void>('/app/profile/password', data);
 };

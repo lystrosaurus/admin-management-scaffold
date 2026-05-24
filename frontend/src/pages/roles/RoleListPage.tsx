@@ -70,12 +70,12 @@ const RoleListPage = () => {
     setLoading(true);
     try {
       const params: RoleQueryParams = {
-        current,
+        page: current,
         size: pageSize,
         ...searchParams,
       };
       const result = await listRoles(params);
-      setDataSource(result.records);
+      setDataSource(result.items);
       setTotal(result.total);
     } catch (error) {
       message.error((error as Error).message || '获取角色列表失败');

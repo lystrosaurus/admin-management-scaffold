@@ -8,6 +8,8 @@ export const useAuth = () => {
   const {
     token,
     user,
+    roles,
+    permissions,
     isAuthenticated,
     loading,
     login,
@@ -19,7 +21,7 @@ export const useAuth = () => {
   return {
     /** JWT Token */
     token,
-    /** 用户信息 */
+    /** 用户基本信息 */
     user,
     /** 是否已认证 */
     isAuthenticated,
@@ -34,8 +36,8 @@ export const useAuth = () => {
     /** 清除认证状态 */
     clearAuth,
     /** 用户角色列表 */
-    roles: user?.roles ?? [],
+    roles,
     /** 用户权限列表 */
-    permissions: user?.permissions ?? [],
+    permissions,
   };
 };

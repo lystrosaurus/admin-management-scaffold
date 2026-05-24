@@ -36,16 +36,16 @@ const EmployeeListPage = () => {
     setLoading(true);
     try {
       const queryParams = {
-        current: pagination.current,
+        page: pagination.current,
         size: pagination.pageSize,
         ...params,
       };
       const data = await listEmployees(queryParams);
-      setEmployees(data.records);
+      setEmployees(data.items);
       setPagination(prev => ({
         ...prev,
         total: data.total,
-        current: data.current,
+        current: data.page,
       }));
     } catch (error) {
       message.error('加载员工列表失败');
@@ -84,14 +84,14 @@ const EmployeeListPage = () => {
   // 搜索
   const handleSearch = (values: EmployeeQueryParams) => {
     setPagination(prev => ({ ...prev, current: 1 }));
-    loadEmployees({ ...values, current: 1 });
+    loadEmployees({ ...values, page: 1 });
   };
 
   // 重置搜索
   const handleReset = () => {
     searchForm.resetFields();
     setPagination(prev => ({ ...prev, current: 1 }));
-    loadEmployees({ current: 1 });
+    loadEmployees({ page: 1 });
   };
 
   // 分页变化
@@ -102,7 +102,7 @@ const EmployeeListPage = () => {
       pageSize: pagination.pageSize || 10,
     }));
     loadEmployees({
-      current: pagination.current,
+      page: pagination.current,
       size: pagination.pageSize,
     });
   };

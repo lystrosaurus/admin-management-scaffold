@@ -52,7 +52,7 @@ export interface UpdateEmployeeRequest {
  * 员工查询参数
  */
 export interface EmployeeQueryParams {
-  current?: number;
+  page?: number;
   size?: number;
   name?: string;
   employeeNo?: string;

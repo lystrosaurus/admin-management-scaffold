@@ -47,7 +47,7 @@ export interface UpdateUserRequest {
  * 用户查询参数
  */
 export interface UserQueryParams {
-  current?: number;
+  page?: number;
   size?: number;
   username?: string;
   nickname?: string;

@@ -40,7 +40,7 @@ export interface UpdateRoleRequest {
  * 角色查询参数
  */
 export interface RoleQueryParams {
-  current?: number;
+  page?: number;
   size?: number;
   code?: string;
   name?: string;
