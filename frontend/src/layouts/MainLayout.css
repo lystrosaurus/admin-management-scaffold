@@ -1,0 +1,74 @@
+.main-layout {
+  min-height: 100vh;
+}
+
+/* 侧边栏 */
+.main-layout__sider {
+  border-right: 1px solid rgba(5, 5, 5, 0.06);
+  overflow-y: auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+/* Logo 区域 */
+.main-layout__logo {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+}
+
+/* 顶部 Header */
+.main-layout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  line-height: 56px;
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+}
+
+/* 折叠触发器 */
+.main-layout__trigger {
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0 4px;
+}
+
+.main-layout__trigger:hover {
+  color: #1677ff;
+}
+
+/* 面包屑标题 */
+.main-layout__breadcrumb {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* 用户信息区域 */
+.main-layout__user {
+  cursor: pointer;
+  padding: 0 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.main-layout__user:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* 内容区域 */
+.main-layout__content {
+  margin: 24px;
+  min-height: calc(100vh - 56px - 48px);
+}
