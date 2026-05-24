@@ -42,3 +42,13 @@ export const bindAccount = (provider: string, data: OAuthBindRequest): Promise<v
 export const unbindAccount = (provider: string, accountId: number): Promise<void> => {
   return post<void>(`/app/auth/oauth/${provider}/unbind`, { accountId });
 };
+
+/**
+ * 修改密码
+ */
+export const changePassword = (data: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> => {
+  return post<void>('/app/profile/password', data);
+};
