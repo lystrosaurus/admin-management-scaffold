@@ -1,4 +1,5 @@
-import { Card, Row, Col, Statistic, Button, Space, Typography, List } from 'antd';
+import { useState, useEffect } from 'react';
+import { Card, Row, Col, Statistic, Button, Space, Typography, List, Spin, message } from 'antd';
 import {
   UserOutlined,
   KeyOutlined,
@@ -6,21 +7,13 @@ import {
   BankOutlined,
   SettingOutlined,
   MenuOutlined,
-  ClockCircleOutlined,
   CodeOutlined,
   RocketOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { getDashboardStats, type DashboardStats } from '@/api/dashboard';
 
 const { Title, Text, Paragraph } = Typography;
-
-/** Mock 统计数据 */
-const stats = {
-  userCount: 128,
-  roleCount: 12,
-  employeeCount: 96,
-  orgUnitCount: 8,
-};
 
 /** 快速入口配置 */
 const quickLinks = [
@@ -32,7 +25,6 @@ const quickLinks = [
 
 /** 系统信息 */
 const systemInfoItems = [
-  { label: '运行时间', value: '15 天 8 小时', icon: <ClockCircleOutlined /> },
   { label: '版本号', value: 'v1.0.0', icon: <RocketOutlined /> },
   { label: '技术栈', value: 'React 19 + Spring Boot 4 + Ant Design 6', icon: <CodeOutlined /> },
 ];
@@ -40,6 +32,20 @@ const systemInfoItems = [
 /** 仪表盘页面 */
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState<DashboardStats>({
+    userCount: 0,
+    roleCount: 0,
+    employeeCount: 0,
+    orgUnitCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getDashboardStats()
+      .then(setStats)
+      .catch(() => message.error('加载统计数据失败'))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div>
@@ -54,48 +60,50 @@ const DashboardPage = () => {
       </Card>
 
       {/* 统计卡片 */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card hoverable>
-            <Statistic
-              title="用户总数"
-              value={stats.userCount}
-              prefix={<UserOutlined style={{ color: '#1677ff' }} />}
-              suffix="人"
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card hoverable>
-            <Statistic
-              title="角色总数"
-              value={stats.roleCount}
-              prefix={<KeyOutlined style={{ color: '#52c41a' }} />}
-              suffix="个"
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card hoverable>
-            <Statistic
-              title="员工总数"
-              value={stats.employeeCount}
-              prefix={<TeamOutlined style={{ color: '#faad14' }} />}
-              suffix="人"
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card hoverable>
-            <Statistic
-              title="组织总数"
-              value={stats.orgUnitCount}
-              prefix={<BankOutlined style={{ color: '#722ed1' }} />}
-              suffix="个"
-            />
-          </Card>
-        </Col>
-      </Row>
+      <Spin spinning={loading}>
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable>
+              <Statistic
+                title="用户总数"
+                value={stats.userCount}
+                prefix={<UserOutlined style={{ color: '#1677ff' }} />}
+                suffix="人"
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable>
+              <Statistic
+                title="角色总数"
+                value={stats.roleCount}
+                prefix={<KeyOutlined style={{ color: '#52c41a' }} />}
+                suffix="个"
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable>
+              <Statistic
+                title="员工总数"
+                value={stats.employeeCount}
+                prefix={<TeamOutlined style={{ color: '#faad14' }} />}
+                suffix="人"
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable>
+              <Statistic
+                title="组织总数"
+                value={stats.orgUnitCount}
+                prefix={<BankOutlined style={{ color: '#722ed1' }} />}
+                suffix="个"
+              />
+            </Card>
+          </Col>
+        </Row>
+      </Spin>
 
       <Row gutter={[16, 16]}>
         {/* 快速入口 */}
