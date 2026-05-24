@@ -117,7 +117,7 @@ const SecurityProfilePage = () => {
    * 获取已绑定的账户（按提供商）
    */
   const getBoundAccount = (provider: string): OAuthAccount | undefined => {
-    return accounts.find((a) => a.provider === provider);
+    return accounts.find((a) => a.providerCode === provider);
   };
 
   /**
@@ -179,8 +179,8 @@ const SecurityProfilePage = () => {
           description={
             isBound ? (
               <Text type="secondary">
-                账号：{account!.providerUsername || account!.providerUserId} ·
-                绑定时间：{dayjs(account!.boundAt).format('YYYY-MM-DD HH:mm')}
+                账号：{account!.nickname || account!.providerUserId} ·
+                上次登录：{account!.lastLoginAt ? dayjs(account!.lastLoginAt).format('YYYY-MM-DD HH:mm') : '-'}
               </Text>
             ) : (
               <Text type="secondary">未绑定{config.name}账户</Text>

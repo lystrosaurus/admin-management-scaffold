@@ -70,19 +70,18 @@ const RoleListPage = () => {
     setLoading(true);
     try {
       const params: RoleQueryParams = {
-        page: current,
-        size: pageSize,
         ...searchParams,
       };
       const result = await listRoles(params);
-      setDataSource(result.items);
-      setTotal(result.total);
+      // 后端返回全量数组，前端做客户端分页
+      setDataSource(result);
+      setTotal(result.length);
     } catch (error) {
       message.error((error as Error).message || '获取角色列表失败');
     } finally {
       setLoading(false);
     }
-  }, [current, pageSize, searchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchRoles();

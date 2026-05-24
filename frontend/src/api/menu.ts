@@ -5,7 +5,7 @@ import type { Menu, CreateMenuRequest, UpdateMenuRequest, MenuQueryParams } from
  * 获取菜单列表（树形结构）
  */
 export const listMenus = (params?: MenuQueryParams): Promise<Menu[]> => {
-  return get<Menu[]>('/app/menus', { params });
+  return get<Menu[]>('/app/menus/tree', { params });
 };
 
 /**

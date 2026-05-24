@@ -1,12 +1,11 @@
 import { get, post, put, del } from './client';
-import type { PageResult } from '@/types/api';
 import type { Role, CreateRoleRequest, UpdateRoleRequest, RoleQueryParams } from '@/types/role';
 
 /**
- * 获取角色列表（分页）
+ * 获取角色列表（不分页）
  */
-export const listRoles = (params?: RoleQueryParams): Promise<PageResult<Role>> => {
-  return get<PageResult<Role>>('/app/roles', { params });
+export const listRoles = (params?: RoleQueryParams): Promise<Role[]> => {
+  return get<Role[]>('/app/roles', { params });
 };
 
 /**

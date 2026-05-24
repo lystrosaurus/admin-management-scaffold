@@ -29,6 +29,7 @@ public class AuthExternalAccount implements Serializable {
   private Long providerId;
 
   /** 第三方平台用户ID */
+  @TableField("provider_user_key")
   private String providerUserId;
 
   /** 关联的本地用户ID */

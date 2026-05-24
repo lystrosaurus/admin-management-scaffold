@@ -74,12 +74,27 @@ export interface OAuthBindRequest {
 }
 
 /**
- * OAuth 账户信息
+ * OAuth 账户信息（对应后端 ExternalAccountVO）
  */
 export interface OAuthAccount {
   id: number;
-  provider: string;
+  providerId: number;
+  providerCode: string;
   providerUserId: string;
-  providerUsername: string;
-  boundAt: string;
+  userId: number;
+  employeeId?: number;
+  nickname?: string;
+  avatarUrl?: string;
+  bindStatus: string;
+  lastLoginAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+/**
+ * 安全资料（对应后端 SecurityProfileVO）
+ */
+export interface SecurityProfileVO {
+  hasPassword: boolean;
+  boundAccounts: OAuthAccount[];
 }
