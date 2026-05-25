@@ -40,12 +40,7 @@ public class RoleService {
     }
 
     // 转换并保存角色
-    SysRole role = new SysRole();
-    role.setCode(dto.code());
-    role.setName(dto.name());
-    role.setDescription(dto.description());
-    role.setSortOrder(dto.sortOrder());
-    role.setDataScopeType(dto.dataScopeType());
+    SysRole role = roleMapper.toEntity(dto);
     role.setStatus("ENABLED");
     roleDAO.save(role);
 
@@ -96,35 +91,34 @@ public class RoleService {
     // 查询角色权限
     List<SysPermission> permissions = roleDAO.findPermissionsByRoleId(id);
     List<PermissionVO> permissionVOs =
-        permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+        permissions.stream().map(permissionMapper::toPermissionVO).toList();
 
     // 查询角色菜单
     List<SysMenu> menus = roleDAO.findMenusByRoleId(id);
-    List<MenuVO> menuVOs = menus.stream().map(menuMapper::toMenuVO).collect(Collectors.toList());
+    List<MenuVO> menuVOs = menus.stream().map(menuMapper::toMenuVO).toList();
 
-    // 构建详情VO
-    RoleDetailVO detailVO = roleMapper.toRoleDetailVO(role);
+    // 直接从实体构建详情VO，避免先MapStruct转换再手动重建的浪费
     return new RoleDetailVO(
-        detailVO.id(),
-        detailVO.code(),
-        detailVO.name(),
-        detailVO.description(),
-        detailVO.sortOrder(),
-        detailVO.status(),
-        detailVO.dataScopeType(),
+        role.getId(),
+        role.getCode(),
+        role.getName(),
+        role.getDescription(),
+        role.getSortOrder(),
+        role.getStatus(),
+        role.getDataScopeType(),
         permissionVOs,
         menuVOs,
-        detailVO.createdAt());
+        role.getCreatedAt());
   }
 
   public List<RoleVO> findAll() {
     List<SysRole> roles = roleDAO.findAll();
-    return roles.stream().map(roleMapper::toRoleVO).collect(Collectors.toList());
+    return roles.stream().map(roleMapper::toRoleVO).toList();
   }
 
   public List<RoleVO> findByUserId(Long userId) {
     List<SysRole> roles = roleDAO.findByUserId(userId);
-    return roles.stream().map(roleMapper::toRoleVO).collect(Collectors.toList());
+    return roles.stream().map(roleMapper::toRoleVO).toList();
   }
 
   @Transactional(rollbackFor = Exception.class)

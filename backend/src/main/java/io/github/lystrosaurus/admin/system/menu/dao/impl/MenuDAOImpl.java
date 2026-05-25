@@ -10,7 +10,6 @@ import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMenuMapper;
 import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +73,7 @@ public class MenuDAOImpl implements MenuDAO {
 
     // 再查询菜单详情
     List<Long> menuIds =
-        roleMenus.stream().map(SysRoleMenu::getMenuId).collect(Collectors.toList());
+        roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
     return menuMapper.selectList(
         new LambdaQueryWrapper<SysMenu>()
             .in(SysMenu::getId, menuIds)
@@ -94,7 +93,7 @@ public class MenuDAOImpl implements MenuDAO {
 
     // 再查询角色菜单关联
     List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+        userRoles.stream().map(SysUserRole::getRoleId).toList();
     List<SysRoleMenu> roleMenus =
         roleMenuMapper.selectList(
             new LambdaQueryWrapper<SysRoleMenu>().in(SysRoleMenu::getRoleId, roleIds));
@@ -105,7 +104,7 @@ public class MenuDAOImpl implements MenuDAO {
 
     // 最后查询菜单详情
     List<Long> menuIds =
-        roleMenus.stream().map(SysRoleMenu::getMenuId).collect(Collectors.toList());
+        roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
     return menuMapper.selectList(
         new LambdaQueryWrapper<SysMenu>()
             .in(SysMenu::getId, menuIds)

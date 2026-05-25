@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.filter;
 
+import io.github.lystrosaurus.admin.web.util.ClientIpUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +29,7 @@ public class RequestLogFilter implements Filter {
     String method = httpRequest.getMethod();
     String uri = httpRequest.getRequestURI();
     String queryString = httpRequest.getQueryString();
-    String clientIp = getClientIp(httpRequest);
+    String clientIp = ClientIpUtil.getClientIp(httpRequest);
 
     log.info(
         "请求开始: {} {} {} from {}", method, uri, queryString != null ? queryString : "", clientIp);
@@ -40,27 +41,5 @@ public class RequestLogFilter implements Filter {
       int status = httpResponse.getStatus();
       log.info("请求结束: {} {} status={} 耗时={}ms", method, uri, status, duration);
     }
-  }
-
-  /** 获取客户端真实 IP */
-  private String getClientIp(HttpServletRequest request) {
-    String ip = request.getHeader("X-Forwarded-For");
-    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-      ip = request.getHeader("Proxy-Client-IP");
-    }
-    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-      ip = request.getHeader("WL-Proxy-Client-IP");
-    }
-    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-      ip = request.getHeader("X-Real-IP");
-    }
-    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-      ip = request.getRemoteAddr();
-    }
-    // 多个代理时取第一个
-    if (ip != null && ip.contains(",")) {
-      ip = ip.split(",")[0].trim();
-    }
-    return ip;
   }
 }

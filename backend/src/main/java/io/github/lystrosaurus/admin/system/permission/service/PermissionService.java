@@ -9,7 +9,6 @@ import io.github.lystrosaurus.admin.system.permission.entity.SysPermission;
 import io.github.lystrosaurus.admin.system.permission.mapstruct.PermissionMapper;
 import io.github.lystrosaurus.admin.system.permission.vo.PermissionVO;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,16 +82,16 @@ public class PermissionService {
 
   public List<PermissionVO> findByRoleId(Long roleId) {
     List<SysPermission> permissions = permissionDAO.findByRoleId(roleId);
-    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+    return permissions.stream().map(permissionMapper::toPermissionVO).toList();
   }
 
   public List<PermissionVO> findByUserId(Long userId) {
     List<SysPermission> permissions = permissionDAO.findByUserId(userId);
-    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+    return permissions.stream().map(permissionMapper::toPermissionVO).toList();
   }
 
   public List<PermissionVO> findAll() {
     List<SysPermission> permissions = permissionDAO.findAll();
-    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+    return permissions.stream().map(permissionMapper::toPermissionVO).toList();
   }
 }

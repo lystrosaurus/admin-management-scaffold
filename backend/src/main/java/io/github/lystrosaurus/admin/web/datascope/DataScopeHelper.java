@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
+import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import io.github.lystrosaurus.admin.system.role.entity.SysRoleOrg;
 import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMapper;
@@ -14,6 +15,7 @@ import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -49,44 +51,7 @@ public class DataScopeHelper {
   public Set<Long> getAccessibleOrgIds() {
     Long userId = getCurrentUserId();
     List<SysRole> roles = getRolesByUserId(userId);
-
-    if (roles.isEmpty()) {
-      return Set.of();
-    }
-
-    // 如果任意角色为 ALL，则不限制
-    boolean hasAll =
-        roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
-    if (hasAll) {
-      return null;
-    }
-
-    // 合并所有角色可访问的部门ID
-    Set<Long> orgIds = new HashSet<>();
-    for (SysRole role : roles) {
-      DataScopeType scopeType = DataScopeType.valueOf(role.getDataScopeType());
-      switch (scopeType) {
-        case ORG_TREE:
-          // 获取该角色绑定的部门ID，并查找所有下级部门
-          Set<Long> treeOrgIds = getRoleOrgIds(role.getId());
-          for (Long orgId : treeOrgIds) {
-            orgIds.add(orgId);
-            orgIds.addAll(getDescendantOrgIds(orgId));
-          }
-          break;
-        case ORG_ONLY:
-        case CUSTOM:
-          orgIds.addAll(getRoleOrgIds(role.getId()));
-          break;
-        case SELF:
-          // SELF 范围不贡献部门ID，由 hasSelfScope() 单独处理
-          break;
-        default:
-          break;
-      }
-    }
-
-    return orgIds;
+    return doGetAccessibleOrgIds(roles);
   }
 
   /**
@@ -97,7 +62,7 @@ public class DataScopeHelper {
   public boolean hasSelfScope() {
     Long userId = getCurrentUserId();
     List<SysRole> roles = getRolesByUserId(userId);
-    return roles.stream().anyMatch(r -> DataScopeType.SELF.name().equals(r.getDataScopeType()));
+    return doHasSelfScope(roles);
   }
 
   /**
@@ -108,7 +73,7 @@ public class DataScopeHelper {
   public boolean hasAllScope() {
     Long userId = getCurrentUserId();
     List<SysRole> roles = getRolesByUserId(userId);
-    return roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
+    return doHasAllScope(roles);
   }
 
   /**
@@ -142,14 +107,18 @@ public class DataScopeHelper {
    */
   public <T> void applyDataScope(
       LambdaQueryWrapper<T> wrapper, SFunction<T, ?> orgIdColumn, SFunction<T, ?> createdByColumn) {
-    Set<Long> orgIds = getAccessibleOrgIds();
+    // 只查询一次角色，避免重复查询
+    Long userId = getCurrentUserId();
+    List<SysRole> roles = getRolesByUserId(userId);
+
+    Set<Long> orgIds = doGetAccessibleOrgIds(roles);
 
     if (orgIds == null) {
       // ALL 范围
       return;
     }
 
-    boolean hasSelf = hasSelfScope();
+    boolean hasSelf = doHasSelfScope(roles);
 
     if (orgIds.isEmpty() && !hasSelf) {
       wrapper.apply("1 = 0");
@@ -158,15 +127,65 @@ public class DataScopeHelper {
 
     if (!orgIds.isEmpty() && hasSelf) {
       // ORG + SELF：部门范围内 OR 本人创建
-      wrapper.and(w -> w.in(orgIdColumn, orgIds).or().eq(createdByColumn, getCurrentUserId()));
+      wrapper.and(w -> w.in(orgIdColumn, orgIds).or().eq(createdByColumn, userId));
     } else if (!orgIds.isEmpty()) {
       wrapper.in(orgIdColumn, orgIds);
     } else if (hasSelf) {
-      wrapper.eq(createdByColumn, getCurrentUserId());
+      wrapper.eq(createdByColumn, userId);
     }
   }
 
   // ==================== 内部方法 ====================
+
+  /** 基于角色列表计算可访问的部门ID集合 */
+  private Set<Long> doGetAccessibleOrgIds(List<SysRole> roles) {
+    if (roles.isEmpty()) {
+      return Set.of();
+    }
+
+    // 如果任意角色为 ALL，则不限制
+    boolean hasAll = roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
+    if (hasAll) {
+      return null;
+    }
+
+    // 合并所有角色可访问的部门ID
+    Set<Long> orgIds = new HashSet<>();
+    for (SysRole role : roles) {
+      DataScopeType scopeType = DataScopeType.valueOf(role.getDataScopeType());
+      switch (scopeType) {
+        case ORG_TREE:
+          // 获取该角色绑定的部门ID，并查找所有下级部门
+          Set<Long> treeOrgIds = getRoleOrgIds(role.getId());
+          for (Long orgId : treeOrgIds) {
+            orgIds.add(orgId);
+            orgIds.addAll(getDescendantOrgIds(orgId));
+          }
+          break;
+        case ORG_ONLY:
+        case CUSTOM:
+          orgIds.addAll(getRoleOrgIds(role.getId()));
+          break;
+        case SELF:
+          // SELF 范围不贡献部门ID，由 hasSelfScope() 单独处理
+          break;
+        default:
+          break;
+      }
+    }
+
+    return orgIds;
+  }
+
+  /** 基于角色列表判断是否有 SELF 数据权限 */
+  private boolean doHasSelfScope(List<SysRole> roles) {
+    return roles.stream().anyMatch(r -> DataScopeType.SELF.name().equals(r.getDataScopeType()));
+  }
+
+  /** 基于角色列表判断是否有 ALL 数据权限 */
+  private boolean doHasAllScope(List<SysRole> roles) {
+    return roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
+  }
 
   /** 获取当前登录用户ID */
   private Long getCurrentUserId() {
@@ -189,7 +208,7 @@ public class DataScopeHelper {
       return List.of();
     }
     List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+        userRoles.stream().map(SysUserRole::getRoleId).toList();
     return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 
@@ -204,23 +223,31 @@ public class DataScopeHelper {
   /**
    * 获取某个部门的所有下级部门ID
    *
-   * <p>通过 OrgUnitDAO 递归查找所有子部门。
+   * <p>一次性加载全部部门到内存构建父子映射，避免递归查询数据库。
    */
   private Set<Long> getDescendantOrgIds(Long orgId) {
+    // 一次性加载全部部门到内存
+    List<OrgUnit> allOrgUnits = orgUnitDAO.findAll();
+    if (allOrgUnits.isEmpty()) {
+      return Set.of();
+    }
+
+    // 构建 parentId -> childIds 映射
+    Map<Long, List<Long>> parentChildMap =
+        allOrgUnits.stream()
+            .collect(Collectors.groupingBy(OrgUnit::getParentId, Collectors.mapping(OrgUnit::getId, Collectors.toList())));
+
     Set<Long> result = new HashSet<>();
-    collectDescendantIds(orgId, result);
+    collectDescendantIds(orgId, parentChildMap, result);
     return result;
   }
 
-  /** 递归收集下级部门ID */
-  private void collectDescendantIds(Long parentId, Set<Long> result) {
-    List<Long> childIds =
-        orgUnitDAO.findByParentId(parentId).stream()
-            .map(org -> org.getId())
-            .collect(Collectors.toList());
+  /** 基于内存父子映射递归收集下级部门ID */
+  private void collectDescendantIds(Long parentId, Map<Long, List<Long>> parentChildMap, Set<Long> result) {
+    List<Long> childIds = parentChildMap.getOrDefault(parentId, List.of());
     for (Long childId : childIds) {
       result.add(childId);
-      collectDescendantIds(childId, result);
+      collectDescendantIds(childId, parentChildMap, result);
     }
   }
 }

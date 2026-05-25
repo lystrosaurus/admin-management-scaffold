@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.auth.oauth.state;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -10,4 +11,5 @@ import java.time.LocalDateTime;
  * @param userId 用户ID（可选）
  * @param createdAt 创建时间
  */
-public record StateData(String state, String nonce, Long userId, LocalDateTime createdAt) {}
+public record StateData(String state, String nonce, Long userId, LocalDateTime createdAt)
+    implements Serializable {}

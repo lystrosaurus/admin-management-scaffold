@@ -34,7 +34,7 @@ sa-token:
   is-concurrent: true     # 是否允许同一账号并发登录
   is-share: false         # 多次登录创建新Token
   token-style: jwt        # JWT风格
-  jwt-secret-key: ${JWT_SECRET:your-jwt-secret-key-at-least-32-chars-long}
+  jwt-secret-key: ${JWT_SECRET}
   is-read-header: true
   is-read-cookie: false
   is-read-body: false

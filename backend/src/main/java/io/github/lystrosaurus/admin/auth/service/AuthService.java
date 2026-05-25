@@ -8,13 +8,17 @@ import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
 import io.github.lystrosaurus.admin.system.user.dto.LoginDTO;
 import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.web.util.ClientIpUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * 认证服务实现
@@ -31,15 +35,10 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
   private final RedisTemplate<String, Object> redisTemplate;
 
-  public AuthService(UserDAO userDAO, PasswordEncoder passwordEncoder) {
-    this(userDAO, passwordEncoder, null);
-  }
-
-  @Autowired
   public AuthService(
       UserDAO userDAO,
       PasswordEncoder passwordEncoder,
-      @Autowired(required = false) RedisTemplate<String, Object> redisTemplate) {
+      @Nullable RedisTemplate<String, Object> redisTemplate) {
     this.userDAO = userDAO;
     this.passwordEncoder = passwordEncoder;
     this.redisTemplate = redisTemplate;
@@ -79,8 +78,7 @@ public class AuthService {
 
     // 7. 更新最后登录时间和IP
     user.setLastLoginAt(LocalDateTime.now());
-    // 暂时使用默认IP，后续可以从RequestContextHolder获取
-    user.setLastLoginIp("127.0.0.1");
+    user.setLastLoginIp(getClientIp());
     userDAO.update(user);
 
     // 8. 返回 LoginVO
@@ -145,5 +143,16 @@ public class AuthService {
   public boolean hasPassword(Long userId) {
     SysUser user = userDAO.findById(userId);
     return user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
+  }
+
+  /** 获取当前请求的客户端真实 IP */
+  private String getClientIp() {
+    ServletRequestAttributes attrs =
+        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attrs == null) {
+      return "unknown";
+    }
+    HttpServletRequest request = attrs.getRequest();
+    return ClientIpUtil.getClientIp(request);
   }
 }

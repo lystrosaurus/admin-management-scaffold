@@ -86,4 +86,12 @@ public interface EmployeeDAO {
    * @return 存在返回true，否则返回false
    */
   boolean existsByEmployeeNoAndIdNot(String employeeNo, Long id);
+
+  /**
+   * 根据ID检查员工是否存在
+   *
+   * @param id 员工ID
+   * @return 存在返回true，否则返回false
+   */
+  boolean existsById(Long id);
 }

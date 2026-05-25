@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import cn.dev33.satoken.dao.SaTokenDaoForRedisTemplate;
 import io.github.lystrosaurus.admin.config.TestDatabaseInitializer;
+import io.github.lystrosaurus.admin.config.TestRedisConfig;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -29,7 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
       RedissonAutoConfigurationV2.class,
       SaTokenDaoForRedisTemplate.class
     })
-@Import(TestDatabaseInitializer.class)
+@Import({TestDatabaseInitializer.class, TestRedisConfig.class})
 class FlywayMigrationTest {
 
   @Autowired private DataSource dataSource;

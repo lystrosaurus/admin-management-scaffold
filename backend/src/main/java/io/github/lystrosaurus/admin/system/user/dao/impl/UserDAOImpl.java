@@ -10,8 +10,10 @@ import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.mapper.SysUserMapper;
 import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,6 +29,7 @@ public class UserDAOImpl implements UserDAO {
   private final SysUserMapper userMapper;
   private final SysUserRoleMapper userRoleMapper;
   private final SysRoleMapper roleMapper;
+  private final SqlSessionFactory sqlSessionFactory;
 
   @Override
   public SysUser findById(Long id) {
@@ -97,7 +100,7 @@ public class UserDAOImpl implements UserDAO {
 
     // 再查询角色详情
     List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+        userRoles.stream().map(SysUserRole::getRoleId).toList();
     return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 
@@ -110,12 +113,16 @@ public class UserDAOImpl implements UserDAO {
     // 先移除现有角色
     removeRoles(userId);
 
-    // 再分配新角色
-    for (Long roleId : roleIds) {
-      SysUserRole userRole = new SysUserRole();
-      userRole.setUserId(userId);
-      userRole.setRoleId(roleId);
-      userRoleMapper.insert(userRole);
+    // 批量分配新角色
+    try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
+      SysUserRoleMapper batchMapper = sqlSession.getMapper(SysUserRoleMapper.class);
+      for (Long roleId : roleIds) {
+        SysUserRole userRole = new SysUserRole();
+        userRole.setUserId(userId);
+        userRole.setRoleId(roleId);
+        batchMapper.insert(userRole);
+      }
+      sqlSession.commit();
     }
   }
 

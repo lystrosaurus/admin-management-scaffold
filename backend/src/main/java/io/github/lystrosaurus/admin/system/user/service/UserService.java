@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.system.user.service;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeDAO;
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
 import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
@@ -15,10 +16,7 @@ import io.github.lystrosaurus.admin.system.user.mapstruct.UserMapper;
 import io.github.lystrosaurus.admin.system.user.vo.UserDetailVO;
 import io.github.lystrosaurus.admin.system.user.vo.UserVO;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +30,7 @@ public class UserService {
   private final UserDAO userDAO;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
-  private final DataSource dataSource;
+  private final EmployeeDAO employeeDAO;
 
   @Transactional(rollbackFor = Exception.class)
   public UserVO create(UserCreateDTO dto) {
@@ -100,23 +98,22 @@ public class UserService {
                         role.getDescription(),
                         role.getStatus(),
                         role.getDataScopeType()))
-            .collect(Collectors.toList());
+            .toList();
 
-    // 构建详情VO
-    UserDetailVO detailVO = userMapper.toUserDetailVO(user);
+    // 直接从实体构建详情VO，避免先MapStruct转换再手动重建的浪费
     return new UserDetailVO(
-        detailVO.id(),
-        detailVO.username(),
-        detailVO.nickname(),
-        detailVO.phone(),
-        detailVO.email(),
-        detailVO.status(),
-        detailVO.employeeId(),
-        detailVO.tokenVersion(),
-        detailVO.lastLoginAt(),
-        detailVO.lastLoginIp(),
+        user.getId(),
+        user.getUsername(),
+        user.getNickname(),
+        user.getPhone(),
+        user.getEmail(),
+        user.getStatus(),
+        user.getEmployeeId(),
+        user.getTokenVersion(),
+        user.getLastLoginAt(),
+        user.getLastLoginIp(),
         roleVOs,
-        detailVO.createdAt());
+        user.getCreatedAt());
   }
 
   public PageResult<UserVO> findPage(UserQueryDTO dto, int page, int size) {
@@ -125,7 +122,7 @@ public class UserService {
     long total = userDAO.countByCondition(dto.username(), dto.status());
 
     // 转换为VO列表
-    List<UserVO> userVOs = users.stream().map(userMapper::toUserVO).collect(Collectors.toList());
+    List<UserVO> userVOs = users.stream().map(userMapper::toUserVO).toList();
 
     return new PageResult<>(userVOs, total, page, size);
   }
@@ -192,17 +189,6 @@ public class UserService {
    * @return 存在返回 true
    */
   private boolean employeeExists(Long employeeId) {
-    try {
-      JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-      Integer count =
-          jdbc.queryForObject(
-              "SELECT COUNT(*) FROM hr_employee WHERE id = ? AND deleted = 0",
-              Integer.class,
-              employeeId);
-      return count != null && count > 0;
-    } catch (Exception e) {
-      // hr_employee 表不存在时，视为员工不存在
-      return false;
-    }
+    return employeeDAO.existsById(employeeId);
   }
 }

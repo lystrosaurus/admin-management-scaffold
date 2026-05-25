@@ -11,7 +11,6 @@ import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
 import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,13 +89,13 @@ public class ExternalAccountService {
   public List<ExternalAccountVO> listByUserId(Long userId) {
     return accountDAO.listByUserId(userId).stream()
         .map(accountMapStruct::toVO)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public List<ExternalAccountVO> listByEmployeeId(Long employeeId) {
     return accountDAO.listByEmployeeId(employeeId).stream()
         .map(accountMapStruct::toVO)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Transactional(rollbackFor = Exception.class)

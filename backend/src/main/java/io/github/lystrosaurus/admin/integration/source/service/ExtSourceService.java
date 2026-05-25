@@ -9,7 +9,6 @@ import io.github.lystrosaurus.admin.integration.source.entity.ExtSource;
 import io.github.lystrosaurus.admin.integration.source.mapstruct.ExtSourceMapStruct;
 import io.github.lystrosaurus.admin.integration.source.vo.ExtSourceVO;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +75,6 @@ public class ExtSourceService {
   public List<ExtSourceVO> list() {
     return extSourceDAO.findAll().stream()
         .map(extSourceMapStruct::toVO)
-        .collect(Collectors.toList());
+        .toList();
   }
 }

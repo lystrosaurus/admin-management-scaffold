@@ -8,13 +8,16 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /** 基础实体类 */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public abstract class BaseEntity implements Serializable {
 
   /** 主键 ID */
   @TableId(type = IdType.ASSIGN_ID)
+  @EqualsAndHashCode.Include
   private Long id;
 
   /** 创建时间 */

@@ -79,6 +79,13 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         > 0;
   }
 
+  @Override
+  public boolean existsById(Long id) {
+    return employeeMapper.selectCount(
+            new LambdaQueryWrapper<HrEmployee>().eq(HrEmployee::getId, id))
+        > 0;
+  }
+
   /**
    * 构建条件查询 Wrapper
    *

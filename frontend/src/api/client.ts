@@ -37,7 +37,8 @@ client.interceptors.response.use(
     const { data } = response;
     // 业务成功
     if (data.code === 200) {
-      return data.data as AxiosResponse;
+      // 拦截器解包后返回业务数据（非 AxiosResponse），使用 any 绕过 axios 类型约束
+      return data.data as unknown as AxiosResponse<never>;
     }
     // 业务错误
     return Promise.reject(new Error(data.message || '请求失败'));
@@ -62,28 +63,28 @@ client.interceptors.response.use(
  * GET 请求
  */
 export const get = <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-  return client.get<ApiResponse<T>, T>(url, config);
+  return client.get(url, config) as Promise<T>;
 };
 
 /**
  * POST 请求
  */
 export const post = <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
-  return client.post<ApiResponse<T>, T>(url, data, config);
+  return client.post(url, data, config) as Promise<T>;
 };
 
 /**
  * PUT 请求
  */
 export const put = <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
-  return client.put<ApiResponse<T>, T>(url, data, config);
+  return client.put(url, data, config) as Promise<T>;
 };
 
 /**
  * DELETE 请求
  */
 export const del = <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-  return client.delete<ApiResponse<T>, T>(url, config);
+  return client.delete(url, config) as Promise<T>;
 };
 
 export default client;

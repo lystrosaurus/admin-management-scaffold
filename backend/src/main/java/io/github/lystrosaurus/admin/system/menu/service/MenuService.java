@@ -107,7 +107,7 @@ public class MenuService {
 
     // 转换为VO
     List<MenuVO> allMenuVOs =
-        allMenus.stream().map(menuMapper::toMenuVO).collect(Collectors.toList());
+        allMenus.stream().map(menuMapper::toMenuVO).toList();
 
     // 按父ID分组
     Map<Long, List<MenuVO>> parentMenuMap =
@@ -135,12 +135,12 @@ public class MenuService {
 
   public List<MenuVO> findByRoleId(Long roleId) {
     List<SysMenu> menus = menuDAO.findByRoleId(roleId);
-    return menus.stream().map(menuMapper::toMenuVO).collect(Collectors.toList());
+    return menus.stream().map(menuMapper::toMenuVO).toList();
   }
 
   public List<MenuVO> findByUserId(Long userId) {
     List<SysMenu> menus = menuDAO.findByUserId(userId);
-    return menus.stream().map(menuMapper::toMenuVO).collect(Collectors.toList());
+    return menus.stream().map(menuMapper::toMenuVO).toList();
   }
 
   /**

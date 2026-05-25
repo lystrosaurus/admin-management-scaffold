@@ -7,7 +7,6 @@ import io.github.lystrosaurus.admin.system.role.dao.RoleDAO;
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +33,7 @@ public class StpInterfaceImpl implements StpInterface {
     return permissions.stream()
         .map(SysPermission::getCode)
         .filter(code -> code != null && !code.isBlank())
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
@@ -48,7 +47,7 @@ public class StpInterfaceImpl implements StpInterface {
     return roles.stream()
         .map(SysRole::getCode)
         .filter(code -> code != null && !code.isBlank())
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private Long toUserId(Object loginId) {

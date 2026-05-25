@@ -115,7 +115,7 @@ public class EmployeeService {
 
     // 批量查询组织信息
     List<Long> orgIds =
-        employeeOrgs.stream().map(EmployeeOrg::getOrgId).collect(Collectors.toList());
+        employeeOrgs.stream().map(EmployeeOrg::getOrgId).toList();
     Map<Long, OrgUnit> orgMap =
         orgUnitDAO.findByIds(orgIds).stream().collect(Collectors.toMap(OrgUnit::getId, org -> org));
 
@@ -136,7 +136,7 @@ public class EmployeeService {
                       eo.getEndDate(),
                       eo.getStatus());
                 })
-            .collect(Collectors.toList());
+            .toList();
 
     // 构建详情VO
     EmployeeDetailVO detailVO = employeeMapper.toDetailVO(employee);
@@ -170,7 +170,7 @@ public class EmployeeService {
 
     // 转换为VO列表
     List<EmployeeVO> baseVOs =
-        employees.stream().map(employeeMapper::toVO).collect(Collectors.toList());
+        employees.stream().map(employeeMapper::toVO).toList();
 
     // 批量查询组织名称
     List<Long> orgIds =
@@ -178,7 +178,7 @@ public class EmployeeService {
             .map(EmployeeVO::primaryOrgId)
             .filter(id -> id != null)
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
     Map<Long, String> orgNameMap =
         orgIds.isEmpty()
             ? Map.of()
@@ -204,7 +204,7 @@ public class EmployeeService {
                         vo.entryDate(),
                         vo.leaveDate(),
                         vo.createdAt()))
-            .collect(Collectors.toList());
+            .toList();
 
     return new PageResult<>(employeeVOs, total, page, size);
   }

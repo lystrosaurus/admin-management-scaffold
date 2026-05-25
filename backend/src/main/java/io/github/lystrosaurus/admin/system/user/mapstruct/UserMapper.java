@@ -19,8 +19,6 @@ public interface UserMapper {
    * @param sysUser 用户实体
    * @return 用户VO
    */
-  @Mapping(target = "lastLoginAt", source = "lastLoginAt")
-  @Mapping(target = "createdAt", source = "createdAt")
   UserVO toUserVO(SysUser sysUser);
 
   /**
@@ -29,9 +27,6 @@ public interface UserMapper {
    * @param sysUser 用户实体
    * @return 用户详情VO
    */
-  @Mapping(target = "lastLoginAt", source = "lastLoginAt")
-  @Mapping(target = "lastLoginIp", source = "lastLoginIp")
-  @Mapping(target = "createdAt", source = "createdAt")
   @Mapping(target = "roles", ignore = true) // 角色列表需要单独查询
   UserDetailVO toUserDetailVO(SysUser sysUser);
 

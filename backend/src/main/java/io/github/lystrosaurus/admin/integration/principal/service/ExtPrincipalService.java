@@ -15,7 +15,6 @@ import io.github.lystrosaurus.admin.integration.source.dao.ExtSourceDAO;
 import io.github.lystrosaurus.admin.integration.source.entity.ExtSource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,7 +102,7 @@ public class ExtPrincipalService {
   public List<ExtPrincipalVO> list(Long sourceId, String linkStatus) {
     return extPrincipalDAO.findByCondition(sourceId, linkStatus).stream()
         .map(this::buildVO)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Transactional(rollbackFor = Exception.class)

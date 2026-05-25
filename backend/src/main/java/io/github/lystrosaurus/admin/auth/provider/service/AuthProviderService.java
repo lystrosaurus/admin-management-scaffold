@@ -9,7 +9,6 @@ import io.github.lystrosaurus.admin.auth.provider.vo.AuthProviderVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +64,7 @@ public class AuthProviderService {
   }
 
   public List<AuthProviderVO> list() {
-    return providerDAO.listAll().stream().map(providerMapStruct::toVO).collect(Collectors.toList());
+    return providerDAO.listAll().stream().map(providerMapStruct::toVO).toList();
   }
 
   public AuthProviderVO getByCode(String code) {

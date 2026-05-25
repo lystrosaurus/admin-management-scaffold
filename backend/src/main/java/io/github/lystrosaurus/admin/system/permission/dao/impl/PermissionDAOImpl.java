@@ -10,7 +10,6 @@ import io.github.lystrosaurus.admin.system.role.mapper.SysRolePermissionMapper;
 import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -88,7 +87,7 @@ public class PermissionDAOImpl implements PermissionDAO {
     List<Long> permissionIds =
         rolePermissions.stream()
             .map(SysRolePermission::getPermissionId)
-            .collect(Collectors.toList());
+            .toList();
     return permissionMapper.selectList(
         new LambdaQueryWrapper<SysPermission>().in(SysPermission::getId, permissionIds));
   }
@@ -106,7 +105,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
     // 再查询角色权限关联
     List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+        userRoles.stream().map(SysUserRole::getRoleId).toList();
     List<SysRolePermission> rolePermissions =
         rolePermissionMapper.selectList(
             new LambdaQueryWrapper<SysRolePermission>().in(SysRolePermission::getRoleId, roleIds));
@@ -119,7 +118,7 @@ public class PermissionDAOImpl implements PermissionDAO {
     List<Long> permissionIds =
         rolePermissions.stream()
             .map(SysRolePermission::getPermissionId)
-            .collect(Collectors.toList());
+            .toList();
     return permissionMapper.selectList(
         new LambdaQueryWrapper<SysPermission>().in(SysPermission::getId, permissionIds));
   }

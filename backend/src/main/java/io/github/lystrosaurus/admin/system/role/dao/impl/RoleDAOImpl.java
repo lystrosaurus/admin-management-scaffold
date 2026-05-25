@@ -16,8 +16,10 @@ import io.github.lystrosaurus.admin.system.role.mapper.SysRolePermissionMapper;
 import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -36,6 +38,7 @@ public class RoleDAOImpl implements RoleDAO {
   private final SysPermissionMapper permissionMapper;
   private final SysMenuMapper menuMapper;
   private final SysUserRoleMapper userRoleMapper;
+  private final SqlSessionFactory sqlSessionFactory;
 
   @Override
   public SysRole findById(Long id) {
@@ -102,7 +105,7 @@ public class RoleDAOImpl implements RoleDAO {
     List<Long> permissionIds =
         rolePermissions.stream()
             .map(SysRolePermission::getPermissionId)
-            .collect(Collectors.toList());
+            .toList();
     return permissionMapper.selectList(
         new LambdaQueryWrapper<SysPermission>().in(SysPermission::getId, permissionIds));
   }
@@ -116,12 +119,16 @@ public class RoleDAOImpl implements RoleDAO {
     // 先移除现有权限
     removePermissions(roleId);
 
-    // 再分配新权限
-    for (Long permissionId : permissionIds) {
-      SysRolePermission rolePermission = new SysRolePermission();
-      rolePermission.setRoleId(roleId);
-      rolePermission.setPermissionId(permissionId);
-      rolePermissionMapper.insert(rolePermission);
+    // 批量分配新权限
+    try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
+      SysRolePermissionMapper batchMapper = sqlSession.getMapper(SysRolePermissionMapper.class);
+      for (Long permissionId : permissionIds) {
+        SysRolePermission rolePermission = new SysRolePermission();
+        rolePermission.setRoleId(roleId);
+        rolePermission.setPermissionId(permissionId);
+        batchMapper.insert(rolePermission);
+      }
+      sqlSession.commit();
     }
   }
 
@@ -144,7 +151,7 @@ public class RoleDAOImpl implements RoleDAO {
 
     // 再查询菜单详情
     List<Long> menuIds =
-        roleMenus.stream().map(SysRoleMenu::getMenuId).collect(Collectors.toList());
+        roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
     return menuMapper.selectList(new LambdaQueryWrapper<SysMenu>().in(SysMenu::getId, menuIds));
   }
 
@@ -157,12 +164,16 @@ public class RoleDAOImpl implements RoleDAO {
     // 先移除现有菜单
     removeMenus(roleId);
 
-    // 再分配新菜单
-    for (Long menuId : menuIds) {
-      SysRoleMenu roleMenu = new SysRoleMenu();
-      roleMenu.setRoleId(roleId);
-      roleMenu.setMenuId(menuId);
-      roleMenuMapper.insert(roleMenu);
+    // 批量分配新菜单
+    try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
+      SysRoleMenuMapper batchMapper = sqlSession.getMapper(SysRoleMenuMapper.class);
+      for (Long menuId : menuIds) {
+        SysRoleMenu roleMenu = new SysRoleMenu();
+        roleMenu.setRoleId(roleId);
+        roleMenu.setMenuId(menuId);
+        batchMapper.insert(roleMenu);
+      }
+      sqlSession.commit();
     }
   }
 
@@ -190,7 +201,7 @@ public class RoleDAOImpl implements RoleDAO {
 
     // 再查询角色详情
     List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+        userRoles.stream().map(SysUserRole::getRoleId).toList();
     return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 

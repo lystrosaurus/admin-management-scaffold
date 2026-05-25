@@ -12,7 +12,6 @@ import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
 import io.github.lystrosaurus.admin.organization.orgunit.mapstruct.OrgUnitMapper;
 import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitTreeVO;
 import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitVO;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -126,7 +125,7 @@ public class OrgUnitService {
 
   public List<OrgUnitVO> findAll() {
     List<OrgUnit> orgUnits = orgUnitDAO.findAll();
-    return orgUnits.stream().map(orgUnitMapper::toVO).collect(Collectors.toList());
+    return orgUnits.stream().map(orgUnitMapper::toVO).toList();
   }
 
   public List<OrgUnitTreeVO> findTree() {
@@ -135,40 +134,27 @@ public class OrgUnitService {
 
     // 转换为 TreeVO
     List<OrgUnitTreeVO> allTreeVOs =
-        allOrgUnits.stream().map(orgUnitMapper::toTreeVO).collect(Collectors.toList());
+        allOrgUnits.stream().map(orgUnitMapper::toTreeVO).toList();
 
-    // 按 parentId 分组
-    Map<Long, List<OrgUnitTreeVO>> parentIdMap =
+    // 按 parentId 分组，避免递归时全量扫描
+    Map<Long, List<OrgUnitTreeVO>> parentChildMap =
         allTreeVOs.stream().collect(Collectors.groupingBy(OrgUnitTreeVO::parentId));
 
-    // 构建树形结构
-    List<OrgUnitTreeVO> roots = new ArrayList<>();
-    for (OrgUnitTreeVO treeVO : allTreeVOs) {
-      if (treeVO.parentId() == 0) {
-        roots.add(treeVO);
-      }
-      List<OrgUnitTreeVO> children = parentIdMap.get(treeVO.id());
-      if (children != null) {
-        // 使用反射或重新构建 record 来设置 children
-        // 由于 record 是不可变的，我们需要重新创建
-        // 这里我们直接构建树形结构
-      }
-    }
-
     // 递归构建树
-    return buildTree(allTreeVOs, 0L);
+    return buildTree(parentChildMap, 0L);
   }
 
   /**
    * 递归构建树形结构
    *
-   * @param allTreeVOs 所有树形VO
+   * @param parentChildMap 按 parentId 分组的子节点映射
    * @param parentId 父节点ID
    * @return 子节点列表
    */
-  private List<OrgUnitTreeVO> buildTree(List<OrgUnitTreeVO> allTreeVOs, Long parentId) {
-    return allTreeVOs.stream()
-        .filter(vo -> vo.parentId().equals(parentId))
+  private List<OrgUnitTreeVO> buildTree(
+      Map<Long, List<OrgUnitTreeVO>> parentChildMap, Long parentId) {
+    List<OrgUnitTreeVO> children = parentChildMap.getOrDefault(parentId, List.of());
+    return children.stream()
         .map(
             vo ->
                 new OrgUnitTreeVO(
@@ -180,8 +166,8 @@ public class OrgUnitService {
                     vo.managerEmployeeId(),
                     vo.sortOrder(),
                     vo.status(),
-                    buildTree(allTreeVOs, vo.id())))
-        .collect(Collectors.toList());
+                    buildTree(parentChildMap, vo.id())))
+        .toList();
   }
 
   public PageResult<OrgUnitVO> findPage(OrgUnitQueryDTO dto, int page, int size) {
@@ -192,7 +178,7 @@ public class OrgUnitService {
 
     // 转换为VO列表
     List<OrgUnitVO> orgUnitVOs =
-        orgUnits.stream().map(orgUnitMapper::toVO).collect(Collectors.toList());
+        orgUnits.stream().map(orgUnitMapper::toVO).toList();
 
     return new PageResult<>(orgUnitVOs, total, page, size);
   }

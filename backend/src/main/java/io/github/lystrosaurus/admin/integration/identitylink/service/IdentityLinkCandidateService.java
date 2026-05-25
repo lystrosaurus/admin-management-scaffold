@@ -11,7 +11,6 @@ import io.github.lystrosaurus.admin.integration.principal.dao.ExtPrincipalDAO;
 import io.github.lystrosaurus.admin.integration.principal.entity.ExtPrincipal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,12 +77,12 @@ public class IdentityLinkCandidateService {
   public List<IdentityLinkCandidateVO> listPending() {
     return candidateDAO.listPending().stream()
         .map(candidateMapStruct::toVO)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public List<IdentityLinkCandidateVO> listByPrincipalId(Long principalId) {
     return candidateDAO.listByPrincipalId(principalId).stream()
         .map(candidateMapStruct::toVO)
-        .collect(Collectors.toList());
+        .toList();
   }
 }
