@@ -8,6 +8,11 @@
 # Log file
 *.log
 
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
+
 # BlueJ files
 *.ctxt
 
