@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.integration.principal.dto.ExtPrincipalCreateDTO;
@@ -27,9 +26,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * IntegrationPrincipalController 测试
@@ -43,7 +43,7 @@ class IntegrationPrincipalControllerTest extends SaTokenTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private ExtPrincipalService extPrincipalService;
+  @MockitoBean private ExtPrincipalService extPrincipalService;
 
   private ExtPrincipalVO extPrincipalVO;
 

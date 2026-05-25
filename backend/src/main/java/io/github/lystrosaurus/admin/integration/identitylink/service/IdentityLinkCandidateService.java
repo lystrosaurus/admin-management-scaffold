@@ -1,50 +1,89 @@
 package io.github.lystrosaurus.admin.integration.identitylink.service;
 
+import io.github.lystrosaurus.admin.exception.BusinessException;
+import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.integration.identitylink.dao.IdentityLinkCandidateDAO;
 import io.github.lystrosaurus.admin.integration.identitylink.dto.IdentityLinkCandidateCreateDTO;
+import io.github.lystrosaurus.admin.integration.identitylink.entity.IdentityLinkCandidate;
+import io.github.lystrosaurus.admin.integration.identitylink.mapstruct.IdentityLinkCandidateMapStruct;
 import io.github.lystrosaurus.admin.integration.identitylink.vo.IdentityLinkCandidateVO;
+import io.github.lystrosaurus.admin.integration.principal.dao.ExtPrincipalDAO;
+import io.github.lystrosaurus.admin.integration.principal.entity.ExtPrincipal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-/** 身份匹配候选服务接口 */
-public interface IdentityLinkCandidateService {
+/** 身份匹配候选服务实现 */
+@Service
+@RequiredArgsConstructor
+public class IdentityLinkCandidateService {
 
-  /**
-   * 创建候选记录
-   *
-   * @param dto 创建DTO
-   * @return 候选VO
-   */
-  IdentityLinkCandidateVO create(IdentityLinkCandidateCreateDTO dto);
+  private final IdentityLinkCandidateDAO candidateDAO;
+  private final ExtPrincipalDAO extPrincipalDAO;
+  private final IdentityLinkCandidateMapStruct candidateMapStruct;
 
-  /**
-   * 确认候选记录
-   *
-   * <p>更新候选状态为 CONFIRMED，同时更新对应外部主体的链接状态。
-   *
-   * @param id 候选ID
-   * @param handledBy 处理人
-   */
-  void confirm(Long id, String handledBy);
+  @Transactional(rollbackFor = Exception.class)
+  public IdentityLinkCandidateVO create(IdentityLinkCandidateCreateDTO dto) {
+    IdentityLinkCandidate entity = candidateMapStruct.toEntity(dto);
+    entity.setStatus("PENDING");
+    entity.setCreatedAt(LocalDateTime.now());
+    candidateDAO.save(entity);
+    return candidateMapStruct.toVO(entity);
+  }
 
-  /**
-   * 拒绝候选记录
-   *
-   * @param id 候选ID
-   * @param handledBy 处理人
-   */
-  void reject(Long id, String handledBy);
+  @Transactional(rollbackFor = Exception.class)
+  public void confirm(Long id, String handledBy) {
+    IdentityLinkCandidate candidate = candidateDAO.findById(id);
+    if (candidate == null) {
+      throw new BusinessException(ErrorCode.CANDIDATE_NOT_FOUND);
+    }
+    if (!"PENDING".equals(candidate.getStatus())) {
+      throw new BusinessException(ErrorCode.CANDIDATE_ALREADY_HANDLED);
+    }
 
-  /**
-   * 查询待处理的候选记录列表
-   *
-   * @return 待处理候选列表
-   */
-  List<IdentityLinkCandidateVO> listPending();
+    // 更新候选记录状态
+    candidate.setStatus("CONFIRMED");
+    candidate.setHandledBy(handledBy);
+    candidate.setHandledAt(LocalDateTime.now());
+    candidateDAO.updateById(candidate);
 
-  /**
-   * 根据外部主体ID查询候选记录列表
-   *
-   * @param principalId 外部主体ID
-   * @return 候选列表
-   */
-  List<IdentityLinkCandidateVO> listByPrincipalId(Long principalId);
+    // 更新外部主体的链接状态
+    ExtPrincipal principal = new ExtPrincipal();
+    principal.setId(candidate.getSourcePrincipalId());
+    principal.setLinkStatus("MANUAL_LINKED");
+    principal.setCanonicalType(candidate.getCandidateType());
+    principal.setCanonicalId(candidate.getCandidateId());
+    extPrincipalDAO.update(principal);
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void reject(Long id, String handledBy) {
+    IdentityLinkCandidate candidate = candidateDAO.findById(id);
+    if (candidate == null) {
+      throw new BusinessException(ErrorCode.CANDIDATE_NOT_FOUND);
+    }
+    if (!"PENDING".equals(candidate.getStatus())) {
+      throw new BusinessException(ErrorCode.CANDIDATE_ALREADY_HANDLED);
+    }
+
+    candidate.setStatus("REJECTED");
+    candidate.setHandledBy(handledBy);
+    candidate.setHandledAt(LocalDateTime.now());
+    candidateDAO.updateById(candidate);
+  }
+
+  public List<IdentityLinkCandidateVO> listPending() {
+    return candidateDAO.listPending().stream()
+        .map(candidateMapStruct::toVO)
+        .collect(Collectors.toList());
+  }
+
+  public List<IdentityLinkCandidateVO> listByPrincipalId(Long principalId) {
+    return candidateDAO.listByPrincipalId(principalId).stream()
+        .map(candidateMapStruct::toVO)
+        .collect(Collectors.toList());
+  }
 }

@@ -40,7 +40,7 @@ class UserCrudIntegrationTest extends IntegrationTest {
     // 清理可能残留的测试数据
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     jdbc.update(
-        "DELETE FROM sys_user WHERE username LIKE 'crud\\_%' OR username LIKE 'dup\\_%' OR username LIKE 'detail\\_%' OR username LIKE 'update\\_%' OR username LIKE 'delete\\_%' OR username LIKE 'page\\_%' OR username LIKE 'bcrypt\\_%'");
+        "DELETE FROM sys_user WHERE username LIKE 'crud\\\\_%' ESCAPE '\\\\' OR username LIKE 'dup\\\\_%' ESCAPE '\\\\' OR username LIKE 'detail\\\\_%' ESCAPE '\\\\' OR username LIKE 'update\\\\_%' ESCAPE '\\\\' OR username LIKE 'delete\\\\_%' ESCAPE '\\\\' OR username LIKE 'page\\\\_%' ESCAPE '\\\\' OR username LIKE 'bcrypt\\\\_%' ESCAPE '\\\\'");
   }
 
   // ==================== 创建用户 ====================

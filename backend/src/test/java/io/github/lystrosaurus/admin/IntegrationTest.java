@@ -1,10 +1,10 @@
 package io.github.lystrosaurus.admin;
 
+import cn.dev33.satoken.dao.SaTokenDaoForRedisTemplate;
 import org.junit.jupiter.api.Test;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -18,9 +18,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @EnableAutoConfiguration(
     exclude = {
-      RedisAutoConfiguration.class,
-      RedisRepositoriesAutoConfiguration.class,
-      RedissonAutoConfigurationV2.class
+      DataRedisAutoConfiguration.class,
+      RedissonAutoConfigurationV2.class,
+      SaTokenDaoForRedisTemplate.class
     })
 public abstract class IntegrationTest {
 

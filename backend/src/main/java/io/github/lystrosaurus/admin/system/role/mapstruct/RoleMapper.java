@@ -1,17 +1,16 @@
 package io.github.lystrosaurus.admin.system.role.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import io.github.lystrosaurus.admin.system.role.vo.RoleDetailVO;
 import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 /** 角色 MapStruct 映射器 */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = SPRING)
 public interface RoleMapper {
-
-  RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 
   /**
    * 将 SysRole 转换为 RoleVO

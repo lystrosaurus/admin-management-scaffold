@@ -1,35 +1,38 @@
 package io.github.lystrosaurus.admin.auth.log.service;
 
+import io.github.lystrosaurus.admin.auth.log.dao.OperationLogDAO;
 import io.github.lystrosaurus.admin.auth.log.entity.OperationLog;
+import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-/** 操作日志服务接口 */
-public interface OperationLogService {
+/** 操作日志服务实现 */
+@Service
+@RequiredArgsConstructor
+public class OperationLogService {
 
-  /**
-   * 记录操作日志
-   *
-   * @param userId 用户ID
-   * @param operationType 操作类型
-   * @param targetType 目标类型
-   * @param targetId 目标ID
-   * @param detailJson 操作详情JSON
-   * @param ipAddress IP地址
-   */
-  void recordOperation(
+  private final OperationLogDAO operationLogDAO;
+
+  public void recordOperation(
       Long userId,
       String operationType,
       String targetType,
       Long targetId,
       String detailJson,
-      String ipAddress);
+      String ipAddress) {
+    OperationLog log = new OperationLog();
+    log.setUserId(userId);
+    log.setOperationType(operationType);
+    log.setTargetType(targetType);
+    log.setTargetId(targetId);
+    log.setDetailJson(detailJson);
+    log.setIpAddress(ipAddress);
+    log.setCreatedAt(LocalDateTime.now());
+    operationLogDAO.save(log);
+  }
 
-  /**
-   * 查询用户最近的操作记录
-   *
-   * @param userId 用户ID
-   * @param limit 限制数量
-   * @return 操作日志列表
-   */
-  List<OperationLog> getRecentOperations(Long userId, int limit);
+  public List<OperationLog> getRecentOperations(Long userId, int limit) {
+    return operationLogDAO.listByUserId(userId, limit);
+  }
 }

@@ -8,9 +8,12 @@ import io.github.lystrosaurus.admin.system.user.vo.UserDetailVO;
 import io.github.lystrosaurus.admin.system.user.vo.UserVO;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 /** UserMapper 测试 */
 class UserMapperTest {
+
+  private static final UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
   @Test
   void should_convert_sys_user_to_user_vo() {
@@ -26,7 +29,7 @@ class UserMapperTest {
     sysUser.setCreatedAt(LocalDateTime.now());
 
     // When
-    UserVO userVO = UserMapper.INSTANCE.toUserVO(sysUser);
+    UserVO userVO = mapper.toUserVO(sysUser);
 
     // Then
     assertNotNull(userVO);
@@ -57,7 +60,7 @@ class UserMapperTest {
     sysUser.setCreatedAt(LocalDateTime.now());
 
     // When
-    UserDetailVO userDetailVO = UserMapper.INSTANCE.toUserDetailVO(sysUser);
+    UserDetailVO userDetailVO = mapper.toUserDetailVO(sysUser);
 
     // Then
     assertNotNull(userDetailVO);
@@ -83,7 +86,7 @@ class UserMapperTest {
             "testuser", "password123", "Test User", "13800138000", "test@example.com");
 
     // When
-    SysUser sysUser = UserMapper.INSTANCE.toEntity(dto);
+    SysUser sysUser = mapper.toEntity(dto);
 
     // Then
     assertNotNull(sysUser);

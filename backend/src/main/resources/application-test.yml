@@ -13,9 +13,9 @@ spring:
       database: 1
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
       - org.redisson.spring.starter.RedissonAutoConfigurationV2
+      - cn.dev33.satoken.dao.SaTokenDaoForRedisTemplate
 
 # Sa-Token 测试配置
 sa-token:
@@ -26,7 +26,7 @@ sa-token:
   is-concurrent: true     # 是否允许同一账号并发登录
   is-share: false         # 多次登录创建新Token
   token-style: jwt        # JWT风格
-  jwt-secret-key: test-jwt-secret-key-at-least-32-chars-long
+  jwt-secret-key: ${JWT_SECRET:test-jwt-secret-key-at-least-32-chars-long}
   is-read-header: true
   is-read-cookie: false
   is-read-body: false

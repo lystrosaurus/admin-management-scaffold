@@ -1,15 +1,14 @@
 package io.github.lystrosaurus.admin.system.permission.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lystrosaurus.admin.system.permission.entity.SysPermission;
 import io.github.lystrosaurus.admin.system.permission.vo.PermissionVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 /** 权限 MapStruct 映射器 */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = SPRING)
 public interface PermissionMapper {
-
-  PermissionMapper INSTANCE = Mappers.getMapper(PermissionMapper.class);
 
   /**
    * 将 SysPermission 转换为 PermissionVO

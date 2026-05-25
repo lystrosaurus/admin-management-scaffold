@@ -16,7 +16,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** SecurityProfileController MVC 测试 */
@@ -25,11 +25,11 @@ class SecurityProfileControllerTest extends SaTokenTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockBean private AuthService authService;
+  @MockitoBean private AuthService authService;
 
-  @MockBean private ExternalAccountService externalAccountService;
+  @MockitoBean private ExternalAccountService externalAccountService;
 
-  @MockBean private LoginLogService loginLogService;
+  @MockitoBean private LoginLogService loginLogService;
 
   @Test
   @DisplayName("GET /app/profile/security — 有密码 + 有绑定 + 有登录记录")

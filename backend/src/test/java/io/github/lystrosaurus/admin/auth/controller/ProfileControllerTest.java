@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lystrosaurus.admin.auth.vo.ProfileVO;
 import io.github.lystrosaurus.admin.system.menu.service.MenuService;
 import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
@@ -26,9 +25,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * ProfileController 测试
@@ -42,11 +42,11 @@ class ProfileControllerTest extends SaTokenTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private UserService userService;
+  @MockitoBean private UserService userService;
 
-  @MockBean private RoleService roleService;
+  @MockitoBean private RoleService roleService;
 
-  @MockBean private MenuService menuService;
+  @MockitoBean private MenuService menuService;
 
   private UserVO userVO;
   private ProfileVO profileVO;

@@ -2,6 +2,7 @@ package io.github.lystrosaurus.admin.db;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import cn.dev33.satoken.dao.SaTokenDaoForRedisTemplate;
 import io.github.lystrosaurus.admin.config.TestDatabaseInitializer;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,9 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @EnableAutoConfiguration(
     exclude = {
-      RedisAutoConfiguration.class,
-      RedisRepositoriesAutoConfiguration.class,
-      RedissonAutoConfigurationV2.class
+      DataRedisAutoConfiguration.class,
+      RedissonAutoConfigurationV2.class,
+      SaTokenDaoForRedisTemplate.class
     })
 @Import(TestDatabaseInitializer.class)
 class FlywayMigrationTest {

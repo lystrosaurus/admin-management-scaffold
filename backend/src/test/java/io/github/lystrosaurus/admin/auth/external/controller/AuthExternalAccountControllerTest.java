@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lystrosaurus.admin.auth.external.dto.ExternalAccountBindDTO;
 import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
@@ -22,9 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 /** AuthExternalAccountController MVC 测试 */
 @DisplayName("AuthExternalAccountController 测试")
@@ -34,7 +34,7 @@ class AuthExternalAccountControllerTest extends SaTokenTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private ExternalAccountService externalAccountService;
+  @MockitoBean private ExternalAccountService externalAccountService;
 
   private ExternalAccountVO externalAccountVO;
 

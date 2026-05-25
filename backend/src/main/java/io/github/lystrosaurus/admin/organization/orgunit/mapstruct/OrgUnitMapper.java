@@ -1,18 +1,17 @@
 package io.github.lystrosaurus.admin.organization.orgunit.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lystrosaurus.admin.organization.orgunit.dto.OrgUnitCreateDTO;
 import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
 import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitTreeVO;
 import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 /** 组织单元 MapStruct 映射器 */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = SPRING)
 public interface OrgUnitMapper {
-
-  OrgUnitMapper INSTANCE = Mappers.getMapper(OrgUnitMapper.class);
 
   /**
    * 将 OrgUnitCreateDTO 转换为 OrgUnit 实体

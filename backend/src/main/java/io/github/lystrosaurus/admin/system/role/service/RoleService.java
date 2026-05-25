@@ -1,74 +1,159 @@
 package io.github.lystrosaurus.admin.system.role.service;
 
+import io.github.lystrosaurus.admin.exception.BusinessException;
+import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.system.menu.entity.SysMenu;
+import io.github.lystrosaurus.admin.system.menu.mapstruct.MenuMapper;
+import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
+import io.github.lystrosaurus.admin.system.permission.entity.SysPermission;
+import io.github.lystrosaurus.admin.system.permission.mapstruct.PermissionMapper;
+import io.github.lystrosaurus.admin.system.permission.vo.PermissionVO;
+import io.github.lystrosaurus.admin.system.role.dao.RoleDAO;
 import io.github.lystrosaurus.admin.system.role.dto.RoleCreateDTO;
 import io.github.lystrosaurus.admin.system.role.dto.RoleUpdateDTO;
+import io.github.lystrosaurus.admin.system.role.entity.SysRole;
+import io.github.lystrosaurus.admin.system.role.mapstruct.RoleMapper;
 import io.github.lystrosaurus.admin.system.role.vo.RoleDetailVO;
 import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-/** 角色服务接口 */
-public interface RoleService {
+/** 角色服务实现 */
+@Service
+@RequiredArgsConstructor
+public class RoleService {
 
-  /**
-   * 创建角色
-   *
-   * @param dto 角色创建DTO
-   * @return 角色VO
-   */
-  RoleVO create(RoleCreateDTO dto);
+  private final RoleDAO roleDAO;
+  private final RoleMapper roleMapper;
+  private final PermissionMapper permissionMapper;
+  private final MenuMapper menuMapper;
 
-  /**
-   * 更新角色
-   *
-   * @param id 角色ID
-   * @param dto 角色更新DTO
-   * @return 角色VO
-   */
-  RoleVO update(Long id, RoleUpdateDTO dto);
+  @Transactional(rollbackFor = Exception.class)
+  public RoleVO create(RoleCreateDTO dto) {
+    // 检查角色编码唯一性
+    if (roleDAO.existsByCode(dto.code())) {
+      throw new BusinessException(ErrorCode.ROLE_ALREADY_EXISTS);
+    }
 
-  /**
-   * 删除角色
-   *
-   * @param id 角色ID
-   */
-  void deleteById(Long id);
+    // 转换并保存角色
+    SysRole role = new SysRole();
+    role.setCode(dto.code());
+    role.setName(dto.name());
+    role.setDescription(dto.description());
+    role.setSortOrder(dto.sortOrder());
+    role.setDataScopeType(dto.dataScopeType());
+    role.setStatus("ENABLED");
+    roleDAO.save(role);
 
-  /**
-   * 查询角色详情
-   *
-   * @param id 角色ID
-   * @return 角色详情VO
-   */
-  RoleDetailVO findById(Long id);
+    return roleMapper.toRoleVO(role);
+  }
 
-  /**
-   * 查询所有角色
-   *
-   * @return 角色列表
-   */
-  List<RoleVO> findAll();
+  @Transactional(rollbackFor = Exception.class)
+  public RoleVO update(Long id, RoleUpdateDTO dto) {
+    // 查找角色
+    SysRole role = roleDAO.findById(id);
+    if (role == null) {
+      throw new BusinessException(ErrorCode.ROLE_NOT_FOUND);
+    }
 
-  /**
-   * 根据用户ID查询角色
-   *
-   * @param userId 用户ID
-   * @return 角色列表
-   */
-  List<RoleVO> findByUserId(Long userId);
+    // 更新字段
+    if (StringUtils.hasText(dto.name())) {
+      role.setName(dto.name());
+    }
+    if (StringUtils.hasText(dto.description())) {
+      role.setDescription(dto.description());
+    }
+    if (dto.sortOrder() != null) {
+      role.setSortOrder(dto.sortOrder());
+    }
+    if (StringUtils.hasText(dto.status())) {
+      role.setStatus(dto.status());
+    }
+    if (StringUtils.hasText(dto.dataScopeType())) {
+      role.setDataScopeType(dto.dataScopeType());
+    }
 
-  /**
-   * 分配权限给角色
-   *
-   * @param roleId 角色ID
-   * @param permissionIds 权限ID列表
-   */
-  void assignPermissions(Long roleId, List<Long> permissionIds);
+    roleDAO.update(role);
+    return roleMapper.toRoleVO(role);
+  }
 
-  /**
-   * 分配菜单给角色
-   *
-   * @param roleId 角色ID
-   * @param menuIds 菜单ID列表
-   */
-  void assignMenus(Long roleId, List<Long> menuIds);
+  @Transactional(rollbackFor = Exception.class)
+  public void deleteById(Long id) {
+    roleDAO.deleteById(id);
+  }
+
+  public RoleDetailVO findById(Long id) {
+    // 查找角色
+    SysRole role = roleDAO.findById(id);
+    if (role == null) {
+      throw new BusinessException(ErrorCode.ROLE_NOT_FOUND);
+    }
+
+    // 查询角色权限
+    List<SysPermission> permissions = roleDAO.findPermissionsByRoleId(id);
+    List<PermissionVO> permissionVOs =
+        permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+
+    // 查询角色菜单
+    List<SysMenu> menus = roleDAO.findMenusByRoleId(id);
+    List<MenuVO> menuVOs = menus.stream().map(menuMapper::toMenuVO).collect(Collectors.toList());
+
+    // 构建详情VO
+    RoleDetailVO detailVO = roleMapper.toRoleDetailVO(role);
+    return new RoleDetailVO(
+        detailVO.id(),
+        detailVO.code(),
+        detailVO.name(),
+        detailVO.description(),
+        detailVO.sortOrder(),
+        detailVO.status(),
+        detailVO.dataScopeType(),
+        permissionVOs,
+        menuVOs,
+        detailVO.createdAt());
+  }
+
+  public List<RoleVO> findAll() {
+    List<SysRole> roles = roleDAO.findAll();
+    return roles.stream().map(roleMapper::toRoleVO).collect(Collectors.toList());
+  }
+
+  public List<RoleVO> findByUserId(Long userId) {
+    List<SysRole> roles = roleDAO.findByUserId(userId);
+    return roles.stream().map(roleMapper::toRoleVO).collect(Collectors.toList());
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void assignPermissions(Long roleId, List<Long> permissionIds) {
+    // 检查角色是否存在
+    SysRole role = roleDAO.findById(roleId);
+    if (role == null) {
+      throw new BusinessException(ErrorCode.ROLE_NOT_FOUND);
+    }
+
+    // 移除现有权限并分配新权限
+    roleDAO.removePermissions(roleId);
+    if (permissionIds != null && !permissionIds.isEmpty()) {
+      roleDAO.assignPermissions(roleId, permissionIds);
+    }
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void assignMenus(Long roleId, List<Long> menuIds) {
+    // 检查角色是否存在
+    SysRole role = roleDAO.findById(roleId);
+    if (role == null) {
+      throw new BusinessException(ErrorCode.ROLE_NOT_FOUND);
+    }
+
+    // 移除现有菜单并分配新菜单
+    roleDAO.removeMenus(roleId);
+    if (menuIds != null && !menuIds.isEmpty()) {
+      roleDAO.assignMenus(roleId, menuIds);
+    }
+  }
 }

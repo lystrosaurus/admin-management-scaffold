@@ -1,17 +1,16 @@
 package io.github.lystrosaurus.admin.system.menu.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lystrosaurus.admin.system.menu.entity.SysMenu;
 import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 /** 菜单 MapStruct 映射器 */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = SPRING)
 public interface MenuMapper {
-
-  MenuMapper INSTANCE = Mappers.getMapper(MenuMapper.class);
 
   /**
    * 将 SysMenu 转换为 MenuVO

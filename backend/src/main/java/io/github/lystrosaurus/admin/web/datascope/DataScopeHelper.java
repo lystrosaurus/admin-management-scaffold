@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import io.github.lystrosaurus.admin.system.role.entity.SysRoleOrg;
 import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMapper;
@@ -38,6 +39,7 @@ public class DataScopeHelper {
   private final SysUserRoleMapper userRoleMapper;
   private final SysRoleMapper roleMapper;
   private final SysRoleOrgMapper roleOrgMapper;
+  private final OrgUnitDAO orgUnitDAO;
 
   /**
    * 获取当前用户可访问的部门ID集合
@@ -202,10 +204,23 @@ public class DataScopeHelper {
   /**
    * 获取某个部门的所有下级部门ID
    *
-   * <p>当前为简化实现，后续可通过注入 OrgUnitDAO 完成内存递归查询。
+   * <p>通过 OrgUnitDAO 递归查找所有子部门。
    */
   private Set<Long> getDescendantOrgIds(Long orgId) {
-    // TODO: 注入 OrgUnitDAO 实现递归查询下级部门
-    return Set.of();
+    Set<Long> result = new HashSet<>();
+    collectDescendantIds(orgId, result);
+    return result;
+  }
+
+  /** 递归收集下级部门ID */
+  private void collectDescendantIds(Long parentId, Set<Long> result) {
+    List<Long> childIds =
+        orgUnitDAO.findByParentId(parentId).stream()
+            .map(org -> org.getId())
+            .collect(Collectors.toList());
+    for (Long childId : childIds) {
+      result.add(childId);
+      collectDescendantIds(childId, result);
+    }
   }
 }

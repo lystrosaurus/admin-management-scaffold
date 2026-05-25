@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>4.0.6</version>
         <relativePath/>
     </parent>
 
@@ -21,11 +21,12 @@
 
     <properties>
         <java.version>21</java.version>
+        <spring-boot.version>4.0.6</spring-boot.version>
         <mybatis-plus.version>3.5.16</mybatis-plus.version>
-        <mybatis-spring.version>3.0.5</mybatis-spring.version>
         <sa-token.version>1.45.0</sa-token.version>
-        <redisson.version>3.27.0</redisson.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <redisson.version>3.39.0</redisson.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <archunit.version>1.2.1</archunit.version>
         <spotless.version>2.43.0</spotless.version>
     </properties>
@@ -35,36 +36,45 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!-- Spring Security Crypto (仅 BCrypt) -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
-        </dependency>
-
-        <!-- Spring Boot AOP -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Jakarta Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Spring Boot Data Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
-        <!-- MyBatis-Plus -->
+        <!-- AspectJ Weaver (AOP 支持) -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+
+        <!-- Spring AOP -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+
+        <!-- Spring Security Crypto (BCrypt) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus (Spring Boot 4) -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
 
@@ -75,17 +85,10 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
-        <!-- mybatis-spring -->
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis-spring</artifactId>
-            <version>${mybatis-spring.version}</version>
-        </dependency>
-
-        <!-- Sa-Token -->
+        <!-- Sa-Token (Spring Boot 4) -->
         <dependency>
             <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <artifactId>sa-token-spring-boot4-starter</artifactId>
             <version>${sa-token.version}</version>
         </dependency>
 
@@ -93,6 +96,13 @@
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-jwt</artifactId>
+            <version>${sa-token.version}</version>
+        </dependency>
+
+        <!-- Sa-Token Redis Session Storage (Jackson 3.x) -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-jackson</artifactId>
             <version>${sa-token.version}</version>
         </dependency>
 
@@ -114,14 +124,12 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>10.15.0</version>
         </dependency>
 
         <!-- Flyway MySQL 支持 -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
-            <version>10.15.0</version>
         </dependency>
 
         <!-- MySQL Driver -->
@@ -129,12 +137,6 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
-        </dependency>
-
-        <!-- Spring Security Crypto (BCrypt) -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
         <!-- Lombok -->
@@ -148,6 +150,15 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Spring Boot WebMVC Test (AutoConfigureMockMvc) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -199,6 +210,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>

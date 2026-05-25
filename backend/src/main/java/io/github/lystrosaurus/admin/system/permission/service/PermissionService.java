@@ -1,57 +1,98 @@
 package io.github.lystrosaurus.admin.system.permission.service;
 
+import io.github.lystrosaurus.admin.exception.BusinessException;
+import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.system.permission.dao.PermissionDAO;
 import io.github.lystrosaurus.admin.system.permission.dto.PermissionCreateDTO;
 import io.github.lystrosaurus.admin.system.permission.dto.PermissionUpdateDTO;
+import io.github.lystrosaurus.admin.system.permission.entity.SysPermission;
+import io.github.lystrosaurus.admin.system.permission.mapstruct.PermissionMapper;
 import io.github.lystrosaurus.admin.system.permission.vo.PermissionVO;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-/** 权限服务接口 */
-public interface PermissionService {
+/** 权限服务实现 */
+@Service
+@RequiredArgsConstructor
+public class PermissionService {
 
-  /**
-   * 创建权限
-   *
-   * @param dto 权限创建DTO
-   * @return 权限VO
-   */
-  PermissionVO create(PermissionCreateDTO dto);
+  private final PermissionDAO permissionDAO;
+  private final PermissionMapper permissionMapper;
 
-  /**
-   * 更新权限
-   *
-   * @param id 权限ID
-   * @param dto 权限更新DTO
-   * @return 权限VO
-   */
-  PermissionVO update(Long id, PermissionUpdateDTO dto);
+  @Transactional(rollbackFor = Exception.class)
+  public PermissionVO create(PermissionCreateDTO dto) {
+    // 检查权限编码唯一性
+    if (permissionDAO.existsByCode(dto.code())) {
+      throw new BusinessException(ErrorCode.DATA_DUPLICATE_KEY);
+    }
 
-  /**
-   * 删除权限
-   *
-   * @param id 权限ID
-   */
-  void deleteById(Long id);
+    // 转换并保存权限
+    SysPermission permission = new SysPermission();
+    permission.setCode(dto.code());
+    permission.setName(dto.name());
+    permission.setType(dto.type());
+    permission.setModule(dto.module());
+    permission.setResource(dto.resource());
+    permission.setAction(dto.action());
+    permission.setStatus("ENABLED");
+    permissionDAO.save(permission);
 
-  /**
-   * 根据角色ID查询权限
-   *
-   * @param roleId 角色ID
-   * @return 权限列表
-   */
-  List<PermissionVO> findByRoleId(Long roleId);
+    return permissionMapper.toPermissionVO(permission);
+  }
 
-  /**
-   * 根据用户ID查询权限
-   *
-   * @param userId 用户ID
-   * @return 权限列表
-   */
-  List<PermissionVO> findByUserId(Long userId);
+  @Transactional(rollbackFor = Exception.class)
+  public PermissionVO update(Long id, PermissionUpdateDTO dto) {
+    // 查找权限
+    SysPermission permission = permissionDAO.findById(id);
+    if (permission == null) {
+      throw new BusinessException(ErrorCode.PERMISSION_NOT_FOUND);
+    }
 
-  /**
-   * 查询所有权限
-   *
-   * @return 全部权限列表
-   */
-  List<PermissionVO> findAll();
+    // 更新字段
+    if (StringUtils.hasText(dto.name())) {
+      permission.setName(dto.name());
+    }
+    if (StringUtils.hasText(dto.type())) {
+      permission.setType(dto.type());
+    }
+    if (StringUtils.hasText(dto.module())) {
+      permission.setModule(dto.module());
+    }
+    if (StringUtils.hasText(dto.resource())) {
+      permission.setResource(dto.resource());
+    }
+    if (StringUtils.hasText(dto.action())) {
+      permission.setAction(dto.action());
+    }
+    if (StringUtils.hasText(dto.status())) {
+      permission.setStatus(dto.status());
+    }
+
+    permissionDAO.update(permission);
+    return permissionMapper.toPermissionVO(permission);
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void deleteById(Long id) {
+    permissionDAO.deleteById(id);
+  }
+
+  public List<PermissionVO> findByRoleId(Long roleId) {
+    List<SysPermission> permissions = permissionDAO.findByRoleId(roleId);
+    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+  }
+
+  public List<PermissionVO> findByUserId(Long userId) {
+    List<SysPermission> permissions = permissionDAO.findByUserId(userId);
+    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+  }
+
+  public List<PermissionVO> findAll() {
+    List<SysPermission> permissions = permissionDAO.findAll();
+    return permissions.stream().map(permissionMapper::toPermissionVO).collect(Collectors.toList());
+  }
 }

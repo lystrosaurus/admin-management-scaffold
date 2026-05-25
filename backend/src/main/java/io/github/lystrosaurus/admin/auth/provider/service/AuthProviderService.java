@@ -1,74 +1,98 @@
 package io.github.lystrosaurus.admin.auth.provider.service;
 
+import io.github.lystrosaurus.admin.auth.provider.dao.AuthProviderDAO;
 import io.github.lystrosaurus.admin.auth.provider.dto.AuthProviderCreateDTO;
 import io.github.lystrosaurus.admin.auth.provider.dto.AuthProviderUpdateDTO;
+import io.github.lystrosaurus.admin.auth.provider.entity.AuthProvider;
+import io.github.lystrosaurus.admin.auth.provider.mapstruct.AuthProviderMapStruct;
 import io.github.lystrosaurus.admin.auth.provider.vo.AuthProviderVO;
+import io.github.lystrosaurus.admin.exception.BusinessException;
+import io.github.lystrosaurus.admin.exception.ErrorCode;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-/** 认证源服务接口 */
-public interface AuthProviderService {
+/** 认证源服务实现 */
+@Service
+@RequiredArgsConstructor
+public class AuthProviderService {
 
-  /**
-   * 创建认证源
-   *
-   * @param dto 创建DTO
-   * @return 认证源VO
-   */
-  AuthProviderVO create(AuthProviderCreateDTO dto);
+  private final AuthProviderDAO providerDAO;
+  private final AuthProviderMapStruct providerMapStruct;
 
-  /**
-   * 更新认证源
-   *
-   * @param id 认证源ID
-   * @param dto 更新DTO
-   * @return 认证源VO
-   */
-  AuthProviderVO update(Long id, AuthProviderUpdateDTO dto);
+  @Transactional(rollbackFor = Exception.class)
+  public AuthProviderVO create(AuthProviderCreateDTO dto) {
+    // 检查编码唯一性
+    if (providerDAO.findByCode(dto.code()) != null) {
+      throw new BusinessException(ErrorCode.AUTH_PROVIDER_ALREADY_EXISTS);
+    }
 
-  /**
-   * 删除认证源（逻辑删除）
-   *
-   * @param id 认证源ID
-   */
-  void delete(Long id);
+    AuthProvider entity = providerMapStruct.toEntity(dto);
+    providerDAO.save(entity);
+    return providerMapStruct.toVO(entity);
+  }
 
-  /**
-   * 根据ID获取认证源
-   *
-   * @param id 认证源ID
-   * @return 认证源VO
-   */
-  AuthProviderVO getById(Long id);
+  @Transactional(rollbackFor = Exception.class)
+  public AuthProviderVO update(Long id, AuthProviderUpdateDTO dto) {
+    AuthProvider entity = providerDAO.findById(id);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.AUTH_PROVIDER_NOT_FOUND);
+    }
 
-  /**
-   * 查询所有认证源
-   *
-   * @return 认证源列表
-   */
-  List<AuthProviderVO> list();
+    // 使用 MapStruct 更新非null字段
+    providerMapStruct.updateEntity(dto, entity);
+    providerDAO.updateById(entity);
+    return providerMapStruct.toVO(entity);
+  }
 
-  /**
-   * 根据编码获取认证源
-   *
-   * @param code 认证源编码
-   * @return 认证源VO
-   */
-  AuthProviderVO getByCode(String code);
+  @Transactional(rollbackFor = Exception.class)
+  public void delete(Long id) {
+    AuthProvider entity = providerDAO.findById(id);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.AUTH_PROVIDER_NOT_FOUND);
+    }
+    providerDAO.deleteById(id);
+  }
 
-  /**
-   * 根据编码获取已启用的认证源
-   *
-   * @param code 认证源编码
-   * @return 认证源VO
-   * @throws io.github.lystrosaurus.admin.exception.BusinessException 认证源不存在或已禁用
-   */
-  AuthProviderVO getEnabledByCode(String code);
+  public AuthProviderVO getById(Long id) {
+    AuthProvider entity = providerDAO.findById(id);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.AUTH_PROVIDER_NOT_FOUND);
+    }
+    return providerMapStruct.toVO(entity);
+  }
 
-  /**
-   * 获取认证源的客户端密钥（V1 直接返回明文）
-   *
-   * @param code 认证源编码
-   * @return 客户端密钥
-   */
-  String getClientSecret(String code);
+  public List<AuthProviderVO> list() {
+    return providerDAO.listAll().stream().map(providerMapStruct::toVO).collect(Collectors.toList());
+  }
+
+  public AuthProviderVO getByCode(String code) {
+    AuthProvider entity = providerDAO.findByCode(code);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.AUTH_PROVIDER_NOT_FOUND);
+    }
+    return providerMapStruct.toVO(entity);
+  }
+
+  public AuthProviderVO getEnabledByCode(String code) {
+    AuthProvider entity = providerDAO.findByCode(code);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
+    }
+    if (entity.getEnabled() == null || entity.getEnabled() != 1) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_DISABLED);
+    }
+    return providerMapStruct.toVO(entity);
+  }
+
+  public String getClientSecret(String code) {
+    AuthProvider entity = providerDAO.findByCode(code);
+    if (entity == null) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND);
+    }
+    // V1 直接返回明文（clientSecretEncrypted 字段直接存储明文）
+    return entity.getClientSecretEncrypted();
+  }
 }

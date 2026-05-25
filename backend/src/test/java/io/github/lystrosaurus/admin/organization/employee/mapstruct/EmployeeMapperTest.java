@@ -10,12 +10,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 /** EmployeeMapper MapStruct 单元测试 */
 @DisplayName("EmployeeMapper MapStruct 测试")
 class EmployeeMapperTest {
 
-  private final EmployeeMapper mapper = EmployeeMapper.INSTANCE;
+  private static final EmployeeMapper mapper = Mappers.getMapper(EmployeeMapper.class);
 
   @Test
   @DisplayName("应该将 EmployeeCreateDTO 转换为 HrEmployee 实体")

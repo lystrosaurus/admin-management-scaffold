@@ -1,18 +1,17 @@
 package io.github.lystrosaurus.admin.organization.employee.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lystrosaurus.admin.organization.employee.dto.EmployeeCreateDTO;
 import io.github.lystrosaurus.admin.organization.employee.entity.HrEmployee;
 import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeDetailVO;
 import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 /** 员工 MapStruct 映射器 */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = SPRING)
 public interface EmployeeMapper {
-
-  EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
   /**
    * 将 EmployeeCreateDTO 转换为 HrEmployee 实体

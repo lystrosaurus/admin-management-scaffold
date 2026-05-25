@@ -1,9 +1,12 @@
 package io.github.lystrosaurus.admin.auth.aspect;
 
+import cn.dev33.satoken.exception.SaTokenException;
+import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresRole;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>拦截权限注解，验证用户是否具有所需权限
  */
+@Slf4j
 @Aspect
 @Component
 public class PermissionAspect {
@@ -26,9 +30,13 @@ public class PermissionAspect {
    */
   @Before("@annotation(requiresPermission)")
   public void checkPermission(JoinPoint joinPoint, RequiresPermission requiresPermission) {
-    String permission = requiresPermission.value();
-    if (!hasPermission(permission)) {
-      throw new BusinessException(ErrorCode.PERMISSION_DENIED);
+    try {
+      if (!StpUtil.hasPermission(requiresPermission.value())) {
+        throw new BusinessException(ErrorCode.PERMISSION_DENIED);
+      }
+    } catch (SaTokenException e) {
+      log.debug("Permission check failed: {}", e.getMessage());
+      throw new BusinessException(ErrorCode.SYSTEM_401);
     }
   }
 
@@ -40,33 +48,13 @@ public class PermissionAspect {
    */
   @Before("@annotation(requiresRole)")
   public void checkRole(JoinPoint joinPoint, RequiresRole requiresRole) {
-    String role = requiresRole.value();
-    if (!hasRole(role)) {
-      throw new BusinessException(ErrorCode.AUTH_403);
+    try {
+      if (!StpUtil.hasRole(requiresRole.value())) {
+        throw new BusinessException(ErrorCode.AUTH_403);
+      }
+    } catch (SaTokenException e) {
+      log.debug("Role check failed: {}", e.getMessage());
+      throw new BusinessException(ErrorCode.SYSTEM_401);
     }
-  }
-
-  /**
-   * 检查用户是否具有指定权限
-   *
-   * @param permission 权限编码
-   * @return 是否具有权限
-   */
-  private boolean hasPermission(String permission) {
-    // 从 Sa-Token 会话中获取用户权限列表
-    // 暂时返回 true，后续需要实现权限接口
-    return true;
-  }
-
-  /**
-   * 检查用户是否具有指定角色
-   *
-   * @param role 角色编码
-   * @return 是否具有角色
-   */
-  private boolean hasRole(String role) {
-    // 从 Sa-Token 会话中获取用户角色列表
-    // 暂时返回 true，后续需要实现角色接口
-    return true;
   }
 }

@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
@@ -28,9 +27,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * EmployeeController 测试
@@ -44,7 +44,7 @@ class EmployeeControllerTest extends SaTokenTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private EmployeeService employeeService;
+  @MockitoBean private EmployeeService employeeService;
 
   private EmployeeVO employeeVO;
   private EmployeeDetailVO employeeDetailVO;

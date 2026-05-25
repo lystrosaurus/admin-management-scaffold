@@ -11,17 +11,13 @@ spring:
       port: 6379
       password: ""
       database: 0
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
-      - org.redisson.spring.starter.RedissonAutoConfigurationV2
 
 # Flyway 配置
 spring.flyway:
   enabled: true
   locations: classpath:db/migration
   baseline-on-migrate: true
+  baseline-version: 0
   validate-on-migrate: true
 
 # 日志级别（本地开发更详细）

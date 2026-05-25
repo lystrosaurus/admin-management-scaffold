@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** IntegrationLinkCandidateController MVC 测试 */
@@ -30,7 +30,7 @@ class IntegrationLinkCandidateControllerTest extends SaTokenTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockBean private IdentityLinkCandidateService candidateService;
+  @MockitoBean private IdentityLinkCandidateService candidateService;
 
   private IdentityLinkCandidateVO candidateVO;
 

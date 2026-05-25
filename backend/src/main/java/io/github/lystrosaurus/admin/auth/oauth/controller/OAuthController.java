@@ -39,8 +39,7 @@ public class OAuthController {
    * @return 登录结果
    */
   @GetMapping("/{provider}/callback")
-  public ApiResponse<OAuthLoginVO> callback(
-      @PathVariable String provider, OAuthCallbackDTO dto) {
+  public ApiResponse<OAuthLoginVO> callback(@PathVariable String provider, OAuthCallbackDTO dto) {
     OAuthLoginVO result = oauthService.handleCallback(provider, dto);
     return ApiResponse.success(result);
   }

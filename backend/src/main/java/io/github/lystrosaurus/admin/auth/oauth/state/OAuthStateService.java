@@ -1,38 +1,58 @@
 package io.github.lystrosaurus.admin.auth.oauth.state;
 
-/** OAuth 状态服务接口 */
-public interface OAuthStateService {
+import io.github.lystrosaurus.admin.exception.BusinessException;
+import io.github.lystrosaurus.admin.exception.ErrorCode;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.springframework.stereotype.Service;
 
-  /**
-   * 生成随机 state
-   *
-   * @return state 值
-   */
-  String generateState();
+/** OAuth 状态服务实现（内存存储） */
+@Service
+public class OAuthStateService {
 
-  /**
-   * 保存 state
-   *
-   * @param state 状态值
-   * @param nonce 随机数
-   */
-  void saveState(String state, String nonce);
+  private final ConcurrentHashMap<String, StateData> stateStore = new ConcurrentHashMap<>();
+  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-  /**
-   * 保存 state（带用户ID）
-   *
-   * @param state 状态值
-   * @param nonce 随机数
-   * @param userId 用户ID
-   */
-  void saveState(String state, String nonce, Long userId);
+  public OAuthStateService() {
+    // 每分钟清理超过 5 分钟的条目
+    scheduler.scheduleAtFixedRate(this::cleanupExpiredStates, 1, 1, TimeUnit.MINUTES);
+  }
 
-  /**
-   * 验证并消费 state（一次性使用）
-   *
-   * @param state 状态值
-   * @return 状态数据
-   * @throws io.github.lystrosaurus.admin.exception.BusinessException state 无效或已过期
-   */
-  StateData validateAndConsumeState(String state);
+  public String generateState() {
+    return UUID.randomUUID().toString().replace("-", "");
+  }
+
+  public void saveState(String state, String nonce) {
+    saveState(state, nonce, null);
+  }
+
+  public void saveState(String state, String nonce, Long userId) {
+    StateData stateData = new StateData(state, nonce, userId, LocalDateTime.now());
+    stateStore.put(state, stateData);
+  }
+
+  public StateData validateAndConsumeState(String state) {
+    StateData stateData = stateStore.remove(state);
+    if (stateData == null) {
+      throw new BusinessException(ErrorCode.OAUTH_STATE_INVALID);
+    }
+    return stateData;
+  }
+
+  /** 清理过期的状态数据 */
+  private void cleanupExpiredStates() {
+    LocalDateTime now = LocalDateTime.now();
+    stateStore
+        .entrySet()
+        .removeIf(
+            entry -> {
+              long minutes = ChronoUnit.MINUTES.between(entry.getValue().createdAt(), now);
+              return minutes > 5;
+            });
+  }
 }

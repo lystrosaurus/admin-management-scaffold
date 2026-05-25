@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.auth.oauth.dto.OAuthBindDTO;
 import io.github.lystrosaurus.admin.auth.oauth.service.OAuthService;
@@ -22,9 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 /** OAuthBindController MVC 测试 */
 @DisplayName("OAuthBindController 测试")
@@ -34,7 +34,7 @@ class OAuthBindControllerTest extends SaTokenTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private OAuthService oauthService;
+  @MockitoBean private OAuthService oauthService;
 
   private ExternalAccountVO externalAccountVO;
   private OAuthBindDTO bindDTO;

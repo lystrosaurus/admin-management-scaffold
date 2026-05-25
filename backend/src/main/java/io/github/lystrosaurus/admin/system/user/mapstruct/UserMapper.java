@@ -1,18 +1,17 @@
 package io.github.lystrosaurus.admin.system.user.mapstruct;
 
+import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
+
 import io.github.lystrosaurus.admin.system.user.dto.UserCreateDTO;
 import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import io.github.lystrosaurus.admin.system.user.vo.UserDetailVO;
 import io.github.lystrosaurus.admin.system.user.vo.UserVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 /** 用户 MapStruct 映射器 */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = SPRING)
 public interface UserMapper {
-
-  UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
   /**
    * 将 SysUser 转换为 UserVO

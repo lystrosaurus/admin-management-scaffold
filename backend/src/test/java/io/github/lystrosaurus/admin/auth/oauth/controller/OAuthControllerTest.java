@@ -7,17 +7,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.github.lystrosaurus.admin.BaseTest;
 import io.github.lystrosaurus.admin.auth.oauth.dto.OAuthCallbackDTO;
 import io.github.lystrosaurus.admin.auth.oauth.service.OAuthService;
 import io.github.lystrosaurus.admin.auth.oauth.vo.OAuthAuthorizeVO;
 import io.github.lystrosaurus.admin.auth.oauth.vo.OAuthLoginVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.BaseTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** OAuthController MVC 测试 */
@@ -26,19 +26,20 @@ class OAuthControllerTest extends BaseTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockBean private OAuthService oauthService;
+  @MockitoBean private OAuthService oauthService;
 
   @Test
   @DisplayName("GET /public/oauth/{provider}/authorize — 正常获取授权 URL")
   void should_return_authorize_url() throws Exception {
-    OAuthAuthorizeVO vo = new OAuthAuthorizeVO(
-        "https://open.feishu.cn/authorize?state=abc", "abc");
+    OAuthAuthorizeVO vo = new OAuthAuthorizeVO("https://open.feishu.cn/authorize?state=abc", "abc");
     when(oauthService.authorize("LARK")).thenReturn(vo);
 
-    mockMvc.perform(get("/public/oauth/LARK/authorize"))
+    mockMvc
+        .perform(get("/public/oauth/LARK/authorize"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(200))
-        .andExpect(jsonPath("$.data.authorizeUrl").value("https://open.feishu.cn/authorize?state=abc"))
+        .andExpect(
+            jsonPath("$.data.authorizeUrl").value("https://open.feishu.cn/authorize?state=abc"))
         .andExpect(jsonPath("$.data.state").value("abc"));
   }
 
@@ -48,7 +49,8 @@ class OAuthControllerTest extends BaseTest {
     when(oauthService.authorize("UNKNOWN"))
         .thenThrow(new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND));
 
-    mockMvc.perform(get("/public/oauth/UNKNOWN/authorize"))
+    mockMvc
+        .perform(get("/public/oauth/UNKNOWN/authorize"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(ErrorCode.OAUTH_PROVIDER_NOT_FOUND.getCode()));
   }
@@ -59,9 +61,11 @@ class OAuthControllerTest extends BaseTest {
     OAuthLoginVO vo = new OAuthLoginVO(null, false, null);
     when(oauthService.handleCallback(eq("LARK"), any(OAuthCallbackDTO.class))).thenReturn(vo);
 
-    mockMvc.perform(get("/public/oauth/LARK/callback")
-            .param("code", "auth-code")
-            .param("state", "state-abc"))
+    mockMvc
+        .perform(
+            get("/public/oauth/LARK/callback")
+                .param("code", "auth-code")
+                .param("state", "state-abc"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(200))
         .andExpect(jsonPath("$.data.needBind").value(false));
@@ -73,9 +77,11 @@ class OAuthControllerTest extends BaseTest {
     OAuthLoginVO vo = new OAuthLoginVO(null, true, "{\"provider\":\"LARK\"}");
     when(oauthService.handleCallback(eq("LARK"), any(OAuthCallbackDTO.class))).thenReturn(vo);
 
-    mockMvc.perform(get("/public/oauth/LARK/callback")
-            .param("code", "auth-code")
-            .param("state", "state-abc"))
+    mockMvc
+        .perform(
+            get("/public/oauth/LARK/callback")
+                .param("code", "auth-code")
+                .param("state", "state-abc"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(200))
         .andExpect(jsonPath("$.data.needBind").value(true))
@@ -88,9 +94,11 @@ class OAuthControllerTest extends BaseTest {
     when(oauthService.handleCallback(eq("LARK"), any(OAuthCallbackDTO.class)))
         .thenThrow(new BusinessException(ErrorCode.OAUTH_STATE_INVALID));
 
-    mockMvc.perform(get("/public/oauth/LARK/callback")
-            .param("code", "auth-code")
-            .param("state", "invalid-state"))
+    mockMvc
+        .perform(
+            get("/public/oauth/LARK/callback")
+                .param("code", "auth-code")
+                .param("state", "invalid-state"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(ErrorCode.OAUTH_STATE_INVALID.getCode()));
   }
