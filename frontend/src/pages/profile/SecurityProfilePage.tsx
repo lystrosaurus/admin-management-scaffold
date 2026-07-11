@@ -24,15 +24,15 @@ import dayjs from 'dayjs';
 
 const { Text } = Typography;
 
-/** OAuth 提供商配置 */
+/** OAuth 提供商配置（编码需与后端 OAuthClient bean 名称、auth_provider.code 一致：LARK/WECOM/WECHAT） */
 const providerConfig: Record<string, { name: string; icon: React.ReactNode; color: string }> = {
-  feishu: { name: '飞书', icon: <DingdingOutlined />, color: '#3370ff' },
-  wecom: { name: '企业微信', icon: <WechatOutlined />, color: '#07c160' },
-  wechat: { name: '微信', icon: <WechatOutlined />, color: '#07c160' },
+  LARK: { name: '飞书', icon: <DingdingOutlined />, color: '#3370ff' },
+  WECOM: { name: '企业微信', icon: <WechatOutlined />, color: '#07c160' },
+  WECHAT: { name: '微信', icon: <WechatOutlined />, color: '#07c160' },
 };
 
-/** OAuth 提供商列表 */
-const providers = ['feishu', 'wecom', 'wechat'];
+/** OAuth 提供商列表（编码需与后端一致） */
+const providers = ['LARK', 'WECOM', 'WECHAT'];
 
 /** 账号安全页面 */
 const SecurityProfilePage = () => {

@@ -4,6 +4,7 @@ import { Spin } from 'antd';
 import AuthGuard from './AuthGuard';
 import MainLayout from '@/layouts/MainLayout';
 import LoginPage from '@/pages/login/LoginPage';
+import OAuthCallbackPage from '@/pages/oauth/OAuthCallbackPage';
 
 /** 懒加载页面组件 */
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
@@ -58,6 +59,9 @@ const AppRoutes = () => (
     <Routes>
       {/* 公开路由：登录页 */}
       <Route path="/login" element={<LoginPage />} />
+
+      {/* 三方绑定回调（独立路由，OAuth 重定向落地页） */}
+      <Route path="/oauth/callback/:provider" element={<OAuthCallbackPage />} />
 
       {/* 受保护路由：需要认证 */}
       <Route element={<AuthGuard />}>

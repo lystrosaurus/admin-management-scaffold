@@ -31,6 +31,8 @@ public class RedisTemplateConfig {
     StringRedisSerializer keySerializer = new StringRedisSerializer();
     template.setKeySerializer(keySerializer);
     template.setHashKeySerializer(keySerializer);
+    // StateData.createdAt 使用 java.util.Date（Jackson 原生支持），
+    // 避免引入 Java8 时间类型导致 Redis 序列化失败。
     Jackson2JsonRedisSerializer<StateData> valueSerializer =
         new Jackson2JsonRedisSerializer<>(StateData.class);
     template.setValueSerializer(valueSerializer);

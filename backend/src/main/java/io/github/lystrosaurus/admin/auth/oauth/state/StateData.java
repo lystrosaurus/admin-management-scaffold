@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.auth.oauth.state;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * OAuth 状态数据
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * @param state 状态值
  * @param nonce 随机数
  * @param userId 用户ID（可选）
- * @param createdAt 创建时间
+ * @param createdAt 创建时间（Date，Jackson 原生可序列化）
  */
-public record StateData(String state, String nonce, Long userId, LocalDateTime createdAt)
+public record StateData(String state, String nonce, Long userId, Date createdAt)
     implements Serializable {}

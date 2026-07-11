@@ -35,7 +35,7 @@ class OAuthServiceTest {
         .thenThrow(new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND));
 
     BusinessException exception =
-        assertThrows(BusinessException.class, () -> oAuthService.authorize("LARK"));
+        assertThrows(BusinessException.class, () -> oAuthService.authorize("LARK", null));
     assertEquals(9505, exception.getCode());
   }
 
@@ -46,7 +46,7 @@ class OAuthServiceTest {
         .thenThrow(new BusinessException(ErrorCode.OAUTH_PROVIDER_DISABLED));
 
     BusinessException exception =
-        assertThrows(BusinessException.class, () -> oAuthService.authorize("LARK"));
+        assertThrows(BusinessException.class, () -> oAuthService.authorize("LARK", null));
     assertEquals(9506, exception.getCode());
   }
 }

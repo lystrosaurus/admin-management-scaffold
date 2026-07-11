@@ -82,6 +82,7 @@ public enum ErrorCode {
   OAUTH_USERINFO_FAILED(9504, "获取三方用户信息失败"),
   OAUTH_PROVIDER_NOT_FOUND(9505, "OAuth 提供方不存在"),
   OAUTH_PROVIDER_DISABLED(9506, "OAuth 提供方已禁用"),
+  OAUTH_PROVIDER_NOT_SUPPORTED(9520, "OAuth 提供方暂未支持"),
   OAUTH_REDIRECT_URI_INVALID(9507, "redirect_uri 不合法"),
   OAUTH_NONCE_INVALID(9510, "OAuth nonce 无效"),
 

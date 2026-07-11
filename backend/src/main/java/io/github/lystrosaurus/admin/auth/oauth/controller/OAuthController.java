@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** OAuth 公开控制器（无需登录） */
@@ -26,8 +27,10 @@ public class OAuthController {
    * @return 授权 URL 和 state
    */
   @GetMapping("/{provider}/authorize")
-  public ApiResponse<OAuthAuthorizeVO> authorize(@PathVariable String provider) {
-    OAuthAuthorizeVO result = oauthService.authorize(provider);
+  public ApiResponse<OAuthAuthorizeVO> authorize(
+      @PathVariable String provider,
+      @RequestParam(required = false) String redirectBase) {
+    OAuthAuthorizeVO result = oauthService.authorize(provider, redirectBase);
     return ApiResponse.success(result);
   }
 

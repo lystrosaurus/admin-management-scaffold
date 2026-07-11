@@ -32,7 +32,7 @@ class OAuthControllerTest extends BaseTest {
   @DisplayName("GET /public/oauth/{provider}/authorize — 正常获取授权 URL")
   void should_return_authorize_url() throws Exception {
     OAuthAuthorizeVO vo = new OAuthAuthorizeVO("https://open.feishu.cn/authorize?state=abc", "abc");
-    when(oauthService.authorize("LARK")).thenReturn(vo);
+    when(oauthService.authorize("LARK", null)).thenReturn(vo);
 
     mockMvc
         .perform(get("/public/oauth/LARK/authorize"))
@@ -46,7 +46,7 @@ class OAuthControllerTest extends BaseTest {
   @Test
   @DisplayName("GET /public/oauth/{provider}/authorize — 提供方不存在")
   void should_return_error_when_provider_not_found() throws Exception {
-    when(oauthService.authorize("UNKNOWN"))
+    when(oauthService.authorize("UNKNOWN", null))
         .thenThrow(new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_FOUND));
 
     mockMvc

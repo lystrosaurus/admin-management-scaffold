@@ -3,9 +3,12 @@ import type { OAuthAuthorizeUrl, OAuthBindRequest, OAuthAccount, SecurityProfile
 
 /**
  * 获取 OAuth 授权 URL
+ * 传入前端实际访问源，后端据此拼接回调地址 /oauth/callback/{provider}
  */
 export const getAuthorizeUrl = (provider: string): Promise<OAuthAuthorizeUrl> => {
-  return get<OAuthAuthorizeUrl>(`/public/oauth/${provider}/authorize`);
+  return get<OAuthAuthorizeUrl>(`/public/oauth/${provider}/authorize`, {
+    params: { redirectBase: window.location.origin },
+  });
 };
 
 /**

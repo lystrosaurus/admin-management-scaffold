@@ -37,16 +37,36 @@ public class OAuthService {
   private final AuthExternalAccountDAO accountDAO;
   private final LoginLogService loginLogService;
 
-  @Value("${app.oauth.redirect-uri:http://localhost:3000/oauth/callback}")
+  @Value("${app.oauth.redirect-uri:http://localhost:3001}")
   private String redirectUri;
 
-  public OAuthAuthorizeVO authorize(String providerCode) {
+  /**
+   * 发起授权。
+   *
+   * <p>回调地址在运行时按 {@code redirectBase + "/oauth/callback/{provider}"} 拼接，确保与前端实际访问源一致；
+   * 非浏览器调用（如测试）可省略 {@code redirectBase}，回退到配置的 {@link #redirectUri}。
+   *
+   * @param providerCode 认证源编码
+   * @param redirectBase 前端实际访问源（如 http://localhost:3001），可空
+   * @return 授权 URL 与 state
+   */
+  public OAuthAuthorizeVO authorize(String providerCode, String redirectBase) {
     providerService.getEnabledByCode(providerCode);
 
     OAuthClient client = clientFactory.getClient(providerCode);
     String state = stateService.generateState();
     stateService.saveState(state, null);
-    String authorizeUrl = client.buildAuthorizationUrl(state, redirectUri);
+
+    String base = (redirectBase != null && !redirectBase.isBlank()) ? redirectBase : redirectUri;
+    String callbackUri = base + "/oauth/callback/" + providerCode;
+    // 部分提供方（如 WECOM/WECHAT）尚未实现，buildAuthorizationUrl 会抛
+    // UnsupportedOperationException，这里转译为清晰的业务错误，避免返回原始 500。
+    String authorizeUrl;
+    try {
+      authorizeUrl = client.buildAuthorizationUrl(state, callbackUri);
+    } catch (UnsupportedOperationException e) {
+      throw new BusinessException(ErrorCode.OAUTH_PROVIDER_NOT_SUPPORTED);
+    }
 
     return new OAuthAuthorizeVO(authorizeUrl, state);
   }
