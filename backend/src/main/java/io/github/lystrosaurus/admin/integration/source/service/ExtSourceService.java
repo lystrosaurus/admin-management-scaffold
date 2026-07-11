@@ -73,8 +73,6 @@ public class ExtSourceService {
   }
 
   public List<ExtSourceVO> list() {
-    return extSourceDAO.findAll().stream()
-        .map(extSourceMapStruct::toVO)
-        .toList();
+    return extSourceDAO.findAll().stream().map(extSourceMapStruct::toVO).toList();
   }
 }

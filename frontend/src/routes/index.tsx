@@ -14,6 +14,14 @@ const EmployeeListPage = lazy(() => import('@/pages/employees/EmployeeListPage')
 const OrgUnitListPage = lazy(() => import('@/pages/org-units/OrgUnitListPage'));
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'));
 const SecurityProfilePage = lazy(() => import('@/pages/profile/SecurityProfilePage'));
+const AuditLogPage = lazy(() => import('@/pages/audit/AuditLogPage'));
+const FileManagePage = lazy(() => import('@/pages/files/FileManagePage'));
+const SystemStatusPage = lazy(() => import('@/pages/ops/SystemStatusPage'));
+const DictPage = lazy(() => import('@/pages/dict/DictPage'));
+const ConfigItemPage = lazy(() => import('@/pages/config/ConfigItemPage'));
+const SourcePage = lazy(() => import('@/pages/integration/sources/SourcePage'));
+const PrincipalPage = lazy(() => import('@/pages/integration/principals/PrincipalPage'));
+const LinkCandidatePage = lazy(() => import('@/pages/integration/link-candidates/LinkCandidatePage'));
 
 /** 页面加载占位 */
 const PageLoading = () => (
@@ -36,6 +44,14 @@ const PageLoading = () => (
  *   /org-units    → 组织管理
  *   /settings     → 系统配置
  *   /profile/security → 账号安全
+ *   /audit        → 审计日志
+ *   /files        → 文件管理
+ *   /ops          → 系统状态
+ *   /dict         → 数据字典
+ *   /config-items → 配置项
+ *   /integration/sources       → 外部身份源
+ *   /integration/principals    → 外部主体
+ *   /integration/link-candidates → 身份匹配
  */
 const AppRoutes = () => (
   <Suspense fallback={<PageLoading />}>
@@ -56,6 +72,14 @@ const AppRoutes = () => (
           <Route path="org-units" element={<OrgUnitListPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="profile/security" element={<SecurityProfilePage />} />
+          <Route path="audit" element={<AuditLogPage />} />
+          <Route path="files" element={<FileManagePage />} />
+          <Route path="ops" element={<SystemStatusPage />} />
+          <Route path="dict" element={<DictPage />} />
+          <Route path="config-items" element={<ConfigItemPage />} />
+          <Route path="integration/sources" element={<SourcePage />} />
+          <Route path="integration/principals" element={<PrincipalPage />} />
+          <Route path="integration/link-candidates" element={<LinkCandidatePage />} />
         </Route>
       </Route>
 

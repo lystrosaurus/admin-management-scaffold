@@ -99,8 +99,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     // 再查询角色详情
-    List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).toList();
+    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
     return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 

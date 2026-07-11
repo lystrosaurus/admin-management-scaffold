@@ -39,8 +39,7 @@ public class SaTokenConfig {
   public void validateJwtSecretKey() {
     if (jwtSecretKey == null || jwtSecretKey.isBlank()) {
       throw new IllegalStateException(
-          "sa-token.jwt-secret-key must be configured. "
-              + "Set JWT_SECRET environment variable.");
+          "sa-token.jwt-secret-key must be configured. " + "Set JWT_SECRET environment variable.");
     }
     if (jwtSecretKey.length() < 32) {
       throw new IllegalStateException(

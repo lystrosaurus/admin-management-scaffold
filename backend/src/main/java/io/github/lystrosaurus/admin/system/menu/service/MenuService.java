@@ -106,8 +106,7 @@ public class MenuService {
     }
 
     // 转换为VO
-    List<MenuVO> allMenuVOs =
-        allMenus.stream().map(menuMapper::toMenuVO).toList();
+    List<MenuVO> allMenuVOs = allMenus.stream().map(menuMapper::toMenuVO).toList();
 
     // 按父ID分组
     Map<Long, List<MenuVO>> parentMenuMap =

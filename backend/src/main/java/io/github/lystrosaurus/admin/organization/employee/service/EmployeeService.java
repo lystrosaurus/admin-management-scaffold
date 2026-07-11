@@ -114,8 +114,7 @@ public class EmployeeService {
     List<EmployeeOrg> employeeOrgs = employeeOrgDAO.findByEmployeeId(id);
 
     // 批量查询组织信息
-    List<Long> orgIds =
-        employeeOrgs.stream().map(EmployeeOrg::getOrgId).toList();
+    List<Long> orgIds = employeeOrgs.stream().map(EmployeeOrg::getOrgId).toList();
     Map<Long, OrgUnit> orgMap =
         orgUnitDAO.findByIds(orgIds).stream().collect(Collectors.toMap(OrgUnit::getId, org -> org));
 
@@ -169,16 +168,11 @@ public class EmployeeService {
         employeeDAO.countByCondition(dto.keyword(), dto.employmentStatus(), dto.primaryOrgId());
 
     // 转换为VO列表
-    List<EmployeeVO> baseVOs =
-        employees.stream().map(employeeMapper::toVO).toList();
+    List<EmployeeVO> baseVOs = employees.stream().map(employeeMapper::toVO).toList();
 
     // 批量查询组织名称
     List<Long> orgIds =
-        baseVOs.stream()
-            .map(EmployeeVO::primaryOrgId)
-            .filter(id -> id != null)
-            .distinct()
-            .toList();
+        baseVOs.stream().map(EmployeeVO::primaryOrgId).filter(id -> id != null).distinct().toList();
     Map<Long, String> orgNameMap =
         orgIds.isEmpty()
             ? Map.of()

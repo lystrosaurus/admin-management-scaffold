@@ -1,22 +1,34 @@
 package io.github.lystrosaurus.admin.auth.oauth.state;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 /** OAuthStateService 单元测试 */
 @DisplayName("OAuth状态服务测试")
 class OAuthStateServiceTest {
 
+  @Mock private RedisTemplate<String, StateData> redisTemplate;
+  @Mock private ValueOperations<String, StateData> valueOperations;
   private OAuthStateService stateService;
 
   @BeforeEach
   void setUp() {
-    stateService = new OAuthStateService();
+    MockitoAnnotations.openMocks(this);
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    stateService = new OAuthStateService(redisTemplate);
   }
 
   @Test
@@ -31,6 +43,9 @@ class OAuthStateServiceTest {
   @DisplayName("应该成功保存和验证state")
   void should_save_and_validate_state() {
     String state = "test-state";
+    StateData expected = new StateData(state, "test-nonce", null, LocalDateTime.now());
+    when(valueOperations.getAndDelete(any())).thenReturn(expected);
+
     stateService.saveState(state, "test-nonce");
 
     StateData result = stateService.validateAndConsumeState(state);
@@ -38,12 +53,16 @@ class OAuthStateServiceTest {
     assertNotNull(result);
     assertEquals("test-state", result.state());
     assertEquals("test-nonce", result.nonce());
+    verify(valueOperations).set(any(), any(), anyLong(), any());
   }
 
   @Test
   @DisplayName("验证已使用的state应该抛出异常")
   void should_throw_exception_when_validating_used_state() {
     String state = "test-state";
+    StateData expected = new StateData(state, "test-nonce", null, LocalDateTime.now());
+    when(valueOperations.getAndDelete(any())).thenReturn(expected, (StateData) null);
+
     stateService.saveState(state, "test-nonce");
     stateService.validateAndConsumeState(state);
 
@@ -55,6 +74,8 @@ class OAuthStateServiceTest {
   @Test
   @DisplayName("验证不存在的state应该抛出异常")
   void should_throw_exception_when_validating_nonexistent_state() {
+    when(valueOperations.getAndDelete(any())).thenReturn(null);
+
     BusinessException exception =
         assertThrows(
             BusinessException.class, () -> stateService.validateAndConsumeState("nonexistent"));

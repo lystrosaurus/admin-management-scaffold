@@ -87,15 +87,11 @@ public class ExternalAccountService {
   }
 
   public List<ExternalAccountVO> listByUserId(Long userId) {
-    return accountDAO.listByUserId(userId).stream()
-        .map(accountMapStruct::toVO)
-        .toList();
+    return accountDAO.listByUserId(userId).stream().map(accountMapStruct::toVO).toList();
   }
 
   public List<ExternalAccountVO> listByEmployeeId(Long employeeId) {
-    return accountDAO.listByEmployeeId(employeeId).stream()
-        .map(accountMapStruct::toVO)
-        .toList();
+    return accountDAO.listByEmployeeId(employeeId).stream().map(accountMapStruct::toVO).toList();
   }
 
   @Transactional(rollbackFor = Exception.class)

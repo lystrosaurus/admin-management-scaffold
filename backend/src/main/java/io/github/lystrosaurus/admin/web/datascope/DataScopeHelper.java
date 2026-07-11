@@ -144,7 +144,8 @@ public class DataScopeHelper {
     }
 
     // 如果任意角色为 ALL，则不限制
-    boolean hasAll = roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
+    boolean hasAll =
+        roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
     if (hasAll) {
       return null;
     }
@@ -207,8 +208,7 @@ public class DataScopeHelper {
     if (userRoles.isEmpty()) {
       return List.of();
     }
-    List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).toList();
+    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
     return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 
@@ -235,7 +235,9 @@ public class DataScopeHelper {
     // 构建 parentId -> childIds 映射
     Map<Long, List<Long>> parentChildMap =
         allOrgUnits.stream()
-            .collect(Collectors.groupingBy(OrgUnit::getParentId, Collectors.mapping(OrgUnit::getId, Collectors.toList())));
+            .collect(
+                Collectors.groupingBy(
+                    OrgUnit::getParentId, Collectors.mapping(OrgUnit::getId, Collectors.toList())));
 
     Set<Long> result = new HashSet<>();
     collectDescendantIds(orgId, parentChildMap, result);
@@ -243,7 +245,8 @@ public class DataScopeHelper {
   }
 
   /** 基于内存父子映射递归收集下级部门ID */
-  private void collectDescendantIds(Long parentId, Map<Long, List<Long>> parentChildMap, Set<Long> result) {
+  private void collectDescendantIds(
+      Long parentId, Map<Long, List<Long>> parentChildMap, Set<Long> result) {
     List<Long> childIds = parentChildMap.getOrDefault(parentId, List.of());
     for (Long childId : childIds) {
       result.add(childId);

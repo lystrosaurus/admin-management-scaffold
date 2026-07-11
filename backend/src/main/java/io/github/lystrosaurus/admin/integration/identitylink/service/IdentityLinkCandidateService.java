@@ -75,9 +75,7 @@ public class IdentityLinkCandidateService {
   }
 
   public List<IdentityLinkCandidateVO> listPending() {
-    return candidateDAO.listPending().stream()
-        .map(candidateMapStruct::toVO)
-        .toList();
+    return candidateDAO.listPending().stream().map(candidateMapStruct::toVO).toList();
   }
 
   public List<IdentityLinkCandidateVO> listByPrincipalId(Long principalId) {

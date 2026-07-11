@@ -1,5 +1,8 @@
 package io.github.lystrosaurus.admin.handler;
 
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
+import cn.dev33.satoken.exception.NotRoleException;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
@@ -24,6 +27,22 @@ public class GlobalExceptionHandler {
   public ApiResponse<Void> handleBusinessException(BusinessException e) {
     log.warn("业务异常: code={}, message={}", e.getCode(), e.getMessage());
     return ApiResponse.error(e.getCode(), e.getMessage());
+  }
+
+  /** 处理未登录异常（Sa-Token 拦截器在 /app/** 未携带有效 token 时抛出） */
+  @ExceptionHandler(NotLoginException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ApiResponse<Void> handleNotLoginException(NotLoginException e) {
+    log.warn("未登录: {}", e.getMessage());
+    return ApiResponse.error(ErrorCode.AUTH_401);
+  }
+
+  /** 处理无权限 / 无角色异常 */
+  @ExceptionHandler({NotPermissionException.class, NotRoleException.class})
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ApiResponse<Void> handleNotPermissionException(Exception e) {
+    log.warn("无权限: {}", e.getMessage());
+    return ApiResponse.error(ErrorCode.PERMISSION_DENIED);
   }
 
   /** 处理参数校验异常 */

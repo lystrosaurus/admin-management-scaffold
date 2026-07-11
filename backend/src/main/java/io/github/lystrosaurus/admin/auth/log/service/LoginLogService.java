@@ -1,12 +1,16 @@
 package io.github.lystrosaurus.admin.auth.log.service;
 
 import io.github.lystrosaurus.admin.auth.log.dao.LoginLogDAO;
+import io.github.lystrosaurus.admin.auth.log.dto.LoginLogQueryDTO;
 import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
+import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /** 登录日志服务实现 */
 @Service
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class LoginLogService {
 
   private final LoginLogDAO loginLogDAO;
+  private final UserDAO userDAO;
 
   public void recordLogin(
       Long userId,
@@ -47,5 +52,37 @@ public class LoginLogService {
                     log.getStatus(),
                     log.getLoginAt()))
         .toList();
+  }
+
+  /** 条件分页查询登录日志 */
+  public PageResult<LoginLogVO> listLoginLogs(LoginLogQueryDTO dto) {
+    Long userId = resolveUserId(dto.username());
+    if (StringUtils.hasText(dto.username()) && userId == null) {
+      return new PageResult<>(List.of(), 0, dto.page(), dto.size());
+    }
+    var page =
+        loginLogDAO.findPage(
+            userId, dto.ipAddress(), dto.status(), dto.start(), dto.end(), dto.page(), dto.size());
+    List<LoginLogVO> vos =
+        page.getRecords().stream()
+            .map(
+                log ->
+                    new LoginLogVO(
+                        log.getId(),
+                        log.getLoginType(),
+                        log.getProviderCode(),
+                        log.getIpAddress(),
+                        log.getStatus(),
+                        log.getLoginAt()))
+            .toList();
+    return new PageResult<>(vos, page.getTotal(), dto.page(), dto.size());
+  }
+
+  private Long resolveUserId(String username) {
+    if (!StringUtils.hasText(username)) {
+      return null;
+    }
+    var user = userDAO.findByUsername(username);
+    return user == null ? null : user.getId();
   }
 }

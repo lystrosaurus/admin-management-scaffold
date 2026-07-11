@@ -12,6 +12,14 @@ import {
   SettingOutlined,
   SafetyOutlined,
   LogoutOutlined,
+  FileSearchOutlined,
+  FolderOpenOutlined,
+  FundOutlined,
+  BookOutlined,
+  SlidersOutlined,
+  FolderOutlined,
+  ApiOutlined,
+  LinkOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import type { MenuProps } from 'antd';
@@ -30,6 +38,21 @@ const menuItems: MenuProps['items'] = [
   { key: '/org-units', icon: <BankOutlined />, label: '组织管理' },
   { key: '/settings', icon: <SettingOutlined />, label: '系统配置' },
   { key: '/profile/security', icon: <SafetyOutlined />, label: '账号安全' },
+  { key: '/audit', icon: <FileSearchOutlined />, label: '审计日志' },
+  { key: '/files', icon: <FolderOpenOutlined />, label: '文件管理' },
+  { key: '/ops', icon: <FundOutlined />, label: '系统状态' },
+  { key: '/dict', icon: <BookOutlined />, label: '数据字典' },
+  { key: '/config-items', icon: <SlidersOutlined />, label: '配置项' },
+  {
+    key: '/integration',
+    icon: <FolderOutlined />,
+    label: '集成管理',
+    children: [
+      { key: '/integration/sources', icon: <ApiOutlined />, label: '外部身份源' },
+      { key: '/integration/principals', icon: <UserOutlined />, label: '外部主体' },
+      { key: '/integration/link-candidates', icon: <LinkOutlined />, label: '身份匹配' },
+    ],
+  },
 ];
 
 /** 路径 → 面包屑标题映射 */
@@ -42,6 +65,15 @@ const breadcrumbMap: Record<string, string> = {
   '/org-units': '组织管理',
   '/settings': '系统配置',
   '/profile/security': '账号安全',
+  '/audit': '审计日志',
+  '/files': '文件管理',
+  '/ops': '系统状态',
+  '/dict': '数据字典',
+  '/config-items': '配置项',
+  '/integration': '集成管理',
+  '/integration/sources': '外部身份源',
+  '/integration/principals': '外部主体',
+  '/integration/link-candidates': '身份匹配',
 };
 
 /**

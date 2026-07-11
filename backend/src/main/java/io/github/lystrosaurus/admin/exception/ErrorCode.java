@@ -89,7 +89,12 @@ public enum ErrorCode {
   BIND_ACCOUNT_ALREADY_EXISTS(9508, "该三方账号已被其他用户绑定"),
 
   // 解绑相关错误码 (UNBIND_xxx)
-  UNBIND_LAST_LOGIN_METHOD(9509, "无法解绑：这是您唯一的登录方式");
+  UNBIND_LAST_LOGIN_METHOD(9509, "无法解绑：这是您唯一的登录方式"),
+
+  // 文件相关错误码 (FILE_xxx)
+  FILE_NOT_FOUND(11001, "文件不存在"),
+  FILE_UPLOAD_FAILED(11002, "文件上传失败"),
+  FILE_NOT_READABLE(11003, "文件不可读");
 
   private final int code;
   private final String message;

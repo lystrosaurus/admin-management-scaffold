@@ -72,8 +72,7 @@ public class MenuDAOImpl implements MenuDAO {
     }
 
     // 再查询菜单详情
-    List<Long> menuIds =
-        roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
+    List<Long> menuIds = roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
     return menuMapper.selectList(
         new LambdaQueryWrapper<SysMenu>()
             .in(SysMenu::getId, menuIds)
@@ -92,8 +91,7 @@ public class MenuDAOImpl implements MenuDAO {
     }
 
     // 再查询角色菜单关联
-    List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).toList();
+    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
     List<SysRoleMenu> roleMenus =
         roleMenuMapper.selectList(
             new LambdaQueryWrapper<SysRoleMenu>().in(SysRoleMenu::getRoleId, roleIds));
@@ -103,8 +101,7 @@ public class MenuDAOImpl implements MenuDAO {
     }
 
     // 最后查询菜单详情
-    List<Long> menuIds =
-        roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
+    List<Long> menuIds = roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
     return menuMapper.selectList(
         new LambdaQueryWrapper<SysMenu>()
             .in(SysMenu::getId, menuIds)

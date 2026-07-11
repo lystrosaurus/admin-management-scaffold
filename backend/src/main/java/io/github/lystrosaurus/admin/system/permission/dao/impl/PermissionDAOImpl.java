@@ -85,9 +85,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
     // 再查询权限详情
     List<Long> permissionIds =
-        rolePermissions.stream()
-            .map(SysRolePermission::getPermissionId)
-            .toList();
+        rolePermissions.stream().map(SysRolePermission::getPermissionId).toList();
     return permissionMapper.selectList(
         new LambdaQueryWrapper<SysPermission>().in(SysPermission::getId, permissionIds));
   }
@@ -104,8 +102,7 @@ public class PermissionDAOImpl implements PermissionDAO {
     }
 
     // 再查询角色权限关联
-    List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).toList();
+    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
     List<SysRolePermission> rolePermissions =
         rolePermissionMapper.selectList(
             new LambdaQueryWrapper<SysRolePermission>().in(SysRolePermission::getRoleId, roleIds));
@@ -116,9 +113,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
     // 最后查询权限详情
     List<Long> permissionIds =
-        rolePermissions.stream()
-            .map(SysRolePermission::getPermissionId)
-            .toList();
+        rolePermissions.stream().map(SysRolePermission::getPermissionId).toList();
     return permissionMapper.selectList(
         new LambdaQueryWrapper<SysPermission>().in(SysPermission::getId, permissionIds));
   }

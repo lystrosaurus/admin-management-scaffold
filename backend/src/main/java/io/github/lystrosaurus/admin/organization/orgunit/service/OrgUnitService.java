@@ -133,8 +133,7 @@ public class OrgUnitService {
     List<OrgUnit> allOrgUnits = orgUnitDAO.findAll();
 
     // 转换为 TreeVO
-    List<OrgUnitTreeVO> allTreeVOs =
-        allOrgUnits.stream().map(orgUnitMapper::toTreeVO).toList();
+    List<OrgUnitTreeVO> allTreeVOs = allOrgUnits.stream().map(orgUnitMapper::toTreeVO).toList();
 
     // 按 parentId 分组，避免递归时全量扫描
     Map<Long, List<OrgUnitTreeVO>> parentChildMap =
@@ -177,8 +176,7 @@ public class OrgUnitService {
     long total = orgUnitDAO.countByCondition(dto.keyword(), dto.status(), dto.parentId());
 
     // 转换为VO列表
-    List<OrgUnitVO> orgUnitVOs =
-        orgUnits.stream().map(orgUnitMapper::toVO).toList();
+    List<OrgUnitVO> orgUnitVOs = orgUnits.stream().map(orgUnitMapper::toVO).toList();
 
     return new PageResult<>(orgUnitVOs, total, page, size);
   }

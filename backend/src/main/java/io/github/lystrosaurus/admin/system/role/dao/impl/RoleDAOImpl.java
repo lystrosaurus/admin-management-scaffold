@@ -103,9 +103,7 @@ public class RoleDAOImpl implements RoleDAO {
 
     // 再查询权限详情
     List<Long> permissionIds =
-        rolePermissions.stream()
-            .map(SysRolePermission::getPermissionId)
-            .toList();
+        rolePermissions.stream().map(SysRolePermission::getPermissionId).toList();
     return permissionMapper.selectList(
         new LambdaQueryWrapper<SysPermission>().in(SysPermission::getId, permissionIds));
   }
@@ -150,8 +148,7 @@ public class RoleDAOImpl implements RoleDAO {
     }
 
     // 再查询菜单详情
-    List<Long> menuIds =
-        roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
+    List<Long> menuIds = roleMenus.stream().map(SysRoleMenu::getMenuId).toList();
     return menuMapper.selectList(new LambdaQueryWrapper<SysMenu>().in(SysMenu::getId, menuIds));
   }
 
@@ -200,8 +197,7 @@ public class RoleDAOImpl implements RoleDAO {
     }
 
     // 再查询角色详情
-    List<Long> roleIds =
-        userRoles.stream().map(SysUserRole::getRoleId).toList();
+    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
     return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
   }
 

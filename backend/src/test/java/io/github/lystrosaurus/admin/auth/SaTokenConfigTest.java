@@ -60,7 +60,8 @@ class SaTokenConfigTest {
       SaTokenConfig config = new SaTokenConfig();
       setJwtSecretKey(config, "");
 
-      IllegalStateException exception = assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
+      IllegalStateException exception =
+          assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
       assertTrue(exception.getMessage().contains("must be configured"));
     }
 
@@ -70,7 +71,8 @@ class SaTokenConfigTest {
       SaTokenConfig config = new SaTokenConfig();
       setJwtSecretKey(config, null);
 
-      IllegalStateException exception = assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
+      IllegalStateException exception =
+          assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
       assertTrue(exception.getMessage().contains("must be configured"));
     }
 
@@ -80,17 +82,19 @@ class SaTokenConfigTest {
       SaTokenConfig config = new SaTokenConfig();
       setJwtSecretKey(config, "only-20-chars-here!!!");
 
-      IllegalStateException exception = assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
+      IllegalStateException exception =
+          assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
       assertTrue(exception.getMessage().contains("at least 32 characters"));
     }
 
     @Test
-  @DisplayName("默认示例密钥应抛出异常")
+    @DisplayName("默认示例密钥应抛出异常")
     void should_throw_exception_for_default_key() {
       SaTokenConfig config = new SaTokenConfig();
       setJwtSecretKey(config, "your-jwt-secret-key-at-least-32-chars-long");
 
-      IllegalStateException exception = assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
+      IllegalStateException exception =
+          assertThrows(IllegalStateException.class, config::validateJwtSecretKey);
       assertTrue(exception.getMessage().contains("cannot use default/example value"));
     }
 
