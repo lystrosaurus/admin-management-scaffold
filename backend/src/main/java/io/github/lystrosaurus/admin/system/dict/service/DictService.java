@@ -8,6 +8,9 @@ import io.github.lystrosaurus.admin.system.dict.dto.DictUpdateDTO;
 import io.github.lystrosaurus.admin.system.dict.entity.SysDict;
 import io.github.lystrosaurus.admin.system.dict.mapstruct.DictMapper;
 import io.github.lystrosaurus.admin.system.dict.vo.DictVO;
+import io.github.lystrosaurus.admin.common.PageResult;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -74,9 +77,16 @@ public class DictService {
     dictDAO.deleteById(id);
   }
 
-  public List<DictVO> list(String dictType) {
-    List<SysDict> dicts = dictDAO.list(dictType);
-    return dicts.stream().map(dictMapper::toDictVO).toList();
+  public PageResult<DictVO> list(String dictType, int page, int size) {
+    Page<SysDict> pageParam = new Page<>(page, size);
+    LambdaQueryWrapper<SysDict> wrapper = new LambdaQueryWrapper<>();
+    if (StringUtils.hasText(dictType)) {
+      wrapper.eq(SysDict::getDictType, dictType);
+    }
+    wrapper.orderByAsc(SysDict::getSortOrder);
+    Page<SysDict> result = dictDAO.findPage(pageParam, wrapper);
+    List<DictVO> vos = result.getRecords().stream().map(dictMapper::toDictVO).toList();
+    return new PageResult<>(vos, result.getTotal(), page, size);
   }
 
   public DictVO getById(Long id) {

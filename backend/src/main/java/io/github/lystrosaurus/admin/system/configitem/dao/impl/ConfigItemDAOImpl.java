@@ -1,10 +1,10 @@
 package io.github.lystrosaurus.admin.system.configitem.dao.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lystrosaurus.admin.system.configitem.dao.ConfigItemDAO;
 import io.github.lystrosaurus.admin.system.configitem.entity.SysConfigItem;
 import io.github.lystrosaurus.admin.system.configitem.mapper.SysConfigItemMapper;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +40,8 @@ public class ConfigItemDAOImpl implements ConfigItemDAO {
   }
 
   @Override
-  public List<SysConfigItem> findAll() {
-    return configItemMapper.selectList(
-        new LambdaQueryWrapper<SysConfigItem>().orderByAsc(SysConfigItem::getId));
+  public Page<SysConfigItem> findPage(Page<SysConfigItem> page, LambdaQueryWrapper<SysConfigItem> wrapper) {
+    return configItemMapper.selectPage(page, wrapper);
   }
 
   @Override

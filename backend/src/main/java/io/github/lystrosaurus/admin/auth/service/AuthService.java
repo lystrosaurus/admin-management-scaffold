@@ -8,6 +8,7 @@ import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
 import io.github.lystrosaurus.admin.system.user.dto.LoginDTO;
 import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.web.util.ClientIpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -33,14 +34,17 @@ public class AuthService {
 
   private final UserDAO userDAO;
   private final PasswordEncoder passwordEncoder;
+  private final LoginLogService loginLogService;
   private final RedisTemplate<String, Object> redisTemplate;
 
   public AuthService(
       UserDAO userDAO,
       PasswordEncoder passwordEncoder,
+      LoginLogService loginLogService,
       @Nullable RedisTemplate<String, Object> redisTemplate) {
     this.userDAO = userDAO;
     this.passwordEncoder = passwordEncoder;
+    this.loginLogService = loginLogService;
     this.redisTemplate = redisTemplate;
   }
 
@@ -72,6 +76,10 @@ public class AuthService {
       String redisKey = TOKEN_VERSION_KEY_PREFIX + user.getId();
       redisTemplate.opsForValue().set(redisKey, user.getTokenVersion(), 2, TimeUnit.HOURS);
     }
+
+    // 5.1 记录登录日志（审计）
+    loginLogService.recordLogin(
+        user.getId(), "PASSWORD", null, getClientIp(), getClientUserAgent(), true, null);
 
     // 6. 获取 JWT Token
     String token = StpUtil.getTokenValue();
@@ -143,6 +151,16 @@ public class AuthService {
   public boolean hasPassword(Long userId) {
     SysUser user = userDAO.findById(userId);
     return user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
+  }
+
+  /** 获取当前请求的客户端 User-Agent */
+  private String getClientUserAgent() {
+    ServletRequestAttributes attrs =
+        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attrs == null) {
+      return "unknown";
+    }
+    return attrs.getRequest().getHeader("User-Agent");
   }
 
   /** 获取当前请求的客户端真实 IP */

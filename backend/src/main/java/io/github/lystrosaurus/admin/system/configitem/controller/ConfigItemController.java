@@ -6,8 +6,8 @@ import io.github.lystrosaurus.admin.system.configitem.dto.ConfigItemCreateDTO;
 import io.github.lystrosaurus.admin.system.configitem.dto.ConfigItemUpdateDTO;
 import io.github.lystrosaurus.admin.system.configitem.service.ConfigItemService;
 import io.github.lystrosaurus.admin.system.configitem.vo.ConfigItemVO;
+import io.github.lystrosaurus.admin.common.PageResult;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -37,9 +38,12 @@ public class ConfigItemController {
    */
   @RequiresPermission("config:view")
   @GetMapping
-  public ApiResponse<List<ConfigItemVO>> list() {
-    List<ConfigItemVO> configItems = configItemService.findAll();
-    return ApiResponse.success(configItems);
+  public ApiResponse<PageResult<ConfigItemVO>> list(
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String configKey) {
+    PageResult<ConfigItemVO> result = configItemService.list(configKey, page, size);
+    return ApiResponse.success(result);
   }
 
   /**

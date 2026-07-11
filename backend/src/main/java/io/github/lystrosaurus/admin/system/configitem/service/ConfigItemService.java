@@ -8,6 +8,9 @@ import io.github.lystrosaurus.admin.system.configitem.dto.ConfigItemUpdateDTO;
 import io.github.lystrosaurus.admin.system.configitem.entity.SysConfigItem;
 import io.github.lystrosaurus.admin.system.configitem.mapstruct.ConfigItemMapper;
 import io.github.lystrosaurus.admin.system.configitem.vo.ConfigItemVO;
+import io.github.lystrosaurus.admin.common.PageResult;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -81,9 +84,16 @@ public class ConfigItemService {
     configItemDAO.deleteById(id);
   }
 
-  public List<ConfigItemVO> findAll() {
-    List<SysConfigItem> configItems = configItemDAO.findAll();
-    return configItems.stream().map(configItemMapper::toConfigItemVO).toList();
+  public PageResult<ConfigItemVO> list(String configKey, int page, int size) {
+    Page<SysConfigItem> pageParam = new Page<>(page, size);
+    LambdaQueryWrapper<SysConfigItem> wrapper = new LambdaQueryWrapper<>();
+    if (StringUtils.hasText(configKey)) {
+      wrapper.like(SysConfigItem::getConfigKey, configKey);
+    }
+    wrapper.orderByDesc(SysConfigItem::getId);
+    Page<SysConfigItem> result = configItemDAO.findPage(pageParam, wrapper);
+    List<ConfigItemVO> vos = result.getRecords().stream().map(configItemMapper::toConfigItemVO).toList();
+    return new PageResult<>(vos, result.getTotal(), page, size);
   }
 
   public ConfigItemVO getById(Long id) {

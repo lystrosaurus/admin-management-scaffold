@@ -1,7 +1,8 @@
 package io.github.lystrosaurus.admin.system.configitem.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lystrosaurus.admin.system.configitem.entity.SysConfigItem;
-import java.util.List;
 
 /**
  * 系统配置项数据访问对象接口
@@ -40,11 +41,13 @@ public interface ConfigItemDAO {
   void deleteById(Long id);
 
   /**
-   * 查询所有配置项
+   * 分页查询配置项
    *
-   * @return 配置项列表
+   * @param page 分页参数
+   * @param wrapper 查询条件
+   * @return 分页结果
    */
-  List<SysConfigItem> findAll();
+  Page<SysConfigItem> findPage(Page<SysConfigItem> page, LambdaQueryWrapper<SysConfigItem> wrapper);
 
   /**
    * 检查配置键是否已存在

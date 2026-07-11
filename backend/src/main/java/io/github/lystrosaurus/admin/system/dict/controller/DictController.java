@@ -6,8 +6,8 @@ import io.github.lystrosaurus.admin.system.dict.dto.DictCreateDTO;
 import io.github.lystrosaurus.admin.system.dict.dto.DictUpdateDTO;
 import io.github.lystrosaurus.admin.system.dict.service.DictService;
 import io.github.lystrosaurus.admin.system.dict.vo.DictVO;
+import io.github.lystrosaurus.admin.common.PageResult;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,9 +39,12 @@ public class DictController {
    */
   @RequiresPermission("dict:view")
   @GetMapping
-  public ApiResponse<List<DictVO>> list(@RequestParam(required = false) String dictType) {
-    List<DictVO> dicts = dictService.list(dictType);
-    return ApiResponse.success(dicts);
+  public ApiResponse<PageResult<DictVO>> list(
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String dictType) {
+    PageResult<DictVO> result = dictService.list(dictType, page, size);
+    return ApiResponse.success(result);
   }
 
   /**

@@ -1,10 +1,10 @@
 package io.github.lystrosaurus.admin.system.dict.dao.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lystrosaurus.admin.system.dict.dao.DictDAO;
 import io.github.lystrosaurus.admin.system.dict.entity.SysDict;
 import io.github.lystrosaurus.admin.system.dict.mapper.SysDictMapper;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -41,12 +41,7 @@ public class DictDAOImpl implements DictDAO {
   }
 
   @Override
-  public List<SysDict> list(String dictType) {
-    LambdaQueryWrapper<SysDict> wrapper = new LambdaQueryWrapper<>();
-    if (StringUtils.hasText(dictType)) {
-      wrapper.eq(SysDict::getDictType, dictType);
-    }
-    wrapper.orderByAsc(SysDict::getSortOrder);
-    return dictMapper.selectList(wrapper);
+  public Page<SysDict> findPage(Page<SysDict> page, LambdaQueryWrapper<SysDict> wrapper) {
+    return dictMapper.selectPage(page, wrapper);
   }
 }

@@ -1,7 +1,8 @@
 package io.github.lystrosaurus.admin.system.dict.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.github.lystrosaurus.admin.system.dict.entity.SysDict;
-import java.util.List;
 
 /**
  * 字典数据访问对象接口
@@ -40,10 +41,11 @@ public interface DictDAO {
   void deleteById(Long id);
 
   /**
-   * 按字典类型查询字典列表（dictType 为空时返回全部）
+   * 分页查询字典列表（dictType 为空时查询全部）
    *
-   * @param dictType 字典类型（可选）
-   * @return 字典列表
+   * @param page 分页参数
+   * @param wrapper 查询条件
+   * @return 分页结果
    */
-  List<SysDict> list(String dictType);
+  Page<SysDict> findPage(Page<SysDict> page, LambdaQueryWrapper<SysDict> wrapper);
 }
