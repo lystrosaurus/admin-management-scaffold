@@ -11,7 +11,7 @@ import {
   Tag,
   message,
   type TablePaginationConfig,
-  type ColumnsType,
+  type TableColumnsType,
 } from 'antd';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { PageResult } from '@/types/api';
@@ -25,7 +25,7 @@ import type { LoginLog, OperationLog } from '@/types/auditLog';
  */
 interface LogTableProps<T> {
   fetcher: (params: Record<string, unknown>) => Promise<PageResult<T>>;
-  columns: ColumnsType<T>;
+  columns: TableColumnsType<T>;
 }
 
 const LogTable = <T extends { id: number }>({ fetcher, columns }: LogTableProps<T>) => {
@@ -121,7 +121,7 @@ const LogTable = <T extends { id: number }>({ fetcher, columns }: LogTableProps<
 };
 
 /** 登录日志列 */
-const loginColumns: ColumnsType<LoginLog> = [
+const loginColumns: TableColumnsType<LoginLog> = [
   { title: '用户名', dataIndex: 'username', key: 'username', width: 140 },
   { title: 'IP', dataIndex: 'ip', key: 'ip', width: 140 },
   {
@@ -150,7 +150,7 @@ const loginColumns: ColumnsType<LoginLog> = [
 ];
 
 /** 操作日志列 */
-const operationColumns: ColumnsType<OperationLog> = [
+const operationColumns: TableColumnsType<OperationLog> = [
   { title: '用户名', dataIndex: 'username', key: 'username', width: 140 },
   { title: '模块', dataIndex: 'module', key: 'module', width: 120 },
   { title: '动作', dataIndex: 'action', key: 'action', width: 140 },

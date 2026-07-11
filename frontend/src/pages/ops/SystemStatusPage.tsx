@@ -7,6 +7,7 @@ import {
   Space,
   Tag,
   message,
+  Spin,
 } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import { getAppInfo } from '@/api/ops';
@@ -58,7 +59,8 @@ const SystemStatusPage = () => {
         />
       </Space>
 
-      <Descriptions bordered column={2} loading={loading}>
+      <Spin spinning={loading}>
+        <Descriptions bordered column={2}>
         <Descriptions.Item label="应用名">{info?.name ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="版本">{info?.version ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="Java 版本">{info?.javaVersion ?? '-'}</Descriptions.Item>
@@ -69,7 +71,8 @@ const SystemStatusPage = () => {
         <Descriptions.Item label="系统架构">{info?.osArch ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="运行 Profile">{info?.profile ?? '-'}</Descriptions.Item>
         <Descriptions.Item label="启动时间">{info?.startTime ?? '-'}</Descriptions.Item>
-      </Descriptions>
+        </Descriptions>
+      </Spin>
     </Card>
   );
 };

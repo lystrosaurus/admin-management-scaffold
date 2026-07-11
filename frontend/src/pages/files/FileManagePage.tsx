@@ -13,7 +13,6 @@ import {
   type UploadProps,
 } from 'antd';
 import { UploadOutlined, ReloadOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { PageResult } from '@/types/api';
 import dayjs from 'dayjs';
 import { listFiles, uploadFile, deleteFile, downloadFile } from '@/api/file';
 import type { FileItem } from '@/types/file';

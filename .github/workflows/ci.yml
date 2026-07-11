@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend:
+    name: Frontend (build + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # npm ci 需要 lockfile；若仓库未提交 lockfile，回退到 npm install
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      # build = tsc -b && vite build
+      # tsc -b 做全量类型检查（dev 模式经 esbuild 会跳过），
+      # 这一步确保「前后端契约 / 类型错误」在 CI 阶段就暴露，
+      # 不会再出现「本地 dev 能跑、一构建就挂 / 字段对不上没人发现」的盲区。
+      - name: Build (type-check + bundle)
+        run: npm run build
+
+      # Vitest 单元测试 + OAuth 绑定流程测试（守住飞书跳首页类回归）
+      - name: Unit tests
+        run: npm run test
+
+  backend:
+    name: Backend (Maven test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run tests
+        run: mvn -B -ntp verify
