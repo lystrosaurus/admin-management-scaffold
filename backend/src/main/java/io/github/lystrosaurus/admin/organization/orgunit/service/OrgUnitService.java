@@ -3,7 +3,9 @@ package io.github.lystrosaurus.admin.organization.orgunit.service;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeDAO;
 import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeOrgDAO;
+import io.github.lystrosaurus.admin.organization.employee.entity.HrEmployee;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.organization.orgunit.dto.OrgUnitCreateDTO;
 import io.github.lystrosaurus.admin.organization.orgunit.dto.OrgUnitQueryDTO;
@@ -14,6 +16,7 @@ import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitTreeVO;
 import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitVO;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public class OrgUnitService {
 
   private final OrgUnitDAO orgUnitDAO;
   private final EmployeeOrgDAO employeeOrgDAO;
+  private final EmployeeDAO employeeDAO;
   private final OrgUnitMapper orgUnitMapper;
 
   @Transactional(rollbackFor = Exception.class)
@@ -66,7 +70,8 @@ public class OrgUnitService {
     }
     orgUnitDAO.update(orgUnit);
 
-    return orgUnitMapper.toVO(orgUnit);
+    Map<Long, String> nameMap = buildLeaderNameMap(List.of(orgUnit));
+    return toVOWithLeader(orgUnit, nameMap);
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -95,7 +100,8 @@ public class OrgUnitService {
     }
 
     orgUnitDAO.update(orgUnit);
-    return orgUnitMapper.toVO(orgUnit);
+    Map<Long, String> nameMap = buildLeaderNameMap(List.of(orgUnit));
+    return toVOWithLeader(orgUnit, nameMap);
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -120,12 +126,14 @@ public class OrgUnitService {
     if (orgUnit == null) {
       throw new BusinessException(ErrorCode.ORG_UNIT_NOT_FOUND);
     }
-    return orgUnitMapper.toVO(orgUnit);
+    Map<Long, String> nameMap = buildLeaderNameMap(List.of(orgUnit));
+    return toVOWithLeader(orgUnit, nameMap);
   }
 
   public List<OrgUnitVO> findAll() {
     List<OrgUnit> orgUnits = orgUnitDAO.findAll();
-    return orgUnits.stream().map(orgUnitMapper::toVO).toList();
+    Map<Long, String> nameMap = buildLeaderNameMap(orgUnits);
+    return orgUnits.stream().map(o -> toVOWithLeader(o, nameMap)).toList();
   }
 
   public List<OrgUnitTreeVO> findTree() {
@@ -133,7 +141,9 @@ public class OrgUnitService {
     List<OrgUnit> allOrgUnits = orgUnitDAO.findAll();
 
     // 转换为 TreeVO
-    List<OrgUnitTreeVO> allTreeVOs = allOrgUnits.stream().map(orgUnitMapper::toTreeVO).toList();
+    Map<Long, String> nameMap = buildLeaderNameMap(allOrgUnits);
+    List<OrgUnitTreeVO> allTreeVOs =
+        allOrgUnits.stream().map(o -> toTreeVOWithLeader(o, nameMap)).toList();
 
     // 按 parentId 分组，避免递归时全量扫描
     Map<Long, List<OrgUnitTreeVO>> parentChildMap =
@@ -165,6 +175,7 @@ public class OrgUnitService {
                     vo.managerEmployeeId(),
                     vo.sortOrder(),
                     vo.status(),
+                    vo.leaderName(),
                     buildTree(parentChildMap, vo.id())))
         .toList();
   }
@@ -176,8 +187,59 @@ public class OrgUnitService {
     long total = orgUnitDAO.countByCondition(dto.keyword(), dto.status(), dto.parentId());
 
     // 转换为VO列表
-    List<OrgUnitVO> orgUnitVOs = orgUnits.stream().map(orgUnitMapper::toVO).toList();
+    Map<Long, String> nameMap = buildLeaderNameMap(orgUnits);
+    List<OrgUnitVO> orgUnitVOs = orgUnits.stream().map(o -> toVOWithLeader(o, nameMap)).toList();
 
     return new PageResult<>(orgUnitVOs, total, page, size);
+  }
+
+  /** 批量解析负责人姓名（managerEmployeeId → 姓名） */
+  private Map<Long, String> buildLeaderNameMap(List<OrgUnit> orgUnits) {
+    List<Long> empIds =
+        orgUnits.stream()
+            .map(OrgUnit::getManagerEmployeeId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+    if (empIds.isEmpty()) {
+      return Map.of();
+    }
+    return employeeDAO.findByIds(empIds).stream()
+        .collect(Collectors.toMap(HrEmployee::getId, HrEmployee::getName));
+  }
+
+  private OrgUnitVO toVOWithLeader(OrgUnit orgUnit, Map<Long, String> nameMap) {
+    OrgUnitVO vo = orgUnitMapper.toVO(orgUnit);
+    String leaderName =
+        orgUnit.getManagerEmployeeId() != null ? nameMap.get(orgUnit.getManagerEmployeeId()) : null;
+    return new OrgUnitVO(
+        vo.id(),
+        vo.code(),
+        vo.name(),
+        vo.parentId(),
+        vo.fullPath(),
+        vo.level(),
+        vo.managerEmployeeId(),
+        vo.sortOrder(),
+        vo.status(),
+        vo.createdAt(),
+        leaderName);
+  }
+
+  private OrgUnitTreeVO toTreeVOWithLeader(OrgUnit orgUnit, Map<Long, String> nameMap) {
+    OrgUnitTreeVO vo = orgUnitMapper.toTreeVO(orgUnit);
+    String leaderName =
+        orgUnit.getManagerEmployeeId() != null ? nameMap.get(orgUnit.getManagerEmployeeId()) : null;
+    return new OrgUnitTreeVO(
+        vo.id(),
+        vo.code(),
+        vo.name(),
+        vo.parentId(),
+        vo.level(),
+        vo.managerEmployeeId(),
+        vo.sortOrder(),
+        vo.status(),
+        leaderName,
+        vo.children());
   }
 }

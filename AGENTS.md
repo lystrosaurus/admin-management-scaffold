@@ -188,14 +188,14 @@ Controller 不返回 Entity
 
 ```json
 {
-  "code": "0",
+  "code": 200,
   "message": "success",
   "data": {}
 }
 ```
 
-- `code = "0"` 表示成功。
-- `code != "0"` 表示业务或系统错误。
+- `code = 200` 表示成功。
+- `code != 200` 表示业务或系统错误。
 - 业务异常统一使用 `BusinessException` + `ErrorCode`，全局异常处理器输出标准格式。
 
 错误码格式：`CATEGORY_NUMBER`

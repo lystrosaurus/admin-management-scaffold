@@ -24,4 +24,5 @@ public record OrgUnitTreeVO(
     Long managerEmployeeId,
     Integer sortOrder,
     String status,
+    String leaderName,
     List<OrgUnitTreeVO> children) {}

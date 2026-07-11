@@ -1,6 +1,8 @@
 package io.github.lystrosaurus.admin.integration.identitylink.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
@@ -41,6 +43,7 @@ public class IdentityLinkCandidate implements Serializable {
   private String status;
 
   /** 创建时间 */
+  @TableField(fill = FieldFill.INSERT)
   private LocalDateTime createdAt;
 
   /** 处理人 */

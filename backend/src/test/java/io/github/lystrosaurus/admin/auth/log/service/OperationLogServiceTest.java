@@ -6,6 +6,10 @@ import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.auth.log.dao.OperationLogDAO;
 import io.github.lystrosaurus.admin.auth.log.entity.OperationLog;
+import io.github.lystrosaurus.admin.auth.log.vo.OperationLogVO;
+import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class OperationLogServiceTest {
 
   @Mock private OperationLogDAO operationLogDAO;
+  @Mock private UserDAO userDAO;
 
   @InjectMocks private OperationLogService operationLogService;
 
@@ -32,16 +37,32 @@ class OperationLogServiceTest {
   }
 
   @Test
-  @DisplayName("应该成功获取最近操作日志")
+  @DisplayName("应该成功获取最近操作日志并解析用户名")
   void should_get_recent_operations() {
     OperationLog log = new OperationLog();
     log.setId(1L);
+    log.setUserId(1L);
+    log.setOperationType("CREATE");
+    log.setTargetType("User");
+    log.setTargetId(1L);
+    log.setIpAddress("127.0.0.1");
+    log.setCreatedAt(LocalDateTime.now());
     when(operationLogDAO.listByUserId(1L, 10)).thenReturn(Arrays.asList(log));
 
-    List<OperationLog> result = operationLogService.getRecentOperations(1L, 10);
+    SysUser user = new SysUser();
+    user.setId(1L);
+    user.setUsername("admin");
+    when(userDAO.findById(1L)).thenReturn(user);
+
+    List<OperationLogVO> result = operationLogService.getRecentOperations(1L, 10);
 
     assertNotNull(result);
     assertEquals(1, result.size());
+    assertEquals("admin", result.get(0).username());
+    assertEquals("User", result.get(0).module());
+    assertEquals("CREATE", result.get(0).action());
+    assertEquals(1L, result.get(0).bizId());
+    assertEquals("127.0.0.1", result.get(0).ip());
     verify(operationLogDAO).listByUserId(1L, 10);
   }
 }

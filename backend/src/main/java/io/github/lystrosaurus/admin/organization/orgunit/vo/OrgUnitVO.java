@@ -26,4 +26,5 @@ public record OrgUnitVO(
     Long managerEmployeeId,
     Integer sortOrder,
     String status,
-    LocalDateTime createdAt) {}
+    LocalDateTime createdAt,
+    String leaderName) {}

@@ -54,15 +54,10 @@ class SecurityProfileControllerTest extends SaTokenTest {
             LocalDateTime.of(2025, 1, 1, 10, 0));
     when(externalAccountService.listByUserId(TEST_USER_ID)).thenReturn(List.of(accountVO));
 
-    // 有登录记录
+    // 有登录记录（字段与前端 LoginLog 契约一致：username / ip / success）
     LoginLogVO loginLogVO =
         new LoginLogVO(
-            1L,
-            "OAUTH_LARK",
-            "LARK",
-            "192.168.1.1",
-            "SUCCESS",
-            LocalDateTime.of(2025, 1, 1, 10, 0));
+            1L, "admin", "192.168.1.1", true, LocalDateTime.of(2025, 1, 1, 10, 0), "Chrome");
     when(loginLogService.getRecentLogins(TEST_USER_ID, 10)).thenReturn(List.of(loginLogVO));
 
     // When & Then
@@ -76,8 +71,9 @@ class SecurityProfileControllerTest extends SaTokenTest {
         .andExpect(jsonPath("$.data.boundAccounts[0].providerCode").value("LARK"))
         .andExpect(jsonPath("$.data.recentLogins").isArray())
         .andExpect(jsonPath("$.data.recentLogins.length()").value(1))
-        .andExpect(jsonPath("$.data.recentLogins[0].loginType").value("OAUTH_LARK"))
-        .andExpect(jsonPath("$.data.recentLogins[0].ipAddress").value("192.168.1.1"));
+        .andExpect(jsonPath("$.data.recentLogins[0].username").value("admin"))
+        .andExpect(jsonPath("$.data.recentLogins[0].ip").value("192.168.1.1"))
+        .andExpect(jsonPath("$.data.recentLogins[0].success").value(true));
   }
 
   @Test

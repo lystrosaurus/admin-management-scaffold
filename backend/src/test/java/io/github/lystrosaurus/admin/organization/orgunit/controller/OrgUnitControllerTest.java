@@ -51,9 +51,9 @@ class OrgUnitControllerTest extends SaTokenTest {
   @BeforeEach
   void setUp() {
     orgUnitVO =
-        new OrgUnitVO(1L, "HQ", "总公司", 0L, "/1/", 1, null, 0, "ENABLED", LocalDateTime.now());
+        new OrgUnitVO(1L, "HQ", "总公司", 0L, "/1/", 1, null, 0, "ENABLED", LocalDateTime.now(), null);
 
-    orgUnitTreeVO = new OrgUnitTreeVO(1L, "HQ", "总公司", 0L, 1, null, 0, "ENABLED", List.of());
+    orgUnitTreeVO = new OrgUnitTreeVO(1L, "HQ", "总公司", 0L, 1, null, 0, "ENABLED", null, List.of());
   }
 
   @Test
@@ -130,7 +130,8 @@ class OrgUnitControllerTest extends SaTokenTest {
   void should_update_org_unit_successfully() throws Exception {
     OrgUnitUpdateDTO updateDTO = new OrgUnitUpdateDTO("集团总部", null, null, 1, null);
     OrgUnitVO updatedVO =
-        new OrgUnitVO(1L, "HQ", "集团总部", 0L, "/1/", 1, null, 1, "ENABLED", LocalDateTime.now());
+        new OrgUnitVO(
+            1L, "HQ", "集团总部", 0L, "/1/", 1, null, 1, "ENABLED", LocalDateTime.now(), null);
     when(orgUnitService.update(eq(1L), any(OrgUnitUpdateDTO.class))).thenReturn(updatedVO);
 
     mockMvc

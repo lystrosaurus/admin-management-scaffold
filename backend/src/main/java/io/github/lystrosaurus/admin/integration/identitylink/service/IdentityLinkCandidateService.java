@@ -28,7 +28,6 @@ public class IdentityLinkCandidateService {
   public IdentityLinkCandidateVO create(IdentityLinkCandidateCreateDTO dto) {
     IdentityLinkCandidate entity = candidateMapStruct.toEntity(dto);
     entity.setStatus("PENDING");
-    entity.setCreatedAt(LocalDateTime.now());
     candidateDAO.save(entity);
     return candidateMapStruct.toVO(entity);
   }

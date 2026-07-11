@@ -5,9 +5,13 @@ import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeDAO;
 import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeOrgDAO;
+import io.github.lystrosaurus.admin.organization.employee.entity.HrEmployee;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
+import io.github.lystrosaurus.admin.organization.orgunit.vo.OrgUnitVO;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +28,8 @@ class OrgUnitServiceTest {
   @Mock private OrgUnitDAO orgUnitDAO;
 
   @Mock private EmployeeOrgDAO employeeOrgDAO;
+
+  @Mock private EmployeeDAO employeeDAO;
 
   @Mock
   private io.github.lystrosaurus.admin.organization.orgunit.mapstruct.OrgUnitMapper orgUnitMapper;
@@ -74,5 +80,24 @@ class OrgUnitServiceTest {
     BusinessException exception =
         assertThrows(BusinessException.class, () -> orgUnitService.deleteById(999L));
     assertEquals(ErrorCode.ORG_UNIT_NOT_FOUND.getCode(), exception.getCode());
+  }
+
+  @Test
+  @DisplayName("findById 应该解析负责人姓名")
+  void should_resolve_leader_name() {
+    OrgUnit orgUnit = new OrgUnit();
+    orgUnit.setId(1L);
+    orgUnit.setManagerEmployeeId(5L);
+    when(orgUnitDAO.findById(1L)).thenReturn(orgUnit);
+    when(orgUnitMapper.toVO(orgUnit))
+        .thenReturn(new OrgUnitVO(1L, "C", "技术部", 0L, "/", 1, 5L, 0, "ENABLED", null, null));
+    HrEmployee leader = new HrEmployee();
+    leader.setId(5L);
+    leader.setName("张三");
+    when(employeeDAO.findByIds(List.of(5L))).thenReturn(List.of(leader));
+
+    OrgUnitVO result = orgUnitService.findById(1L);
+
+    assertEquals("张三", result.leaderName());
   }
 }

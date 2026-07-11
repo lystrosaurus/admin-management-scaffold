@@ -46,11 +46,11 @@ public class LoginLogService {
             log ->
                 new LoginLogVO(
                     log.getId(),
-                    log.getLoginType(),
-                    log.getProviderCode(),
+                    resolveUsername(log.getUserId()),
                     log.getIpAddress(),
-                    log.getStatus(),
-                    log.getLoginAt()))
+                    "SUCCESS".equals(log.getStatus()),
+                    log.getLoginAt(),
+                    log.getUserAgent()))
         .toList();
   }
 
@@ -69,11 +69,11 @@ public class LoginLogService {
                 log ->
                     new LoginLogVO(
                         log.getId(),
-                        log.getLoginType(),
-                        log.getProviderCode(),
+                        resolveUsername(log.getUserId()),
                         log.getIpAddress(),
-                        log.getStatus(),
-                        log.getLoginAt()))
+                        "SUCCESS".equals(log.getStatus()),
+                        log.getLoginAt(),
+                        log.getUserAgent()))
             .toList();
     return new PageResult<>(vos, page.getTotal(), dto.page(), dto.size());
   }
@@ -84,5 +84,14 @@ public class LoginLogService {
     }
     var user = userDAO.findByUsername(username);
     return user == null ? null : user.getId();
+  }
+
+  /** userId → username（用于日志展示），未知或解析失败返回 null */
+  private String resolveUsername(Long userId) {
+    if (userId == null) {
+      return null;
+    }
+    var user = userDAO.findById(userId);
+    return user == null ? null : user.getUsername();
   }
 }

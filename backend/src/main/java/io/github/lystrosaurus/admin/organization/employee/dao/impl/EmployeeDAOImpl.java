@@ -86,6 +86,14 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         > 0;
   }
 
+  @Override
+  public List<HrEmployee> findByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    return employeeMapper.selectBatchIds(ids);
+  }
+
   /**
    * 构建条件查询 Wrapper
    *

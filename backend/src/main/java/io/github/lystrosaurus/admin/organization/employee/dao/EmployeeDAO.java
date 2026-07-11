@@ -94,4 +94,12 @@ public interface EmployeeDAO {
    * @return 存在返回true，否则返回false
    */
   boolean existsById(Long id);
+
+  /**
+   * 根据ID列表批量查找员工
+   *
+   * @param ids 员工ID列表
+   * @return 员工实体列表
+   */
+  List<HrEmployee> findByIds(List<Long> ids);
 }

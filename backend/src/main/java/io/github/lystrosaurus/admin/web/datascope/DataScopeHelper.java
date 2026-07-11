@@ -7,12 +7,10 @@ import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
+import io.github.lystrosaurus.admin.system.role.dao.RoleDAO;
+import io.github.lystrosaurus.admin.system.role.dao.RoleOrgDAO;
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import io.github.lystrosaurus.admin.system.role.entity.SysRoleOrg;
-import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMapper;
-import io.github.lystrosaurus.admin.system.role.mapper.SysRoleOrgMapper;
-import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
-import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +36,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataScopeHelper {
 
-  private final SysUserRoleMapper userRoleMapper;
-  private final SysRoleMapper roleMapper;
-  private final SysRoleOrgMapper roleOrgMapper;
+  private final RoleDAO roleDAO;
+  private final RoleOrgDAO roleOrgDAO;
   private final OrgUnitDAO orgUnitDAO;
 
   /**
@@ -202,22 +199,14 @@ public class DataScopeHelper {
    * <p>查询链路：userId → sys_user_role → sys_role（对应 spec 中的要求）
    */
   List<SysRole> getRolesByUserId(Long userId) {
-    List<SysUserRole> userRoles =
-        userRoleMapper.selectList(
-            new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId));
-    if (userRoles.isEmpty()) {
-      return List.of();
-    }
-    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
-    return roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds));
+    return roleDAO.findByUserId(userId);
   }
 
   /** 获取角色绑定的部门ID列表 */
   private Set<Long> getRoleOrgIds(Long roleId) {
-    List<SysRoleOrg> roleOrgs =
-        roleOrgMapper.selectList(
-            new LambdaQueryWrapper<SysRoleOrg>().eq(SysRoleOrg::getRoleId, roleId));
-    return roleOrgs.stream().map(SysRoleOrg::getOrgId).collect(Collectors.toSet());
+    return roleOrgDAO.findByRoleId(roleId).stream()
+        .map(SysRoleOrg::getOrgId)
+        .collect(Collectors.toSet());
   }
 
   /**

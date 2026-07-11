@@ -237,4 +237,19 @@ class ArchitectureTest {
         .allowEmptyShould(true)
         .check(classes);
   }
+
+  // ==================== Web 模块约束 ====================
+
+  @Test
+  @DisplayName("Web 包不应依赖 Mapper")
+  void web_should_not_depend_on_mapper() {
+    classes()
+        .that()
+        .resideInAPackage("..web..")
+        .should()
+        .onlyDependOnClassesThat()
+        .resideOutsideOfPackage("..mapper..")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
 }
