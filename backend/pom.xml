@@ -71,6 +71,15 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
+        <!-- Jackson Java 8 时间类型支持（LocalDateTime 序列化到 Redis/JSON，OAuth state 存储需要） -->
+        <!-- 注意：Spring Boot 4.0.6 的 BOM 管理版本为 2.21.2，但本机离线仓库未缓存该版本； -->
+        <!-- 此处固定为已缓存的 2.20.1（与 jackson-databind 2.21.2 同属 Jackson 2.x，可正常协同）。联网后可改回版本无关写法。 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.20.1</version>
+        </dependency>
+
         <!-- MyBatis-Plus (Spring Boot 4) -->
         <dependency>
             <groupId>com.baomidou</groupId>

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import java.util.Date;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class OAuthStateServiceTest {
   @DisplayName("应该成功保存和验证state")
   void should_save_and_validate_state() {
     String state = "test-state";
-    StateData expected = new StateData(state, "test-nonce", null, new Date());
+    StateData expected = new StateData(state, "test-nonce", null, LocalDateTime.now());
     when(valueOperations.getAndDelete(any())).thenReturn(expected);
 
     stateService.saveState(state, "test-nonce");
@@ -60,7 +60,7 @@ class OAuthStateServiceTest {
   @DisplayName("验证已使用的state应该抛出异常")
   void should_throw_exception_when_validating_used_state() {
     String state = "test-state";
-    StateData expected = new StateData(state, "test-nonce", null, new Date());
+    StateData expected = new StateData(state, "test-nonce", null, LocalDateTime.now());
     when(valueOperations.getAndDelete(any())).thenReturn(expected, (StateData) null);
 
     stateService.saveState(state, "test-nonce");

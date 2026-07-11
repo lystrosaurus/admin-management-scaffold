@@ -79,7 +79,10 @@ public class OAuthService {
     OAuthClient client = clientFactory.getClient(providerCode);
 
     OAuthTokenResponse tokenResponse = client.exchangeCode(dto.code(), redirectUri);
-    OAuthUserInfo userInfo = client.getUserInfo(tokenResponse.accessToken());
+    OAuthUserInfo userInfo =
+        tokenResponse.providerUserId() != null
+            ? new OAuthUserInfo(tokenResponse.providerUserId(), null, null, null)
+            : client.getUserInfo(tokenResponse.accessToken());
 
     AuthExternalAccount existing =
         accountDAO.findByProviderIdAndProviderUserId(provider.id(), userInfo.providerUserId());
@@ -111,7 +114,10 @@ public class OAuthService {
     OAuthClient client = clientFactory.getClient(providerCode);
 
     OAuthTokenResponse tokenResponse = client.exchangeCode(dto.code(), redirectUri);
-    OAuthUserInfo userInfo = client.getUserInfo(tokenResponse.accessToken());
+    OAuthUserInfo userInfo =
+        tokenResponse.providerUserId() != null
+            ? new OAuthUserInfo(tokenResponse.providerUserId(), null, null, null)
+            : client.getUserInfo(tokenResponse.accessToken());
 
     AuthExternalAccount existing =
         accountDAO.findByProviderIdAndProviderUserId(provider.id(), userInfo.providerUserId());

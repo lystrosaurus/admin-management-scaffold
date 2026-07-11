@@ -39,7 +39,7 @@ class OAuthControllerTest extends BaseTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(200))
         .andExpect(
-            jsonPath("$.data.authorizeUrl").value("https://open.feishu.cn/authorize?state=abc"))
+            jsonPath("$.data.url").value("https://open.feishu.cn/authorize?state=abc"))
         .andExpect(jsonPath("$.data.state").value("abc"));
   }
 

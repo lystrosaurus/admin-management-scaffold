@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.lystrosaurus.admin.auth.oauth.state.StateData;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,10 +33,12 @@ public class RedisTemplateConfig {
     StringRedisSerializer keySerializer = new StringRedisSerializer();
     template.setKeySerializer(keySerializer);
     template.setHashKeySerializer(keySerializer);
-    // StateData.createdAt 使用 java.util.Date（Jackson 原生支持），
-    // 避免引入 Java8 时间类型导致 Redis 序列化失败。
+    // StateData.createdAt 为 LocalDateTime，默认 ObjectMapper 无法序列化 Java8 时间类型，
+    // 需注册 JavaTimeModule（由 jackson-datatype-jsr310 提供）。
+    ObjectMapper stateMapper = new ObjectMapper();
+    stateMapper.registerModule(new JavaTimeModule());
     Jackson2JsonRedisSerializer<StateData> valueSerializer =
-        new Jackson2JsonRedisSerializer<>(StateData.class);
+        new Jackson2JsonRedisSerializer<>(stateMapper, StateData.class);
     template.setValueSerializer(valueSerializer);
     template.setHashValueSerializer(valueSerializer);
     template.afterPropertiesSet();

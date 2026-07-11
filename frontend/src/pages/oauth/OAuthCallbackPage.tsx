@@ -23,6 +23,8 @@ const OAuthCallbackPage = () => {
 
   const code = searchParams.get('code');
   const state = searchParams.get('state');
+  const error = searchParams.get('error');
+  const errorDescription = searchParams.get('error_description');
 
   useEffect(() => {
     let cancelled = false;
@@ -34,8 +36,17 @@ const OAuthCallbackPage = () => {
       navigate('/profile/security', { replace: true });
     };
 
-    if (!provider || !code || !state) {
-      finish(false, '回调参数缺失，无法完成绑定');
+    if (!provider) {
+      finish(false, '回调参数缺失（缺少 provider）');
+      return;
+    }
+    // 厂商侧拒绝授权或出错（如 redirect_uri 未登记）：把真实错误透出，而不是静默回首页
+    if (error) {
+      finish(false, `授权失败：${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
+      return;
+    }
+    if (!code || !state) {
+      finish(false, '回调参数缺失（缺少 code 或 state），无法完成绑定');
       return;
     }
 
@@ -48,7 +59,7 @@ const OAuthCallbackPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [provider, code, state, navigate]);
+  }, [provider, code, state, error, errorDescription, navigate]);
 
   return (
     <div

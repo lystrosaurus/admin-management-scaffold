@@ -67,7 +67,7 @@ class OAuthClientFactoryTest {
 
     @Override
     public OAuthTokenResponse exchangeCode(String code, String redirectUri) {
-      return new OAuthTokenResponse("token", null, 3600L, "Bearer");
+      return new OAuthTokenResponse("token", null, 3600L, "Bearer", null);
     }
 
     @Override

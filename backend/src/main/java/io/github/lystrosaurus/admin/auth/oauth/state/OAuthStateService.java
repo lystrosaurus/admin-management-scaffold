@@ -2,7 +2,7 @@ package io.github.lystrosaurus.admin.auth.oauth.state;
 
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class OAuthStateService {
   }
 
   public void saveState(String state, String nonce, Long userId) {
-    StateData stateData = new StateData(state, nonce, userId, new Date());
+    StateData stateData = new StateData(state, nonce, userId, LocalDateTime.now());
     redisTemplate
         .opsForValue()
         .set(STATE_KEY_PREFIX + state, stateData, STATE_TTL_MINUTES, TimeUnit.MINUTES);

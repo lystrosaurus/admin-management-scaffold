@@ -89,7 +89,7 @@ public class LarkOAuthClient implements OAuthClient {
           data.get("expires_in") != null ? Long.valueOf(data.get("expires_in").toString()) : null;
       String tokenType = (String) data.get("token_type");
 
-      return new OAuthTokenResponse(accessToken, refreshToken, expiresIn, tokenType);
+      return new OAuthTokenResponse(accessToken, refreshToken, expiresIn, tokenType, null);
     } catch (BusinessException e) {
       throw e;
     } catch (Exception e) {
