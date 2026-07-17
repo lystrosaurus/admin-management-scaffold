@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.organization.employee.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
+
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.organization.employee.dto.EmployeeCreateDTO;
@@ -38,6 +40,7 @@ public class EmployeeController {
    * @param dto 员工创建DTO
    * @return 员工VO
    */
+  @RequiresPermission("organization:employee:create")
   @PostMapping
   public ApiResponse<EmployeeVO> create(@RequestBody @Valid EmployeeCreateDTO dto) {
     EmployeeVO employeeVO = employeeService.create(dto);
@@ -50,6 +53,7 @@ public class EmployeeController {
    * @param id 员工ID
    * @return 员工详情VO
    */
+  @RequiresPermission("organization:employee:view")
   @GetMapping("/{id}")
   public ApiResponse<EmployeeDetailVO> findById(@PathVariable Long id) {
     EmployeeDetailVO detailVO = employeeService.findById(id);
@@ -63,6 +67,7 @@ public class EmployeeController {
    * @param dto 员工更新DTO
    * @return 员工VO
    */
+  @RequiresPermission("organization:employee:update")
   @PutMapping("/{id}")
   public ApiResponse<EmployeeVO> update(@PathVariable Long id, @RequestBody EmployeeUpdateDTO dto) {
     EmployeeVO employeeVO = employeeService.update(id, dto);
@@ -75,6 +80,7 @@ public class EmployeeController {
    * @param id 员工ID
    * @return 空响应
    */
+  @RequiresPermission("organization:employee:delete")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     employeeService.deleteById(id);
@@ -91,6 +97,7 @@ public class EmployeeController {
    * @param orgId 主组织ID
    * @return 分页结果
    */
+  @RequiresPermission("organization:employee:view")
   @GetMapping
   public ApiResponse<PageResult<EmployeeVO>> findPage(
       @RequestParam(defaultValue = "1") int page,

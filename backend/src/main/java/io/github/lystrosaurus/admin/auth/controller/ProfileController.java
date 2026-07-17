@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.auth.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.context.UserContext;
 import io.github.lystrosaurus.admin.auth.vo.ProfileVO;
 import io.github.lystrosaurus.admin.common.ApiResponse;
@@ -39,6 +40,7 @@ public class ProfileController {
    *
    * @return 用户资料VO
    */
+  @PermitAll(reason = "当前登录用户的资料，只读自身")
   @GetMapping
   public ApiResponse<ProfileVO> getProfile() {
     Long currentUserId = UserContext.getCurrentUserId();
@@ -76,6 +78,7 @@ public class ProfileController {
    * @param dto 修改密码DTO
    * @return 空响应
    */
+  @PermitAll(reason = "修改当前登录用户自身密码")
   @PutMapping("/password")
   public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordDTO dto) {
     Long currentUserId = UserContext.getCurrentUserId();
@@ -88,6 +91,7 @@ public class ProfileController {
    *
    * @return 权限码列表
    */
+  @PermitAll(reason = "查看当前登录用户自身权限码")
   @GetMapping("/permissions")
   public ApiResponse<List<String>> getPermissions() {
     List<String> permissions = UserContext.getPermissions();

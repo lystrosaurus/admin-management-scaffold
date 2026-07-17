@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.auth.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.context.UserContext;
 import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
@@ -33,6 +34,7 @@ public class SecurityProfileController {
    *
    * @return 安全信息VO
    */
+  @PermitAll(reason = "当前登录用户的安全信息，只读自身")
   @GetMapping("/security")
   public ApiResponse<SecurityProfileVO> getSecurityProfile() {
     Long userId = UserContext.getCurrentUserId();

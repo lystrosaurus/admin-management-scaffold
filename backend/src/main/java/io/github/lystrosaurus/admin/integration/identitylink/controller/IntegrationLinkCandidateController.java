@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.integration.identitylink.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
+
 import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.integration.identitylink.service.IdentityLinkCandidateService;
@@ -29,6 +31,7 @@ public class IntegrationLinkCandidateController {
    *
    * @return 待处理候选列表
    */
+  @RequiresPermission("integration:link:view")
   @GetMapping("/pending")
   public ApiResponse<List<IdentityLinkCandidateVO>> listPending() {
     List<IdentityLinkCandidateVO> candidates = candidateService.listPending();
@@ -41,6 +44,7 @@ public class IntegrationLinkCandidateController {
    * @param principalId 外部主体ID
    * @return 候选列表
    */
+  @RequiresPermission("integration:link:view")
   @GetMapping("/by-principal/{principalId}")
   public ApiResponse<List<IdentityLinkCandidateVO>> listByPrincipalId(
       @PathVariable Long principalId) {
@@ -54,6 +58,7 @@ public class IntegrationLinkCandidateController {
    * @param id 候选ID
    * @return 空响应
    */
+  @RequiresPermission("integration:link:manage")
   @PostMapping("/{id}/confirm")
   public ApiResponse<Void> confirm(@PathVariable Long id) {
     String handledBy = StpUtil.getLoginIdAsString();
@@ -67,6 +72,7 @@ public class IntegrationLinkCandidateController {
    * @param id 候选ID
    * @return 空响应
    */
+  @RequiresPermission("integration:link:manage")
   @PostMapping("/{id}/reject")
   public ApiResponse<Void> reject(@PathVariable Long id) {
     String handledBy = StpUtil.getLoginIdAsString();

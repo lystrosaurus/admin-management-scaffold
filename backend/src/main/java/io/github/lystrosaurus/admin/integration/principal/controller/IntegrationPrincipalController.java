@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.integration.principal.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
+
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.integration.principal.dto.ExtPrincipalCreateDTO;
 import io.github.lystrosaurus.admin.integration.principal.dto.ExtPrincipalUpdateDTO;
@@ -36,6 +38,7 @@ public class IntegrationPrincipalController {
    * @param dto 创建DTO
    * @return 外部主体VO
    */
+  @RequiresPermission("integration:principal:manage")
   @PostMapping
   public ApiResponse<ExtPrincipalVO> create(@RequestBody @Valid ExtPrincipalCreateDTO dto) {
     ExtPrincipalVO principalVO = extPrincipalService.create(dto);
@@ -48,6 +51,7 @@ public class IntegrationPrincipalController {
    * @param id 外部主体ID
    * @return 外部主体VO
    */
+  @RequiresPermission("integration:principal:view")
   @GetMapping("/{id}")
   public ApiResponse<ExtPrincipalVO> findById(@PathVariable Long id) {
     ExtPrincipalVO principalVO = extPrincipalService.getById(id);
@@ -61,6 +65,7 @@ public class IntegrationPrincipalController {
    * @param dto 更新DTO
    * @return 外部主体VO
    */
+  @RequiresPermission("integration:principal:manage")
   @PutMapping("/{id}")
   public ApiResponse<ExtPrincipalVO> update(
       @PathVariable Long id, @RequestBody ExtPrincipalUpdateDTO dto) {
@@ -74,6 +79,7 @@ public class IntegrationPrincipalController {
    * @param id 外部主体ID
    * @return 空响应
    */
+  @RequiresPermission("integration:principal:manage")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     extPrincipalService.delete(id);
@@ -87,6 +93,7 @@ public class IntegrationPrincipalController {
    * @param linkStatus 关联状态（可选）
    * @return 外部主体列表
    */
+  @RequiresPermission("integration:principal:view")
   @GetMapping
   public ApiResponse<List<ExtPrincipalVO>> list(
       @RequestParam(required = false) Long sourceId,

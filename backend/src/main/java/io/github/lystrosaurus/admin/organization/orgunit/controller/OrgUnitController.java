@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.organization.orgunit.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
+
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.organization.orgunit.dto.OrgUnitCreateDTO;
@@ -39,6 +41,7 @@ public class OrgUnitController {
    * @param dto 组织单元创建DTO
    * @return 组织单元VO
    */
+  @RequiresPermission("organization:org-unit:create")
   @PostMapping
   public ApiResponse<OrgUnitVO> create(@RequestBody @Valid OrgUnitCreateDTO dto) {
     OrgUnitVO orgUnitVO = orgUnitService.create(dto);
@@ -51,6 +54,7 @@ public class OrgUnitController {
    * @param id 组织单元ID
    * @return 组织单元VO
    */
+  @RequiresPermission("organization:org-unit:view")
   @GetMapping("/{id}")
   public ApiResponse<OrgUnitVO> findById(@PathVariable Long id) {
     OrgUnitVO orgUnitVO = orgUnitService.findById(id);
@@ -64,6 +68,7 @@ public class OrgUnitController {
    * @param dto 组织单元更新DTO
    * @return 组织单元VO
    */
+  @RequiresPermission("organization:org-unit:update")
   @PutMapping("/{id}")
   public ApiResponse<OrgUnitVO> update(@PathVariable Long id, @RequestBody OrgUnitUpdateDTO dto) {
     OrgUnitVO orgUnitVO = orgUnitService.update(id, dto);
@@ -76,6 +81,7 @@ public class OrgUnitController {
    * @param id 组织单元ID
    * @return 空响应
    */
+  @RequiresPermission("organization:org-unit:delete")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     orgUnitService.deleteById(id);
@@ -92,6 +98,7 @@ public class OrgUnitController {
    * @param parentId 父节点ID
    * @return 分页结果
    */
+  @RequiresPermission("organization:org-unit:view")
   @GetMapping
   public ApiResponse<PageResult<OrgUnitVO>> findPage(
       @RequestParam(defaultValue = "1") int page,
@@ -109,6 +116,7 @@ public class OrgUnitController {
    *
    * @return 组织架构树
    */
+  @RequiresPermission("organization:org-unit:view")
   @GetMapping("/tree")
   public ApiResponse<List<OrgUnitTreeVO>> findTree() {
     List<OrgUnitTreeVO> tree = orgUnitService.findTree();

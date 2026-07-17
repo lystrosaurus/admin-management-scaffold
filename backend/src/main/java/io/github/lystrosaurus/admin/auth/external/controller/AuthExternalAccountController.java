@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.auth.external.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.external.dto.ExternalAccountBindDTO;
 import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
@@ -32,6 +33,7 @@ public class AuthExternalAccountController {
    * @param dto 绑定DTO
    * @return 三方账号VO
    */
+  @RequiresPermission("auth:external-account:bind")
   @PostMapping("/bind")
   public ApiResponse<ExternalAccountVO> bind(@RequestBody ExternalAccountBindDTO dto) {
     ExternalAccountVO vo = externalAccountService.bind(dto);
@@ -44,6 +46,7 @@ public class AuthExternalAccountController {
    * @param id 三方账号ID
    * @return 空响应
    */
+  @RequiresPermission("auth:external-account:unbind")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> unbind(@PathVariable Long id) {
     externalAccountService.unbind(id);
@@ -56,6 +59,7 @@ public class AuthExternalAccountController {
    * @param id 三方账号ID
    * @return 三方账号VO
    */
+  @RequiresPermission("auth:external-account:view")
   @GetMapping("/{id}")
   public ApiResponse<ExternalAccountVO> findById(@PathVariable Long id) {
     ExternalAccountVO vo = externalAccountService.getById(id);
@@ -68,6 +72,7 @@ public class AuthExternalAccountController {
    * @param userId 用户ID
    * @return 三方账号列表
    */
+  @RequiresPermission("auth:external-account:view")
   @GetMapping("/by-user/{userId}")
   public ApiResponse<List<ExternalAccountVO>> listByUserId(@PathVariable Long userId) {
     List<ExternalAccountVO> accounts = externalAccountService.listByUserId(userId);
@@ -80,6 +85,7 @@ public class AuthExternalAccountController {
    * @param employeeId 员工ID
    * @return 三方账号列表
    */
+  @RequiresPermission("auth:external-account:view")
   @GetMapping("/by-employee/{employeeId}")
   public ApiResponse<List<ExternalAccountVO>> listByEmployeeId(@PathVariable Long employeeId) {
     List<ExternalAccountVO> accounts = externalAccountService.listByEmployeeId(employeeId);

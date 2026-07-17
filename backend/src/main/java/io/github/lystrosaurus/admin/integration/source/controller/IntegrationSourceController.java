@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.integration.source.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
+
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.integration.source.dto.ExtSourceCreateDTO;
 import io.github.lystrosaurus.admin.integration.source.dto.ExtSourceUpdateDTO;
@@ -35,6 +37,7 @@ public class IntegrationSourceController {
    * @param dto 创建DTO
    * @return 外部身份源VO
    */
+  @RequiresPermission("integration:source:manage")
   @PostMapping
   public ApiResponse<ExtSourceVO> create(@RequestBody @Valid ExtSourceCreateDTO dto) {
     ExtSourceVO sourceVO = extSourceService.create(dto);
@@ -47,6 +50,7 @@ public class IntegrationSourceController {
    * @param id 外部身份源ID
    * @return 外部身份源VO
    */
+  @RequiresPermission("integration:source:view")
   @GetMapping("/{id}")
   public ApiResponse<ExtSourceVO> findById(@PathVariable Long id) {
     ExtSourceVO sourceVO = extSourceService.getById(id);
@@ -60,6 +64,7 @@ public class IntegrationSourceController {
    * @param dto 更新DTO
    * @return 外部身份源VO
    */
+  @RequiresPermission("integration:source:manage")
   @PutMapping("/{id}")
   public ApiResponse<ExtSourceVO> update(
       @PathVariable Long id, @RequestBody ExtSourceUpdateDTO dto) {
@@ -73,6 +78,7 @@ public class IntegrationSourceController {
    * @param id 外部身份源ID
    * @return 空响应
    */
+  @RequiresPermission("integration:source:manage")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     extSourceService.delete(id);
@@ -84,6 +90,7 @@ public class IntegrationSourceController {
    *
    * @return 外部身份源列表
    */
+  @RequiresPermission("integration:source:view")
   @GetMapping
   public ApiResponse<List<ExtSourceVO>> list() {
     List<ExtSourceVO> sources = extSourceService.list();

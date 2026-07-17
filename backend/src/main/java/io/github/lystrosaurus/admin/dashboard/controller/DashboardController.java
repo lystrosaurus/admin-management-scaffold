@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.dashboard.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
+
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.dashboard.service.DashboardService;
 import io.github.lystrosaurus.admin.dashboard.vo.DashboardVO;
@@ -25,6 +27,7 @@ public class DashboardController {
    *
    * @return 统计数据
    */
+  @RequiresPermission("system:dashboard:view")
   @GetMapping("/stats")
   public ApiResponse<DashboardVO> getStats() {
     return ApiResponse.success(dashboardService.getStats());

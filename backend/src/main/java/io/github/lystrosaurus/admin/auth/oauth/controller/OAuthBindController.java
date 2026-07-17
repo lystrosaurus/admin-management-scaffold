@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.auth.oauth.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.context.UserContext;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.auth.oauth.dto.OAuthBindDTO;
@@ -33,6 +34,7 @@ public class OAuthBindController {
    * @param dto 绑定参数（code + state）
    * @return 绑定的三方账号信息
    */
+  @RequiresPermission("auth:external-account:bind")
   @PostMapping("/{provider}/bind")
   public ApiResponse<ExternalAccountVO> bind(
       @PathVariable String provider, @RequestBody OAuthBindDTO dto) {
@@ -48,6 +50,7 @@ public class OAuthBindController {
    * @param accountId 三方账号ID
    * @return 空响应
    */
+  @RequiresPermission("auth:external-account:unbind")
   @DeleteMapping("/{provider}/unbind")
   public ApiResponse<Void> unbind(@PathVariable String provider, @RequestParam Long accountId) {
     Long userId = UserContext.getCurrentUserId();
