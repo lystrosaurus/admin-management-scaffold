@@ -1,5 +1,7 @@
 package io.github.lystrosaurus.admin.system.menu.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.context.UserContext;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.system.menu.dto.MenuCreateDTO;
@@ -36,6 +38,7 @@ public class MenuController {
    * @param dto 菜单创建DTO
    * @return 菜单VO
    */
+  @RequiresPermission("system:menu:create")
   @PostMapping
   public ApiResponse<MenuVO> create(@RequestBody @Valid MenuCreateDTO dto) {
     MenuVO menuVO = menuService.create(dto);
@@ -49,6 +52,7 @@ public class MenuController {
    * @param dto 菜单更新DTO
    * @return 菜单VO
    */
+  @RequiresPermission("system:menu:update")
   @PutMapping("/{id}")
   public ApiResponse<MenuVO> update(@PathVariable Long id, @RequestBody MenuUpdateDTO dto) {
     MenuVO menuVO = menuService.update(id, dto);
@@ -61,6 +65,7 @@ public class MenuController {
    * @param id 菜单ID
    * @return 空响应
    */
+  @RequiresPermission("system:menu:delete")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     menuService.deleteById(id);
@@ -72,6 +77,7 @@ public class MenuController {
    *
    * @return 菜单树列表
    */
+  @RequiresPermission("system:menu:view")
   @GetMapping("/tree")
   public ApiResponse<List<MenuVO>> findTree() {
     List<MenuVO> menuTree = menuService.findTree();
@@ -84,6 +90,7 @@ public class MenuController {
    * @param roleId 角色ID
    * @return 菜单列表
    */
+  @RequiresPermission("system:menu:view")
   @GetMapping("/role/{roleId}")
   public ApiResponse<List<MenuVO>> findByRoleId(@PathVariable Long roleId) {
     List<MenuVO> menus = menuService.findByRoleId(roleId);
@@ -95,6 +102,7 @@ public class MenuController {
    *
    * @return 菜单树列表
    */
+  @PermitAll(reason = "当前登录用户的菜单树，只读自身")
   @GetMapping("/user")
   public ApiResponse<List<MenuVO>> findUserMenuTree() {
     Long currentUserId = UserContext.getCurrentUserId();

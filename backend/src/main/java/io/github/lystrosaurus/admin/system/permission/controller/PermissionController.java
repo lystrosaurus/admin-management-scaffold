@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.system.permission.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.system.permission.dto.PermissionCreateDTO;
 import io.github.lystrosaurus.admin.system.permission.dto.PermissionUpdateDTO;
@@ -34,6 +35,7 @@ public class PermissionController {
    *
    * @return 权限列表
    */
+  @RequiresPermission("system:permission:view")
   @GetMapping
   public ApiResponse<List<PermissionVO>> findAll() {
     List<PermissionVO> permissions = permissionService.findAll();
@@ -46,6 +48,7 @@ public class PermissionController {
    * @param dto 权限创建DTO
    * @return 权限VO
    */
+  @RequiresPermission("system:permission:create")
   @PostMapping
   public ApiResponse<PermissionVO> create(@RequestBody @Valid PermissionCreateDTO dto) {
     PermissionVO permissionVO = permissionService.create(dto);
@@ -59,6 +62,7 @@ public class PermissionController {
    * @param dto 权限更新DTO
    * @return 权限VO
    */
+  @RequiresPermission("system:permission:update")
   @PutMapping("/{id}")
   public ApiResponse<PermissionVO> update(
       @PathVariable Long id, @RequestBody PermissionUpdateDTO dto) {
@@ -72,6 +76,7 @@ public class PermissionController {
    * @param id 权限ID
    * @return 空响应
    */
+  @RequiresPermission("system:permission:delete")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     permissionService.deleteById(id);
@@ -84,6 +89,7 @@ public class PermissionController {
    * @param roleId 角色ID
    * @return 权限列表
    */
+  @RequiresPermission("system:permission:view")
   @GetMapping("/role/{roleId}")
   public ApiResponse<List<PermissionVO>> findByRoleId(@PathVariable Long roleId) {
     List<PermissionVO> permissions = permissionService.findByRoleId(roleId);

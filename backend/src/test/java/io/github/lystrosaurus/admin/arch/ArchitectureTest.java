@@ -2,12 +2,15 @@ package io.github.lystrosaurus.admin.arch;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.conditions.ArchConditions;
+import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -277,5 +280,99 @@ class ArchitectureTest {
             ArchConditions.beAnnotatedWith(
                 io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class))
         .check(classes);
+  }
+
+  // ==================== 授权回归约束（本次铺开：User / Permission / Menu） ====================
+
+  @Test
+  @DisplayName("UserController 的所有方法必须声明 @RequiresPermission")
+  void user_controller_methods_must_declare_requires_permission() {
+    methods()
+        .that(
+            new DescribedPredicate<JavaMethod>("属于 UserController 的方法") {
+              @Override
+              public boolean test(JavaMethod method) {
+                return method
+                    .getOwner()
+                    .getName()
+                    .equals("io.github.lystrosaurus.admin.system.user.controller.UserController");
+              }
+            })
+        .should(
+            ArchConditions.beAnnotatedWith(
+                io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class))
+        .check(classes);
+  }
+
+  @Test
+  @DisplayName("PermissionController 的所有方法必须声明 @RequiresPermission")
+  void permission_controller_methods_must_declare_requires_permission() {
+    methods()
+        .that(
+            new DescribedPredicate<JavaMethod>("属于 PermissionController 的方法") {
+              @Override
+              public boolean test(JavaMethod method) {
+                return method
+                    .getOwner()
+                    .getName()
+                    .equals(
+                        "io.github.lystrosaurus.admin.system.permission.controller.PermissionController");
+              }
+            })
+        .should(
+            ArchConditions.beAnnotatedWith(
+                io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class))
+        .check(classes);
+  }
+
+  @Test
+  @DisplayName("MenuController 的所有方法必须声明 @RequiresPermission 或 @PermitAll")
+  void menu_controller_methods_must_declare_requires_permission_or_permit_all() {
+    methods()
+        .that(
+            new DescribedPredicate<JavaMethod>("属于 MenuController 的方法") {
+              @Override
+              public boolean test(JavaMethod method) {
+                return method
+                    .getOwner()
+                    .getName()
+                    .equals("io.github.lystrosaurus.admin.system.menu.controller.MenuController");
+              }
+            })
+        .should(
+            ArchConditions.beAnnotatedWith(
+                    io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class)
+                .or(
+                    ArchConditions.beAnnotatedWith(
+                        io.github.lystrosaurus.admin.auth.annotation.PermitAll.class)))
+        .check(classes);
+  }
+
+  @Test
+  @Disabled(
+      "默认拒绝闸门（auth.default-deny.enabled=true）启用前的 CI 守卫：必须保证所有 /api/app/**"
+          + " 端点已声明 @RequiresPermission 或 @PermitAll。当前仅 User/Permission/Menu/Role"
+          + " 控制器已覆盖，其余端点（Profile/SecurityProfile/OAuthBind 等）仍为遗留放行端点，故禁用。"
+          + " 启用默认拒绝时取消 @Disabled 并将本守卫扩展至全部控制器。")
+  @DisplayName("全局守卫：默认拒绝启用前所有 /api/app 端点必须已声明授权注解")
+  void global_guard_default_deny_requires_full_coverage() {
+    for (Class<?> controller :
+        new Class<?>[] {
+          io.github.lystrosaurus.admin.system.user.controller.UserController.class,
+          io.github.lystrosaurus.admin.system.permission.controller.PermissionController.class,
+          io.github.lystrosaurus.admin.system.menu.controller.MenuController.class,
+          io.github.lystrosaurus.admin.system.role.controller.RoleController.class
+        }) {
+      for (java.lang.reflect.Method method : controller.getDeclaredMethods()) {
+        if (java.lang.reflect.Modifier.isPublic(method.getModifiers()) && !method.isSynthetic()) {
+          assertTrue(
+              method.isAnnotationPresent(
+                      io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class)
+                  || method.isAnnotationPresent(
+                      io.github.lystrosaurus.admin.auth.annotation.PermitAll.class),
+              () -> controller.getSimpleName() + "#" + method.getName() + " 缺少授权注解");
+        }
+      }
+    }
   }
 }

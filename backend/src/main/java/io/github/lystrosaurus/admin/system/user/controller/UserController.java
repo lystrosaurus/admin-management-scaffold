@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.system.user.controller;
 
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.common.PageResult;
 import io.github.lystrosaurus.admin.system.user.dto.ChangePasswordDTO;
@@ -40,6 +41,7 @@ public class UserController {
    * @param dto 用户创建DTO
    * @return 用户VO
    */
+  @RequiresPermission("system:user:create")
   @PostMapping
   public ApiResponse<UserVO> create(@RequestBody @Valid UserCreateDTO dto) {
     UserVO userVO = userService.create(dto);
@@ -52,6 +54,7 @@ public class UserController {
    * @param id 用户ID
    * @return 用户详情VO
    */
+  @RequiresPermission("system:user:view")
   @GetMapping("/{id}")
   public ApiResponse<UserDetailVO> findById(@PathVariable Long id) {
     UserDetailVO userDetailVO = userService.findById(id);
@@ -65,6 +68,7 @@ public class UserController {
    * @param dto 用户更新DTO
    * @return 用户VO
    */
+  @RequiresPermission("system:user:update")
   @PutMapping("/{id}")
   public ApiResponse<UserVO> update(@PathVariable Long id, @RequestBody UserUpdateDTO dto) {
     UserVO userVO = userService.update(id, dto);
@@ -77,6 +81,7 @@ public class UserController {
    * @param id 用户ID
    * @return 空响应
    */
+  @RequiresPermission("system:user:delete")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     userService.deleteById(id);
@@ -93,6 +98,7 @@ public class UserController {
    * @param keyword 关键词
    * @return 分页结果
    */
+  @RequiresPermission("system:user:view")
   @GetMapping
   public ApiResponse<PageResult<UserVO>> findPage(
       @RequestParam(defaultValue = "1") int page,
@@ -112,6 +118,7 @@ public class UserController {
    * @param dto 修改密码DTO
    * @return 空响应
    */
+  @RequiresPermission("system:user:reset-password")
   @PutMapping("/{id}/password")
   public ApiResponse<Void> changePassword(
       @PathVariable Long id, @RequestBody @Valid ChangePasswordDTO dto) {
@@ -126,6 +133,7 @@ public class UserController {
    * @param dto 员工绑定DTO
    * @return 空响应
    */
+  @RequiresPermission("system:user:update")
   @PostMapping("/{id}/employee")
   public ApiResponse<Void> bindEmployee(
       @PathVariable Long id, @RequestBody @Valid EmployeeBindDTO dto) {
@@ -139,6 +147,7 @@ public class UserController {
    * @param id 用户ID
    * @return 空响应
    */
+  @RequiresPermission("system:user:update")
   @DeleteMapping("/{id}/employee")
   public ApiResponse<Void> unbindEmployee(@PathVariable Long id) {
     userService.unbindEmployee(id);
