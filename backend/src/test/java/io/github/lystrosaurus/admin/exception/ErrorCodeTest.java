@@ -38,7 +38,8 @@ class ErrorCodeTest {
               || category.equals("EXTERNAL")
               || category.equals("OAUTH")
               || category.equals("BIND")
-              || category.equals("UNBIND"),
+              || category.equals("UNBIND")
+              || category.equals("FILE"),
           "ErrorCode 类别应该是有效的: " + category);
     }
   }

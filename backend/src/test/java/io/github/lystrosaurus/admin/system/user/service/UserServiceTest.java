@@ -9,6 +9,7 @@ import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.system.role.entity.SysRole;
 import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeDAO;
 import io.github.lystrosaurus.admin.system.user.dto.ChangePasswordDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserCreateDTO;
 import io.github.lystrosaurus.admin.system.user.dto.UserQueryDTO;
@@ -43,6 +44,7 @@ class UserServiceTest {
   @Mock private BCryptPasswordEncoder passwordEncoder;
 
   @Mock private DataSource dataSource;
+  @Mock private EmployeeDAO employeeDAO;
 
   @InjectMocks private UserService userService;
 
@@ -50,7 +52,6 @@ class UserServiceTest {
   private UserCreateDTO createDTO;
   private UserUpdateDTO updateDTO;
   private UserVO userVO;
-  private UserDetailVO userDetailVO;
 
   @BeforeEach
   void setUp() {
@@ -78,20 +79,6 @@ class UserServiceTest {
             "test@example.com",
             "ENABLED",
             null,
-            LocalDateTime.now());
-    userDetailVO =
-        new UserDetailVO(
-            1L,
-            "testuser",
-            "测试用户",
-            "13800138000",
-            "test@example.com",
-            "ENABLED",
-            null,
-            1,
-            null,
-            null,
-            Collections.emptyList(),
             LocalDateTime.now());
   }
 
@@ -189,7 +176,6 @@ class UserServiceTest {
 
     when(userDAO.findById(1L)).thenReturn(testUser);
     when(userDAO.findRolesByUserId(1L)).thenReturn(Arrays.asList(role));
-    when(userMapper.toUserDetailVO(testUser)).thenReturn(userDetailVO);
 
     // When
     UserDetailVO result = userService.findById(1L);
@@ -292,7 +278,7 @@ class UserServiceTest {
   void should_bind_employee_successfully() {
     // Given
     when(userDAO.findById(1L)).thenReturn(testUser);
-    // employeeExists 通过 JdbcTemplate 查询，mock DataSource 无真实连接，会抛异常返回 false
+    when(employeeDAO.existsById(100L)).thenReturn(false);
 
     // When & Then - hr_employee 表不存在，employeeExists 返回 false
     BusinessException exception =
@@ -317,7 +303,7 @@ class UserServiceTest {
   void should_throw_exception_when_employee_already_bound() {
     // Given
     when(userDAO.findById(1L)).thenReturn(testUser);
-    // employeeExists 通过 JdbcTemplate 查询，mock DataSource 无真实连接，会抛异常返回 false
+    when(employeeDAO.existsById(100L)).thenReturn(false);
 
     // When & Then - hr_employee 表不存在，employeeExists 返回 false
     BusinessException exception =

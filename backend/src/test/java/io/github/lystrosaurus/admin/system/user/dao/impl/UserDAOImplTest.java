@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +43,8 @@ class UserDAOImplTest {
   @Mock private SysUserMapper userMapper;
   @Mock private SysUserRoleMapper userRoleMapper;
   @Mock private SysRoleMapper roleMapper;
+  @Mock private SqlSessionFactory sqlSessionFactory;
+  @Mock private SqlSession sqlSession;
 
   @InjectMocks private UserDAOImpl userDAO;
 
@@ -293,6 +298,9 @@ class UserDAOImplTest {
   void should_assignRoles_when_validUserIdAndRoleIds() {
     // Given
     List<Long> roleIds = Arrays.asList(1L, 2L);
+    // 批量分配通过 SqlSession 获取 batch mapper，复用同一 mock 实例以匹配 verify
+    when(sqlSessionFactory.openSession(ExecutorType.BATCH)).thenReturn(sqlSession);
+    when(sqlSession.getMapper(SysUserRoleMapper.class)).thenReturn(userRoleMapper);
     // 先 mock 删除现有角色
     when(userRoleMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(0);
     // 再 mock 插入新角色

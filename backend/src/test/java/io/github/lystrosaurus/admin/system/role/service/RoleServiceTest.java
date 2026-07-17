@@ -50,7 +50,6 @@ class RoleServiceTest {
   private RoleCreateDTO createDTO;
   private RoleUpdateDTO updateDTO;
   private RoleVO roleVO;
-  private RoleDetailVO roleDetailVO;
 
   @BeforeEach
   void setUp() {
@@ -68,18 +67,6 @@ class RoleServiceTest {
     createDTO = new RoleCreateDTO("ADMIN", "管理员", "系统管理员角色", 1, "ALL");
     updateDTO = new RoleUpdateDTO("超级管理员", "超级管理员角色", 1, "ENABLED", "ALL");
     roleVO = new RoleVO(1L, "ADMIN", "管理员", "系统管理员角色", "ENABLED", "ALL");
-    roleDetailVO =
-        new RoleDetailVO(
-            1L,
-            "ADMIN",
-            "管理员",
-            "系统管理员角色",
-            1,
-            "ENABLED",
-            "ALL",
-            Collections.emptyList(),
-            Collections.emptyList(),
-            LocalDateTime.now());
   }
 
   @Test
@@ -87,6 +74,7 @@ class RoleServiceTest {
   void should_create_role_when_code_not_exists() {
     // Given
     when(roleDAO.existsByCode("ADMIN")).thenReturn(false);
+    when(roleMapper.toEntity(createDTO)).thenReturn(testRole);
     doAnswer(
             invocation -> {
               SysRole savedRole = invocation.getArgument(0);
@@ -196,7 +184,6 @@ class RoleServiceTest {
     when(roleDAO.findById(1L)).thenReturn(testRole);
     when(roleDAO.findPermissionsByRoleId(1L)).thenReturn(Arrays.asList(permission));
     when(roleDAO.findMenusByRoleId(1L)).thenReturn(Arrays.asList(menu));
-    when(roleMapper.toRoleDetailVO(testRole)).thenReturn(roleDetailVO);
     when(permissionMapper.toPermissionVO(permission)).thenReturn(permissionVO);
     when(menuMapper.toMenuVO(menu)).thenReturn(menuVO);
 

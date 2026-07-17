@@ -23,6 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +49,8 @@ class RoleDAOImplTest {
   @Mock private SysRoleMenuMapper roleMenuMapper;
   @Mock private SysPermissionMapper permissionMapper;
   @Mock private SysMenuMapper menuMapper;
+  @Mock private SqlSessionFactory sqlSessionFactory;
+  @Mock private SqlSession sqlSession;
 
   @InjectMocks private RoleDAOImpl roleDAO;
 
@@ -310,6 +315,9 @@ class RoleDAOImplTest {
   void should_assignPermissions_when_validRoleIdAndPermissionIds() {
     // Given
     List<Long> permissionIds = Arrays.asList(1L, 2L);
+    // 批量分配通过 SqlSession 获取 batch mapper，复用同一 mock 实例以匹配 verify
+    when(sqlSessionFactory.openSession(ExecutorType.BATCH)).thenReturn(sqlSession);
+    when(sqlSession.getMapper(SysRolePermissionMapper.class)).thenReturn(rolePermissionMapper);
     // 先 mock 删除现有权限
     when(rolePermissionMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(0);
     // 再 mock 插入新权限
@@ -368,6 +376,9 @@ class RoleDAOImplTest {
   void should_assignMenus_when_validRoleIdAndMenuIds() {
     // Given
     List<Long> menuIds = Arrays.asList(1L, 2L);
+    // 批量分配通过 SqlSession 获取 batch mapper，复用同一 mock 实例以匹配 verify
+    when(sqlSessionFactory.openSession(ExecutorType.BATCH)).thenReturn(sqlSession);
+    when(sqlSession.getMapper(SysRoleMenuMapper.class)).thenReturn(roleMenuMapper);
     // 先 mock 删除现有菜单
     when(roleMenuMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(0);
     // 再 mock 插入新菜单
