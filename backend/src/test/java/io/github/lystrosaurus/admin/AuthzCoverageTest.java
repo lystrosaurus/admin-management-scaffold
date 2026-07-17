@@ -7,6 +7,7 @@ import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresRole;
 import io.github.lystrosaurus.admin.auth.external.controller.AuthExternalAccountController;
+import io.github.lystrosaurus.admin.auth.oauth.controller.OAuthBindController;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -33,10 +34,10 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>额外断言：
  * <ul>
  *   <li>(a) 禁止仅由类级 {@code @RequiresRole} 保护的端点（缺少方法级授权注解）。</li>
- *   <li>(b) {@code @PermitAll} 不得出现在 AuthExternalAccountController 的 bind / unbind
- *        方法上（后台管理动作，必须 {@code @RequiresPermission}）。
- *        注：OAuthBindController.bind/unbind 经 LOCKED 决策保持 {@code @PermitAll}
- *        （当前登录用户绑定/解绑自身三方账号的自服务端点），故此处不对其设限。</li>
+ *   <li>(b) {@code @PermitAll} 不得出现在 AuthExternalAccountController 与 OAuthBindController 的
+ *        bind / unbind 方法上（均为需鉴权的绑定/解绑动作，必须 {@code @RequiresPermission}）。
+ *        OAuthBindController 的 bind/unbind 经铁律决策改为 {@code @RequiresPermission}
+ *        （自 scope，当前登录用户绑定/解绑自身三方账号），故此处同样对其设限。</li>
  * </ul>
  */
 class AuthzCoverageTest {
@@ -134,9 +135,11 @@ class AuthzCoverageTest {
   }
 
   private boolean isForbiddenPermitAll(Class<?> clazz, Method method) {
-    // LOCKED 决策：OAuthBindController.bind/unbind 保持 @PermitAll（自身三方账号自服务端点），
-    // 故此处仅对 AuthExternalAccountController 管控——其 bind/unbind 为后台管理动作，禁止 @PermitAll。
-    if (clazz.equals(AuthExternalAccountController.class)) {
+    // 铁律：OAuthBindController.bind/unbind 已改为 @RequiresPermission（自 scope），
+    // 禁止 @PermitAll。此处对 AuthExternalAccountController 与 OAuthBindController 的
+    // bind/unbind 统一设限，任一经 @PermitAll 标注即触发 CI 失败。
+    if (clazz.equals(AuthExternalAccountController.class)
+        || clazz.equals(OAuthBindController.class)) {
       return method.getName().equals("bind") || method.getName().equals("unbind");
     }
     return false;
