@@ -13,6 +13,7 @@ import java.time.LocalDate;
  * @param jobTitle 职位
  * @param primaryOrgId 主组织ID
  * @param entryDate 入职日期
+ * @param userId 关联系统用户ID（可空）
  */
 public record EmployeeCreateDTO(
     @NotBlank(message = "员工工号不能为空") String employeeNo,
@@ -21,4 +22,5 @@ public record EmployeeCreateDTO(
     String email,
     String jobTitle,
     Long primaryOrgId,
-    LocalDate entryDate) {}
+    LocalDate entryDate,
+    Long userId) {}

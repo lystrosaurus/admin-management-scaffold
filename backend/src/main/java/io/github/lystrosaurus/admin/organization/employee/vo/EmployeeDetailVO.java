@@ -20,6 +20,8 @@ import java.util.List;
  * @param leaveDate 离职日期
  * @param createdAt 创建时间
  * @param orgs 员工组织关联列表
+ * @param userId 关联系统用户ID
+ * @param username 关联用户名（由 Service 解析，非持久化字段）
  */
 public record EmployeeDetailVO(
     Long id,
@@ -35,4 +37,6 @@ public record EmployeeDetailVO(
     LocalDate entryDate,
     LocalDate leaveDate,
     LocalDateTime createdAt,
-    List<EmployeeOrgVO> orgs) {}
+    List<EmployeeOrgVO> orgs,
+    Long userId,
+    String username) {}

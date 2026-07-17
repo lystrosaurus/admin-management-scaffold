@@ -16,8 +16,11 @@ import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeOrgVO;
 import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeVO;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
+import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,7 @@ public class EmployeeService {
   private final EmployeeOrgDAO employeeOrgDAO;
   private final OrgUnitDAO orgUnitDAO;
   private final EmployeeMapper employeeMapper;
+  private final UserDAO userDAO;
 
   @Transactional(rollbackFor = Exception.class)
   public EmployeeVO create(EmployeeCreateDTO dto) {
@@ -45,9 +49,10 @@ public class EmployeeService {
     HrEmployee employee = employeeMapper.toEntity(dto);
     employee.setSourceType("MANUAL");
     employee.setEmploymentStatus("ACTIVE");
+    employee.setUserId(dto.userId());
     employeeDAO.save(employee);
 
-    return employeeMapper.toVO(employee);
+    return toEmployeeVO(employee, null, resolveUsername(employee.getUserId()));
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -86,9 +91,12 @@ public class EmployeeService {
     if (dto.leaveDate() != null) {
       employee.setLeaveDate(dto.leaveDate());
     }
+    if (dto.userId() != null) {
+      employee.setUserId(dto.userId());
+    }
 
     employeeDAO.update(employee);
-    return employeeMapper.toVO(employee);
+    return toEmployeeVO(employee, null, resolveUsername(employee.getUserId()));
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -114,9 +122,11 @@ public class EmployeeService {
     List<EmployeeOrg> employeeOrgs = employeeOrgDAO.findByEmployeeId(id);
 
     // 批量查询组织信息
-    List<Long> orgIds = employeeOrgs.stream().map(EmployeeOrg::getOrgId).toList();
+    List<Long> orgIds =
+        employeeOrgs.stream().map(EmployeeOrg::getOrgId).toList();
     Map<Long, OrgUnit> orgMap =
-        orgUnitDAO.findByIds(orgIds).stream().collect(Collectors.toMap(OrgUnit::getId, org -> org));
+        orgUnitDAO.findByIds(orgIds).stream()
+            .collect(Collectors.toMap(OrgUnit::getId, org -> org));
 
     // 构建组织关联VO列表
     List<EmployeeOrgVO> orgVOs =
@@ -156,7 +166,9 @@ public class EmployeeService {
         detailVO.entryDate(),
         detailVO.leaveDate(),
         detailVO.createdAt(),
-        orgVOs);
+        orgVOs,
+        employee.getUserId(),
+        resolveUsername(employee.getUserId()));
   }
 
   public PageResult<EmployeeVO> findPage(EmployeeQueryDTO dto, int page, int size) {
@@ -172,14 +184,23 @@ public class EmployeeService {
 
     // 批量查询组织名称
     List<Long> orgIds =
-        baseVOs.stream().map(EmployeeVO::primaryOrgId).filter(id -> id != null).distinct().toList();
+        baseVOs.stream().map(EmployeeVO::primaryOrgId).filter(Objects::nonNull).distinct().toList();
     Map<Long, String> orgNameMap =
         orgIds.isEmpty()
             ? Map.of()
             : orgUnitDAO.findByIds(orgIds).stream()
                 .collect(Collectors.toMap(OrgUnit::getId, OrgUnit::getName));
 
-    // 补充 orgUnitName
+    // 批量查询关联用户名
+    List<Long> userIds =
+        baseVOs.stream().map(EmployeeVO::userId).filter(Objects::nonNull).distinct().toList();
+    Map<Long, String> usernameMap =
+        userIds.isEmpty()
+            ? Map.of()
+            : userDAO.findByIds(userIds).stream()
+                .collect(Collectors.toMap(SysUser::getId, SysUser::getUsername));
+
+    // 补充 orgUnitName 与 username
     List<EmployeeVO> employeeVOs =
         baseVOs.stream()
             .map(
@@ -197,9 +218,40 @@ public class EmployeeService {
                         orgNameMap.get(vo.primaryOrgId()),
                         vo.entryDate(),
                         vo.leaveDate(),
-                        vo.createdAt()))
+                        vo.createdAt(),
+                        vo.userId(),
+                        usernameMap.get(vo.userId())))
             .toList();
 
     return new PageResult<>(employeeVOs, total, page, size);
+  }
+
+  /** 根据 userId 解析关联用户名，userId 为空或用户不存在时返回 null */
+  private String resolveUsername(Long userId) {
+    if (userId == null) {
+      return null;
+    }
+    SysUser user = userDAO.findById(userId);
+    return user != null ? user.getUsername() : null;
+  }
+
+  /** 组装员工VO（含组织名与用户名） */
+  private EmployeeVO toEmployeeVO(HrEmployee e, String orgUnitName, String username) {
+    return new EmployeeVO(
+        e.getId(),
+        e.getEmployeeNo(),
+        e.getName(),
+        e.getPreferredName(),
+        e.getMobile(),
+        e.getEmail(),
+        e.getJobTitle(),
+        e.getEmploymentStatus(),
+        e.getPrimaryOrgId(),
+        orgUnitName,
+        e.getEntryDate(),
+        e.getLeaveDate(),
+        e.getCreatedAt(),
+        e.getUserId(),
+        username);
   }
 }

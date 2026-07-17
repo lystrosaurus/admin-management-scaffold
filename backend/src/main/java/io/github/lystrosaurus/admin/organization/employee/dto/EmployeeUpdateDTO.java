@@ -14,6 +14,7 @@ import java.time.LocalDate;
  * @param employmentStatus 在职状态
  * @param entryDate 入职日期
  * @param leaveDate 离职日期
+ * @param userId 关联系统用户ID（可空）
  */
 public record EmployeeUpdateDTO(
     String name,
@@ -24,4 +25,5 @@ public record EmployeeUpdateDTO(
     Long primaryOrgId,
     String employmentStatus,
     LocalDate entryDate,
-    LocalDate leaveDate) {}
+    LocalDate leaveDate,
+    Long userId) {}

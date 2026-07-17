@@ -30,7 +30,8 @@ class EmployeeMapperTest {
             "zhangsan@example.com",
             "高级工程师",
             1L,
-            LocalDate.of(2024, 1, 15));
+            LocalDate.of(2024, 1, 15),
+            null);
 
     // When
     HrEmployee entity = mapper.toEntity(dto);
@@ -94,6 +95,8 @@ class EmployeeMapperTest {
     assertEquals(LocalDate.of(2024, 1, 15), vo.entryDate());
     assertNull(vo.leaveDate());
     assertEquals(LocalDateTime.of(2024, 1, 15, 10, 30), vo.createdAt());
+    assertNull(vo.userId());
+    assertNull(vo.username());
   }
 
   @Test
@@ -117,6 +120,8 @@ class EmployeeMapperTest {
     assertEquals("张三", detailVO.name());
     assertNull(detailVO.orgUnitName());
     assertNull(detailVO.orgs()); // orgs 应被忽略，由 Service 层单独填充
+    assertNull(detailVO.userId());
+    assertNull(detailVO.username());
   }
 
   @Test

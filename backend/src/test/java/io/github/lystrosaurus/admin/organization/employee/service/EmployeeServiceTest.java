@@ -7,7 +7,11 @@ import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeDAO;
 import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeOrgDAO;
+import io.github.lystrosaurus.admin.organization.employee.dto.EmployeeCreateDTO;
 import io.github.lystrosaurus.admin.organization.employee.entity.HrEmployee;
+import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeVO;
+import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.entity.SysUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +34,8 @@ class EmployeeServiceTest {
   @Mock
   private io.github.lystrosaurus.admin.organization.employee.mapstruct.EmployeeMapper
       employeeMapper;
+
+  @Mock private UserDAO userDAO;
 
   @InjectMocks private EmployeeService employeeService;
 
@@ -62,5 +68,32 @@ class EmployeeServiceTest {
     BusinessException exception =
         assertThrows(BusinessException.class, () -> employeeService.deleteById(999L));
     assertEquals(ErrorCode.EMPLOYEE_NOT_FOUND.getCode(), exception.getCode());
+  }
+
+  @Test
+  @DisplayName("创建员工应回写关联用户名")
+  void should_resolve_username_on_create() {
+    // Given
+    EmployeeCreateDTO dto = new EmployeeCreateDTO("EMP001", "张三", null, null, null, null, null, 10L);
+    HrEmployee entity = new HrEmployee();
+    entity.setId(1L);
+    entity.setEmployeeNo("EMP001");
+    entity.setName("张三");
+    entity.setUserId(10L);
+    SysUser user = new SysUser();
+    user.setId(10L);
+    user.setUsername("linked_user");
+
+    when(employeeDAO.existsByEmployeeNo("EMP001")).thenReturn(false);
+    when(employeeMapper.toEntity(dto)).thenReturn(entity);
+    when(userDAO.findById(10L)).thenReturn(user);
+
+    // When
+    EmployeeVO vo = employeeService.create(dto);
+
+    // Then
+    assertEquals(10L, vo.userId());
+    assertEquals("linked_user", vo.username());
+    verify(employeeDAO).save(entity);
   }
 }

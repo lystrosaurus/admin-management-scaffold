@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
  * @param entryDate 入职日期
  * @param leaveDate 离职日期
  * @param createdAt 创建时间
+ * @param userId 关联系统用户ID
+ * @param username 关联用户名（由 Service 解析，非持久化字段）
  */
 public record EmployeeVO(
     Long id,
@@ -32,4 +34,6 @@ public record EmployeeVO(
     String orgUnitName,
     LocalDate entryDate,
     LocalDate leaveDate,
-    LocalDateTime createdAt) {}
+    LocalDateTime createdAt,
+    Long userId,
+    String username) {}

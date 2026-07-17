@@ -115,4 +115,12 @@ public interface UserDAO {
    * @return 用户实体，不存在时返回null
    */
   SysUser findByEmployeeId(Long employeeId);
+
+  /**
+   * 根据ID列表批量查找用户
+   *
+   * @param ids 用户ID列表
+   * @return 用户实体列表（忽略空列表）
+   */
+  List<SysUser> findByIds(java.util.Collection<Long> ids);
 }

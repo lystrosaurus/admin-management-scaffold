@@ -1,9 +1,13 @@
 package io.github.lystrosaurus.admin.arch;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.conditions.ArchConditions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -250,6 +254,28 @@ class ArchitectureTest {
         .onlyDependOnClassesThat()
         .resideOutsideOfPackage("..mapper..")
         .allowEmptyShould(true)
+        .check(classes);
+  }
+
+  // ==================== 授权回归约束（F-01 最小切片） ====================
+
+  @Test
+  @DisplayName("RoleController 的所有方法必须声明 @RequiresPermission")
+  void role_controller_methods_must_declare_requires_permission() {
+    methods()
+        .that(
+            new DescribedPredicate<JavaMethod>("属于 RoleController 的方法") {
+              @Override
+              public boolean test(JavaMethod method) {
+                return method
+                    .getOwner()
+                    .getName()
+                    .equals("io.github.lystrosaurus.admin.system.role.controller.RoleController");
+              }
+            })
+        .should(
+            ArchConditions.beAnnotatedWith(
+                io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class))
         .check(classes);
   }
 }

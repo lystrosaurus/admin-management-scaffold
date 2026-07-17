@@ -65,7 +65,9 @@ class EmployeeControllerTest extends SaTokenTest {
             null,
             LocalDate.of(2024, 1, 15),
             null,
-            LocalDateTime.now());
+            LocalDateTime.now(),
+            null,
+            null);
 
     employeeDetailVO =
         new EmployeeDetailVO(
@@ -82,7 +84,9 @@ class EmployeeControllerTest extends SaTokenTest {
             LocalDate.of(2024, 1, 15),
             null,
             LocalDateTime.now(),
-            List.of());
+            List.of(),
+            null,
+            null);
   }
 
   @Test
@@ -96,7 +100,8 @@ class EmployeeControllerTest extends SaTokenTest {
             "zhangsan@example.com",
             "高级工程师",
             100L,
-            LocalDate.of(2024, 1, 15));
+            LocalDate.of(2024, 1, 15),
+            null);
     when(employeeService.create(any(EmployeeCreateDTO.class))).thenReturn(employeeVO);
 
     mockMvc
@@ -115,7 +120,7 @@ class EmployeeControllerTest extends SaTokenTest {
   @DisplayName("应该返回400当员工工号为空")
   void should_return_400_when_employee_no_is_blank() throws Exception {
     EmployeeCreateDTO invalidDTO =
-        new EmployeeCreateDTO("", "张三", "13800138000", null, null, null, null);
+        new EmployeeCreateDTO("", "张三", "13800138000", null, null, null, null, null);
 
     mockMvc
         .perform(
@@ -129,7 +134,7 @@ class EmployeeControllerTest extends SaTokenTest {
   @DisplayName("应该返回400当员工姓名为空")
   void should_return_400_when_name_is_blank() throws Exception {
     EmployeeCreateDTO invalidDTO =
-        new EmployeeCreateDTO("EMP001", "", "13800138000", null, null, null, null);
+        new EmployeeCreateDTO("EMP001", "", "13800138000", null, null, null, null, null);
 
     mockMvc
         .perform(
@@ -169,7 +174,7 @@ class EmployeeControllerTest extends SaTokenTest {
   @DisplayName("应该成功更新员工")
   void should_update_employee_successfully() throws Exception {
     EmployeeUpdateDTO updateDTO =
-        new EmployeeUpdateDTO("张三丰", null, "13900139000", null, "技术总监", null, null, null, null);
+        new EmployeeUpdateDTO("张三丰", null, "13900139000", null, "技术总监", null, null, null, null, null);
     EmployeeVO updatedVO =
         new EmployeeVO(
             1L,
@@ -184,7 +189,9 @@ class EmployeeControllerTest extends SaTokenTest {
             null,
             null,
             null,
-            LocalDateTime.now());
+            LocalDateTime.now(),
+            null,
+            null);
     when(employeeService.update(eq(1L), any(EmployeeUpdateDTO.class))).thenReturn(updatedVO);
 
     mockMvc

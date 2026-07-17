@@ -28,6 +28,9 @@ public class HrEmployee extends BaseEntity {
   /** 主组织ID */
   private Long primaryOrgId;
 
+  /** 关联系统用户ID（sys_user.id），可空 */
+  private Long userId;
+
   /** 职位 */
   private String jobTitle;
 

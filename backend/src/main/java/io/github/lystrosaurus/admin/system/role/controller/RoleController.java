@@ -1,6 +1,7 @@
 package io.github.lystrosaurus.admin.system.role.controller;
 
 import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.system.role.dto.RoleCreateDTO;
 import io.github.lystrosaurus.admin.system.role.dto.RoleUpdateDTO;
 import io.github.lystrosaurus.admin.system.role.service.RoleService;
@@ -36,6 +37,7 @@ public class RoleController {
    * @param dto 角色创建DTO
    * @return 角色VO
    */
+  @RequiresPermission("system:role:create")
   @PostMapping
   public ApiResponse<RoleVO> create(@RequestBody @Valid RoleCreateDTO dto) {
     RoleVO roleVO = roleService.create(dto);
@@ -48,6 +50,7 @@ public class RoleController {
    * @param id 角色ID
    * @return 角色详情VO
    */
+  @RequiresPermission("system:role:view")
   @GetMapping("/{id}")
   public ApiResponse<RoleDetailVO> findById(@PathVariable Long id) {
     RoleDetailVO roleDetailVO = roleService.findById(id);
@@ -61,6 +64,7 @@ public class RoleController {
    * @param dto 角色更新DTO
    * @return 角色VO
    */
+  @RequiresPermission("system:role:update")
   @PutMapping("/{id}")
   public ApiResponse<RoleVO> update(@PathVariable Long id, @RequestBody RoleUpdateDTO dto) {
     RoleVO roleVO = roleService.update(id, dto);
@@ -73,6 +77,7 @@ public class RoleController {
    * @param id 角色ID
    * @return 空响应
    */
+  @RequiresPermission("system:role:delete")
   @DeleteMapping("/{id}")
   public ApiResponse<Void> deleteById(@PathVariable Long id) {
     roleService.deleteById(id);
@@ -84,6 +89,7 @@ public class RoleController {
    *
    * @return 角色列表
    */
+  @RequiresPermission("system:role:view")
   @GetMapping
   public ApiResponse<List<RoleVO>> findAll() {
     List<RoleVO> roles = roleService.findAll();
@@ -97,6 +103,7 @@ public class RoleController {
    * @param permissionIds 权限ID列表
    * @return 空响应
    */
+  @RequiresPermission("system:role:assign-permission")
   @PostMapping("/{id}/permissions")
   public ApiResponse<Void> assignPermissions(
       @PathVariable("id") Long roleId, @RequestBody List<Long> permissionIds) {
@@ -111,6 +118,7 @@ public class RoleController {
    * @param menuIds 菜单ID列表
    * @return 空响应
    */
+  @RequiresPermission("system:role:assign-menu")
   @PostMapping("/{id}/menus")
   public ApiResponse<Void> assignMenus(
       @PathVariable("id") Long roleId, @RequestBody List<Long> menuIds) {

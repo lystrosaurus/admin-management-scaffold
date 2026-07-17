@@ -35,6 +35,8 @@ public abstract class SaTokenTest extends BaseTest {
     // 模拟 checkPermission / checkRole 不抛异常（默认有权限）
     stpUtilMock.when(() -> StpUtil.checkPermission(anyString())).thenAnswer(invocation -> null);
     stpUtilMock.when(() -> StpUtil.checkRole(anyString())).thenAnswer(invocation -> null);
+    // 已登录用户默认拥有全部权限；负向用例在 RoleControllerAuthzTest 中单独覆盖
+    stpUtilMock.when(() -> StpUtil.hasPermission(anyString())).thenReturn(true);
     stpUtilMock
         .when(() -> StpUtil.checkPermissionOr(anyString(), anyString()))
         .thenAnswer(invocation -> null);
