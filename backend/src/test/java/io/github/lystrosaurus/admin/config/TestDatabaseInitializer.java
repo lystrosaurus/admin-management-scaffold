@@ -87,11 +87,13 @@ public class TestDatabaseInitializer {
               .dataSource(URL, "root", "root")
               .locations("classpath:db/migration")
               .baselineOnMigrate(true)
+              .baselineVersion("0")
               .load();
       flyway.migrate();
       log.info("Flyway 迁移完成");
     } catch (Exception e) {
       log.error("Flyway 迁移失败", e);
+      throw new RuntimeException("Flyway 迁移失败，禁止静默吞掉异常，测试上下文启动中止", e);
     }
 
     // 4. 返回测试数据源
