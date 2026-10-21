@@ -65,8 +65,8 @@ ops            健康检查、应用信息
 
 常用端点：
 
-- 登录：`POST /api/auth/login`
-- 登出：`POST /api/auth/logout`
+- 登录：`POST /api/public/auth/login`
+- 登出：`POST /api/public/auth/logout`
 - 当前用户：`GET /api/app/profile`
 - 健康检查：`GET /api/app/ops/health`（需 `ops:view` 权限）
 - 应用信息：`GET /api/app/ops/info`（需 `ops:view` 权限）

@@ -329,7 +329,7 @@ const ConfigItemPage = () => {
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
         confirmLoading={submitting}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" initialValues={{ status: 'ENABLED', configType: 'STRING' }}>
           <Form.Item

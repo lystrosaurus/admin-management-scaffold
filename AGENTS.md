@@ -175,8 +175,8 @@ Controller 不返回 Entity
 | 后台应用 | `/api/app/**` | Sa-Token JWT | 登录后的管理接口 |
 
 补充：
-- 登录：`POST /api/auth/login`
-- 登出：`POST /api/auth/logout`
+- 登录：`POST /api/public/auth/login`
+- 登出：`POST /api/public/auth/logout`
 - 当前用户资料：`GET /api/app/profile`
 - 路径小写 + 连字符，不使用驼峰。
 

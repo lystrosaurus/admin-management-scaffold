@@ -112,8 +112,8 @@ Controller -> Service -> DAO -> DAO Impl -> Mapper -> Database
 - `/api/public/**` is unauthenticated
 - `/api/open/**` uses `X-API-Token`
 - `/api/app/**` uses Sa-Token JWT
-- Login: `POST /api/auth/login`
-- Logout: `POST /api/auth/logout`
+- Login: `POST /api/public/auth/login`
+- Logout: `POST /api/public/auth/logout`
 - Current user profile: `GET /api/app/profile`
 
 JWT carries minimal claims only; runtime roles/permissions should be fetched from Redis/MySQL as required by the design.

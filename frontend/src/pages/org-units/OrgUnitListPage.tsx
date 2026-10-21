@@ -277,7 +277,7 @@ const OrgUnitListPage = () => {
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
         width={600}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" initialValues={{ status: 'ACTIVE', sort: 0 }}>
           <Form.Item name="parentId" label="上级组织">

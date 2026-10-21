@@ -310,7 +310,7 @@ const DictPage = () => {
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
         confirmLoading={submitting}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" initialValues={{ status: 'ENABLED', sortOrder: 0 }}>
           <Form.Item

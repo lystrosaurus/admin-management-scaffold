@@ -294,7 +294,7 @@ const SettingsPage = () => {
         open={modalOpen}
         onOk={handleSourceSubmit}
         onCancel={() => setModalOpen(false)}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={sourceForm} layout="vertical" preserve={false}>
           <Form.Item

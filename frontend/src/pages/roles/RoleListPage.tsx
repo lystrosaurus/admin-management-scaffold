@@ -405,7 +405,7 @@ const RoleListPage = () => {
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
         confirmLoading={submitting}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={form}
@@ -446,7 +446,7 @@ const RoleListPage = () => {
         onCancel={() => setPermissionModalVisible(false)}
         confirmLoading={submitting}
         width={600}
-        destroyOnClose
+        destroyOnHidden
       >
         <div style={{ marginBottom: 8, color: '#666' }}>
           选择要分配给该角色的权限：

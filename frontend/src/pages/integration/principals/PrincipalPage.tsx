@@ -403,7 +403,7 @@ const PrincipalPage = () => {
         onOk={handleSubmit}
         onCancel={() => setModalVisible(false)}
         confirmLoading={submitting}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={form}
