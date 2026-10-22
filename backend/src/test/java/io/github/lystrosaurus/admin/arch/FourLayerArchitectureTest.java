@@ -16,12 +16,11 @@ import org.junit.jupiter.api.Test;
 /**
  * 四层架构守卫（adapter / application / domain / infrastructure）。
  *
- * <p>波次 1（user 上下文）启用：除 {@code transactional_event_listener_only_in_application} 仍冻结至波次 5 外，
- * 其余规则已启用。仅检查生产代码（排除测试类）；{@code only_infrastructure_depends_on_base_mapper} 暂限定在
- * {@code ..system.user..} 范围，待其余上下文迁移后恢复全局。规则细节见 {@code
- * .trae/documents/ddd-four-layer-refactor-plan.md}。
+ * <p>波次 2B（dict / configitem 迁移）后：除 {@code transactional_event_listener_only_in_application}
+ * 仍冻结至波次 5 外，其余规则均已启用并覆盖 {@code ..system..} 全量上下文。仅检查生产代码（排除测试类）。规则细节见
+ * {@code .trae/documents/ddd-four-layer-refactor-plan.md}。
  */
-@DisplayName("四层架构守卫（波次1 user 上下文启用）")
+@DisplayName("四层架构守卫（波次2 覆盖 system 上下文）")
 class FourLayerArchitectureTest {
 
   private final JavaClasses classes =
@@ -138,9 +137,6 @@ class FourLayerArchitectureTest {
         .resideInAPackage("..system..")
         .and()
         .resideOutsideOfPackage("..infrastructure..")
-        // dict / configitem 尚未迁移，mapper 仍位于各自 mapper 包，留待后续波次
-        .and()
-        .resideOutsideOfPackages("..system.dict..", "..system.configitem..")
         .should()
         .dependOnClassesThat()
         .areAssignableTo(com.baomidou.mybatisplus.core.mapper.BaseMapper.class)
