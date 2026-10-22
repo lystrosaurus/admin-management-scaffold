@@ -23,6 +23,13 @@ spring.flyway:
   baseline-version: 0
   validate-on-migrate: false
 
+# 限流 / 幂等默认关闭，避免跨用例、跨次运行污染 Redis（需要时用 @TestPropertySource 单独开启）
+app:
+  rate-limit:
+    enabled: false
+  idempotent:
+    enabled: false
+
 # 日志级别（测试环境）
 logging:
   level:

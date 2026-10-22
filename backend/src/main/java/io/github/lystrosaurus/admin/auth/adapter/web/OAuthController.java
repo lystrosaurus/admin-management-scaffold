@@ -5,6 +5,7 @@ import io.github.lystrosaurus.admin.auth.adapter.response.OAuthAuthorizeResponse
 import io.github.lystrosaurus.admin.auth.adapter.response.OAuthLoginResponse;
 import io.github.lystrosaurus.admin.auth.application.OAuthApplicationService;
 import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.annotation.RateLimit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,7 @@ public class OAuthController {
    * @param request 回调参数（code + state）
    * @return 登录结果
    */
+  @RateLimit(prefix = "oauth:callback", key = "#provider", limit = 10, windowSeconds = 60)
   @GetMapping("/{provider}/callback")
   public ApiResponse<OAuthLoginResponse> callback(
       @PathVariable String provider, OAuthCallbackRequest request) {

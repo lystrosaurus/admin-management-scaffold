@@ -5,6 +5,7 @@ import io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountRespons
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.application.OAuthApplicationService;
 import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.annotation.Idempotent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +35,7 @@ public class OAuthBindController {
    * @return 绑定的三方账号信息
    */
   @RequiresPermission("auth:external-account:bind")
+  @Idempotent(prefix = "auth:bind", ttlSeconds = 10)
   @PostMapping("/{provider}/bind")
   public ApiResponse<ExternalAccountResponse> bind(
       @PathVariable String provider, @RequestBody OAuthBindRequest request) {

@@ -4,6 +4,7 @@ import io.github.lystrosaurus.admin.auth.adapter.response.ProfileResponse;
 import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.application.ProfileApplicationService;
 import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.annotation.RateLimit;
 import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ProfileController {
    * @return 空响应
    */
   @PermitAll(reason = "修改当前登录用户自身密码")
+  @RateLimit(prefix = "profile:change-password", limit = 5, windowSeconds = 60, byClientIp = true)
   @PutMapping("/password")
   public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
     profileApplicationService.changePassword(request.toCommand());

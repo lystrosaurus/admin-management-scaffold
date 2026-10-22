@@ -4,6 +4,7 @@ import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
 import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
 import io.github.lystrosaurus.admin.auth.application.AuthApplicationService;
 import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.annotation.RateLimit;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,12 @@ public class AuthController {
    * @param request 登录请求
    * @return 登录结果
    */
+  @RateLimit(
+      prefix = "auth:login",
+      key = "#request.username()",
+      limit = 5,
+      windowSeconds = 60,
+      byClientIp = true)
   @PostMapping("/login")
   public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
     LoginResponse loginResponse = authApplicationService.login(request.toCommand());

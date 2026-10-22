@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.system.user.adapter.web;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.annotation.Idempotent;
 import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
 import io.github.lystrosaurus.admin.system.user.adapter.request.EmployeeBindRequest;
 import io.github.lystrosaurus.admin.system.user.adapter.request.UserCreateRequest;
@@ -42,6 +43,7 @@ public class UserController {
    * @return 用户响应
    */
   @RequiresPermission("system:user:create")
+  @Idempotent(prefix = "user:create", ttlSeconds = 10)
   @PostMapping
   public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreateRequest request) {
     UserResponse response = userApplicationService.create(request.toCommand());
