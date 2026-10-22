@@ -22,6 +22,7 @@ import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -146,7 +147,8 @@ public class EmployeeApplicationService {
             .toList();
     Map<Long, String> usernameMap =
         userIds.isEmpty()
-            ? Map.of()
+            // 空 Map 必须允许以 null 为键查询（员工可能未关联用户），Map.of() 会抛 NPE
+            ? Collections.emptyMap()
             : userRepository.findByIds(userIds).stream()
                 .collect(Collectors.toMap(user -> user.id().value(), User::username));
 

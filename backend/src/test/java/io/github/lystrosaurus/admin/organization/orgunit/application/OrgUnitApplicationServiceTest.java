@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.organization.employee.domain.acl.EmployeeQueryPort;
 import io.github.lystrosaurus.admin.organization.orgunit.adapter.response.OrgUnitResponse;
+import io.github.lystrosaurus.admin.organization.orgunit.adapter.response.OrgUnitTreeResponse;
 import io.github.lystrosaurus.admin.organization.orgunit.application.assembler.OrgUnitAssembler;
 import io.github.lystrosaurus.admin.organization.orgunit.domain.acl.OrgUnitQueryRepository;
 import io.github.lystrosaurus.admin.organization.orgunit.domain.acl.OrgUnitRepository;
@@ -13,6 +14,7 @@ import io.github.lystrosaurus.admin.organization.orgunit.domain.model.OrgUnitErr
 import io.github.lystrosaurus.admin.organization.orgunit.domain.model.OrgUnitId;
 import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
 import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -119,5 +121,17 @@ class OrgUnitApplicationServiceTest {
     OrgUnitResponse result = orgUnitApplicationService.findById(1L);
 
     assertEquals("张三", result.leaderName());
+  }
+
+  @Test
+  @DisplayName("构建组织树时未设置负责人不应抛出 NPE")
+  void should_build_tree_when_manager_is_absent() {
+    when(orgUnitQueryRepository.findAll()).thenReturn(List.of(testOrgUnit));
+    when(employeeQueryPort.findNamesByIds(any())).thenReturn(Collections.emptyMap());
+
+    List<OrgUnitTreeResponse> tree = orgUnitApplicationService.findTree();
+
+    assertEquals(1, tree.size());
+    assertNull(tree.get(0).leaderName());
   }
 }

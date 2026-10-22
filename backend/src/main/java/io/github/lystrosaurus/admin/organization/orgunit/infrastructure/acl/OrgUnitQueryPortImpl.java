@@ -5,6 +5,7 @@ import io.github.lystrosaurus.admin.organization.orgunit.domain.acl.OrgUnitQuery
 import io.github.lystrosaurus.admin.organization.orgunit.infrastructure.persistence.mapper.OrgUnitMpMapper;
 import io.github.lystrosaurus.admin.organization.orgunit.infrastructure.persistence.po.OrgUnitPO;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,9 @@ public class OrgUnitQueryPortImpl implements OrgUnitQueryPort {
   @Override
   public Map<Long, String> findNamesByIds(Collection<Long> orgIds) {
     if (orgIds == null || orgIds.isEmpty()) {
-      return Map.of();
+      // 空 Map 必须允许以 null 为键查询（调用方可能传入未设置组织的 primaryOrgId），
+      // Map.of() 在 get(null) 时会抛 NPE，故使用 Collections.emptyMap()。
+      return Collections.emptyMap();
     }
     List<OrgUnitPO> orgUnits = orgUnitMpMapper.selectBatchIds(orgIds);
     return orgUnits.stream()

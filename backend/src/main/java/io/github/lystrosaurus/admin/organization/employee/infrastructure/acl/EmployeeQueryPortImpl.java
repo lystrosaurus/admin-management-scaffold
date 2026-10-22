@@ -5,6 +5,7 @@ import io.github.lystrosaurus.admin.organization.employee.domain.acl.EmployeeQue
 import io.github.lystrosaurus.admin.organization.employee.infrastructure.persistence.mapper.EmployeeMpMapper;
 import io.github.lystrosaurus.admin.organization.employee.infrastructure.persistence.po.EmployeePO;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,7 +27,9 @@ public class EmployeeQueryPortImpl implements EmployeeQueryPort {
   @Override
   public Map<Long, String> findNamesByIds(Collection<Long> employeeIds) {
     if (employeeIds == null || employeeIds.isEmpty()) {
-      return Map.of();
+      // 空 Map 必须允许以 null 为键查询（调用方可能传入未关联的 managerEmployeeId），
+      // Map.of() 在 get(null) 时会抛 NPE，故使用 Collections.emptyMap()。
+      return Collections.emptyMap();
     }
     List<EmployeePO> employees = employeeMpMapper.selectBatchIds(employeeIds);
     return employees.stream()
