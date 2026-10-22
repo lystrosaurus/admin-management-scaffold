@@ -14,7 +14,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 /**
  * 测试环境 Redis 配置
  *
- * <p>提供 Redis beans 以支持 OAuthStateService 等组件的测试
+ * <p>提供 Redis beans 以支持 RedisOAuthStateAdapter 等组件的测试
  */
 @Configuration
 public class TestRedisConfig {

@@ -1,6 +1,5 @@
 package io.github.lystrosaurus.admin.auth.adapter.response;
 
-import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import java.util.List;
 
@@ -12,4 +11,6 @@ import java.util.List;
  * @param recentLogins 最近登录记录
  */
 public record SecurityProfileResponse(
-    boolean hasPassword, List<ExternalAccountVO> boundAccounts, List<LoginLogVO> recentLogins) {}
+    boolean hasPassword,
+    List<ExternalAccountResponse> boundAccounts,
+    List<LoginLogVO> recentLogins) {}

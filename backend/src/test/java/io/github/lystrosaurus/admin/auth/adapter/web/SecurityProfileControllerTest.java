@@ -5,9 +5,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountResponse;
 import io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse;
 import io.github.lystrosaurus.admin.auth.application.ProfileApplicationService;
-import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import io.github.lystrosaurus.admin.test.SaTokenTest;
 import java.time.LocalDateTime;
@@ -30,8 +30,8 @@ class SecurityProfileControllerTest extends SaTokenTest {
   @DisplayName("GET /app/profile/security — 有密码 + 有绑定 + 有登录记录")
   void should_return_security_profile_with_password_and_binds_and_logs() throws Exception {
     // Given — 用户有密码
-    ExternalAccountVO accountVO =
-        new ExternalAccountVO(
+    ExternalAccountResponse accountVO =
+        new ExternalAccountResponse(
             1L,
             10L,
             "LARK",

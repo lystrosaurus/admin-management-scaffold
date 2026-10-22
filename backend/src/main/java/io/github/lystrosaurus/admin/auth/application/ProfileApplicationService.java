@@ -1,10 +1,9 @@
 package io.github.lystrosaurus.admin.auth.application;
 
+import io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountResponse;
 import io.github.lystrosaurus.admin.auth.adapter.response.ProfileResponse;
 import io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
-import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService;
-import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import io.github.lystrosaurus.admin.system.menu.adapter.response.MenuResponse;
@@ -27,7 +26,7 @@ public class ProfileApplicationService {
   private final UserApplicationService userApplicationService;
   private final RoleQueryPort roleQueryPort;
   private final MenuQueryPort menuQueryPort;
-  private final ExternalAccountService externalAccountService;
+  private final ExternalAccountApplicationService externalAccountApplicationService;
   private final LoginLogService loginLogService;
   private final AuthApplicationService authApplicationService;
   private final TokenSessionPort tokenSessionPort;
@@ -78,7 +77,8 @@ public class ProfileApplicationService {
     Long userId = tokenSessionPort.currentUserId();
 
     boolean hasPassword = authApplicationService.hasPassword(userId);
-    List<ExternalAccountVO> boundAccounts = externalAccountService.listByUserId(userId);
+    List<ExternalAccountResponse> boundAccounts =
+        externalAccountApplicationService.listByUserId(userId);
     List<LoginLogVO> recentLogins = loginLogService.getRecentLogins(userId, 10);
 
     return new SecurityProfileResponse(hasPassword, boundAccounts, recentLogins);

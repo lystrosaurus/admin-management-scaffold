@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  * 前后端契约字段对齐测试。
  *
  * <p>背景：曾发生「飞书点击绑定跳首页」的线上 bug——根因是后端
- * {@code OAuthAuthorizeVO} 序列化字段名为 {@code authorizeUrl}，而前端 {@code oauth.ts}
+ * {@code OAuthAuthorizeResponse} 序列化字段名为 {@code authorizeUrl}，而前端 {@code oauth.ts}
  * 解构的是 {@code { url }}，拿到 {@code undefined} 后 {@code window.location.href = undefined}
  * 静默跳回首页。后端 MVC 测试只「自验证」后端发了什么，从不校验前端期望的字段名，
  * 因此该契约裂缝长期未被发现。
@@ -36,9 +36,9 @@ class ContractFieldMatchTest {
   private static final Map<String, String> MANIFEST =
       Map.of(
           "OAuthAuthorizeUrl",
-              "io.github.lystrosaurus.admin.auth.oauth.vo.OAuthAuthorizeVO",
+              "io.github.lystrosaurus.admin.auth.adapter.response.OAuthAuthorizeResponse",
           "OAuthAccount",
-              "io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO",
+              "io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountResponse",
           "SecurityProfileVO",
               "io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse",
           "UserVO", "io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse",
@@ -121,17 +121,18 @@ class ContractFieldMatchTest {
   /**
    * 显式回归用例：飞书 bug 的根因保护。
    *
-   * <p>前端 {@code OAuthAuthorizeUrl} 期望字段 {@code url}；后端 {@code OAuthAuthorizeVO}
+   * <p>前端 {@code OAuthAuthorizeUrl} 期望字段 {@code url}；后端 {@code OAuthAuthorizeResponse}
    * 必须序列化 {@code url}，且绝不能再出现 {@code authorizeUrl}。
    */
   @Test
   void oauthAuthorizeUrlFieldIsUrlNotAuthorizeUrl() throws Exception {
-    Set<String> be = backendFields("io.github.lystrosaurus.admin.auth.oauth.vo.OAuthAuthorizeVO");
+    Set<String> be =
+        backendFields("io.github.lystrosaurus.admin.auth.adapter.response.OAuthAuthorizeResponse");
     assertTrue(
         be.contains("url"),
-        "OAuthAuthorizeVO 必须序列化字段 'url'（前端 OAuthAuthorizeUrl.url 依赖此字段），实际字段: " + be);
+        "OAuthAuthorizeResponse 必须序列化字段 'url'（前端 OAuthAuthorizeUrl.url 依赖此字段），实际字段: " + be);
     assertFalse(
         be.contains("authorizeUrl"),
-        "回归保护：OAuthAuthorizeVO 不应再使用 'authorizeUrl'（曾导致飞书绑定跳首页）");
+        "回归保护：OAuthAuthorizeResponse 不应再使用 'authorizeUrl'（曾导致飞书绑定跳首页）");
   }
 }
