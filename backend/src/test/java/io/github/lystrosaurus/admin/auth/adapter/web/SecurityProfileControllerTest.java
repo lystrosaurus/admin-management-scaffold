@@ -1,15 +1,14 @@
-package io.github.lystrosaurus.admin.auth.controller;
+package io.github.lystrosaurus.admin.auth.adapter.web;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.github.lystrosaurus.admin.auth.external.service.ExternalAccountService;
+import io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse;
+import io.github.lystrosaurus.admin.auth.application.ProfileApplicationService;
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
-import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
-import io.github.lystrosaurus.admin.auth.service.AuthService;
 import io.github.lystrosaurus.admin.test.SaTokenTest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,19 +24,12 @@ class SecurityProfileControllerTest extends SaTokenTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockitoBean private AuthService authService;
-
-  @MockitoBean private ExternalAccountService externalAccountService;
-
-  @MockitoBean private LoginLogService loginLogService;
+  @MockitoBean private ProfileApplicationService profileApplicationService;
 
   @Test
   @DisplayName("GET /app/profile/security — 有密码 + 有绑定 + 有登录记录")
   void should_return_security_profile_with_password_and_binds_and_logs() throws Exception {
     // Given — 用户有密码
-    when(authService.hasPassword(TEST_USER_ID)).thenReturn(true);
-
-    // 有1个绑定
     ExternalAccountVO accountVO =
         new ExternalAccountVO(
             1L,
@@ -52,13 +44,15 @@ class SecurityProfileControllerTest extends SaTokenTest {
             LocalDateTime.of(2025, 1, 1, 10, 0),
             LocalDateTime.of(2025, 1, 1, 9, 0),
             LocalDateTime.of(2025, 1, 1, 10, 0));
-    when(externalAccountService.listByUserId(TEST_USER_ID)).thenReturn(List.of(accountVO));
 
     // 有登录记录（字段与前端 LoginLog 契约一致：username / ip / success）
     LoginLogVO loginLogVO =
         new LoginLogVO(
             1L, "admin", "192.168.1.1", true, LocalDateTime.of(2025, 1, 1, 10, 0), "Chrome");
-    when(loginLogService.getRecentLogins(TEST_USER_ID, 10)).thenReturn(List.of(loginLogVO));
+
+    when(profileApplicationService.getSecurityProfile())
+        .thenReturn(
+            new SecurityProfileResponse(true, List.of(accountVO), List.of(loginLogVO)));
 
     // When & Then
     mockMvc
@@ -79,14 +73,9 @@ class SecurityProfileControllerTest extends SaTokenTest {
   @Test
   @DisplayName("GET /app/profile/security — 无密码无绑定")
   void should_return_security_profile_without_password_and_binds() throws Exception {
-    // Given — 用户无密码
-    when(authService.hasPassword(TEST_USER_ID)).thenReturn(false);
-
-    // 无绑定
-    when(externalAccountService.listByUserId(TEST_USER_ID)).thenReturn(List.of());
-
-    // 无登录记录
-    when(loginLogService.getRecentLogins(TEST_USER_ID, 10)).thenReturn(List.of());
+    // Given — 用户无密码、无绑定、无登录记录
+    when(profileApplicationService.getSecurityProfile())
+        .thenReturn(new SecurityProfileResponse(false, List.of(), List.of()));
 
     // When & Then
     mockMvc

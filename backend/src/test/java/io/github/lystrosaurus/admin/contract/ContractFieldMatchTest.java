@@ -40,7 +40,7 @@ class ContractFieldMatchTest {
           "OAuthAccount",
               "io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO",
           "SecurityProfileVO",
-              "io.github.lystrosaurus.admin.auth.vo.SecurityProfileVO",
+              "io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse",
           "UserVO", "io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse",
           "MenuVO", "io.github.lystrosaurus.admin.system.menu.adapter.response.MenuResponse");
 

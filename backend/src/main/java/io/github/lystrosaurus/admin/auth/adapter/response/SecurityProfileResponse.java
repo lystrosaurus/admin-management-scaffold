@@ -1,15 +1,15 @@
-package io.github.lystrosaurus.admin.auth.vo;
+package io.github.lystrosaurus.admin.auth.adapter.response;
 
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import java.util.List;
 
 /**
- * 账号安全信息 VO
+ * 账号安全信息响应（字段与旧 SecurityProfileVO 完全一致，保证 API 契约不变）
  *
  * @param hasPassword 是否设置了密码
  * @param boundAccounts 已绑定的三方账号列表
  * @param recentLogins 最近登录记录
  */
-public record SecurityProfileVO(
+public record SecurityProfileResponse(
     boolean hasPassword, List<ExternalAccountVO> boundAccounts, List<LoginLogVO> recentLogins) {}

@@ -15,7 +15,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * RedisTemplate 配置。
  *
  * <p>SEC-002 将 OAuth state 改为 Redis 存储后，{@code OAuthStateService} 需要类型安全的
- * {@code RedisTemplate<String, StateData>}；{@code AuthService} / {@code TokenVersionInterceptor}
+ * {@code RedisTemplate<String, StateData>}；{@code AuthApplicationService} / {@code TokenVersionInterceptor}
  * 需要 {@code RedisTemplate<String, Object>}。Spring Boot 自动配置仅提供
  * {@code RedisTemplate<Object, Object>}，泛型不匹配，故在此显式声明两个类型安全的模板。
  *

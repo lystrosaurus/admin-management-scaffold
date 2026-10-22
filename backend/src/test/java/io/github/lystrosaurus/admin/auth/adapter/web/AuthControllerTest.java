@@ -1,4 +1,4 @@
-package io.github.lystrosaurus.admin.auth;
+package io.github.lystrosaurus.admin.auth.adapter.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -8,11 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.lystrosaurus.admin.BaseTest;
-import io.github.lystrosaurus.admin.auth.service.AuthService;
-import io.github.lystrosaurus.admin.auth.vo.LoginVO;
+import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
+import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
+import io.github.lystrosaurus.admin.auth.application.AuthApplicationService;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,15 +36,15 @@ class AuthControllerTest extends BaseTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean private AuthService authService;
+  @MockitoBean private AuthApplicationService authApplicationService;
 
-  private LoginDTO loginDTO;
-  private LoginVO loginVO;
+  private LoginRequest loginRequest;
+  private LoginResponse loginResponse;
   private UserResponse userVO;
 
   @BeforeEach
   void setUp() {
-    loginDTO = new LoginDTO("admin", "password123");
+    loginRequest = new LoginRequest("admin", "password123");
     userVO =
         new UserResponse(
             1L,
@@ -55,19 +55,19 @@ class AuthControllerTest extends BaseTest {
             "ENABLED",
             LocalDateTime.now(),
             LocalDateTime.now());
-    loginVO = new LoginVO("jwt-token-123", userVO);
+    loginResponse = new LoginResponse("jwt-token-123", userVO);
   }
 
   @Test
   @DisplayName("应该成功登录")
   void should_login_successfully() throws Exception {
-    when(authService.login(any(LoginDTO.class))).thenReturn(loginVO);
+    when(authApplicationService.login(any(LoginRequest.class))).thenReturn(loginResponse);
 
     mockMvc
         .perform(
             post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDTO)))
+                .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(200))
         .andExpect(jsonPath("$.message").value("操作成功"))
@@ -78,40 +78,40 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回400当用户名为空")
   void should_return_400_when_username_is_blank() throws Exception {
-    LoginDTO invalidDTO = new LoginDTO("", "password123");
+    LoginRequest invalidRequest = new LoginRequest("", "password123");
 
     mockMvc
         .perform(
             post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidDTO)))
+                .content(objectMapper.writeValueAsString(invalidRequest)))
         .andExpect(status().isBadRequest());
   }
 
   @Test
   @DisplayName("应该返回400当密码为空")
   void should_return_400_when_password_is_blank() throws Exception {
-    LoginDTO invalidDTO = new LoginDTO("admin", "");
+    LoginRequest invalidRequest = new LoginRequest("admin", "");
 
     mockMvc
         .perform(
             post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidDTO)))
+                .content(objectMapper.writeValueAsString(invalidRequest)))
         .andExpect(status().isBadRequest());
   }
 
   @Test
   @DisplayName("应该返回401当用户不存在")
   void should_return_401_when_user_not_found() throws Exception {
-    when(authService.login(any(LoginDTO.class)))
+    when(authApplicationService.login(any(LoginRequest.class)))
         .thenThrow(new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     mockMvc
         .perform(
             post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDTO)))
+                .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(ErrorCode.USER_NOT_FOUND.getCode()));
   }
@@ -119,14 +119,14 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回401当密码错误")
   void should_return_401_when_password_mismatch() throws Exception {
-    when(authService.login(any(LoginDTO.class)))
+    when(authApplicationService.login(any(LoginRequest.class)))
         .thenThrow(new BusinessException(ErrorCode.PASSWORD_MISMATCH));
 
     mockMvc
         .perform(
             post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDTO)))
+                .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(ErrorCode.PASSWORD_MISMATCH.getCode()));
   }
@@ -134,14 +134,14 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回401当用户被禁用")
   void should_return_401_when_user_disabled() throws Exception {
-    when(authService.login(any(LoginDTO.class)))
+    when(authApplicationService.login(any(LoginRequest.class)))
         .thenThrow(new BusinessException(ErrorCode.USER_DISABLED));
 
     mockMvc
         .perform(
             post("/public/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDTO)))
+                .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.code").value(ErrorCode.USER_DISABLED.getCode()));
   }
@@ -159,7 +159,7 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该成功刷新Token")
   void should_refresh_token_successfully() throws Exception {
-    when(authService.refreshToken()).thenReturn(loginVO);
+    when(authApplicationService.refreshToken()).thenReturn(loginResponse);
 
     mockMvc
         .perform(get("/public/auth/refresh"))
@@ -171,7 +171,8 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回401当未登录时刷新Token")
   void should_return_401_when_refresh_token_without_login() throws Exception {
-    when(authService.refreshToken()).thenThrow(new BusinessException(ErrorCode.AUTH_401));
+    when(authApplicationService.refreshToken())
+        .thenThrow(new BusinessException(ErrorCode.AUTH_401));
 
     mockMvc
         .perform(get("/public/auth/refresh"))

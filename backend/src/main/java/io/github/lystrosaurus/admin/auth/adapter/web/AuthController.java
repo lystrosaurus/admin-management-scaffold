@@ -1,9 +1,9 @@
-package io.github.lystrosaurus.admin.auth.controller;
+package io.github.lystrosaurus.admin.auth.adapter.web;
 
-import io.github.lystrosaurus.admin.auth.service.AuthService;
-import io.github.lystrosaurus.admin.auth.vo.LoginVO;
+import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
+import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
+import io.github.lystrosaurus.admin.auth.application.AuthApplicationService;
 import io.github.lystrosaurus.admin.common.ApiResponse;
-import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,18 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-  private final AuthService authService;
+  private final AuthApplicationService authApplicationService;
 
   /**
    * 用户登录
    *
-   * @param dto 登录参数
+   * @param request 登录请求
    * @return 登录结果
    */
   @PostMapping("/login")
-  public ApiResponse<LoginVO> login(@RequestBody @Valid LoginDTO dto) {
-    LoginVO loginVO = authService.login(dto);
-    return ApiResponse.success(loginVO);
+  public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+    LoginResponse loginResponse = authApplicationService.login(request);
+    return ApiResponse.success(loginResponse);
   }
 
   /**
@@ -43,7 +43,7 @@ public class AuthController {
    */
   @PostMapping("/logout")
   public ApiResponse<Void> logout() {
-    authService.logout();
+    authApplicationService.logout();
     return ApiResponse.success();
   }
 
@@ -53,8 +53,8 @@ public class AuthController {
    * @return 新的 Token
    */
   @GetMapping("/refresh")
-  public ApiResponse<LoginVO> refreshToken() {
-    LoginVO loginVO = authService.refreshToken();
-    return ApiResponse.success(loginVO);
+  public ApiResponse<LoginResponse> refreshToken() {
+    LoginResponse loginResponse = authApplicationService.refreshToken();
+    return ApiResponse.success(loginResponse);
   }
 }

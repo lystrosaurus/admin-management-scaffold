@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import cn.dev33.satoken.context.mock.SaTokenContextMockUtil;
 import io.github.lystrosaurus.admin.IntegrationTest;
-import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
-import io.github.lystrosaurus.admin.auth.service.AuthService;
-import io.github.lystrosaurus.admin.auth.vo.LoginVO;
+import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
+import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
+import io.github.lystrosaurus.admin.auth.application.AuthApplicationService;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class LoginIntegrationTest extends IntegrationTest {
 
-  @Autowired private AuthService authService;
+  @Autowired private AuthApplicationService authApplicationService;
 
   @Autowired private UserRepository userRepository;
 
@@ -72,9 +72,9 @@ class LoginIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该成功登录当用户名和密码正确")
   void should_login_successfully_when_credentials_correct() {
-    LoginDTO dto = new LoginDTO("login_test_user", "password123");
+    LoginRequest dto = new LoginRequest("login_test_user", "password123");
 
-    LoginVO result = authService.login(dto);
+    LoginResponse result = authApplicationService.login(dto);
 
     assertNotNull(result);
     assertNotNull(result.accessToken(), "Token 不应为空");
@@ -86,9 +86,9 @@ class LoginIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该返回用户信息当登录成功")
   void should_return_user_info_when_login_success() {
-    LoginDTO dto = new LoginDTO("login_test_user", "password123");
+    LoginRequest dto = new LoginRequest("login_test_user", "password123");
 
-    LoginVO result = authService.login(dto);
+    LoginResponse result = authApplicationService.login(dto);
 
     assertNotNull(result.user());
     assertNotNull(result.user().id());
@@ -99,18 +99,20 @@ class LoginIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该抛出 USER_NOT_FOUND 当用户名不存在")
   void should_throw_user_not_found_when_username_not_exist() {
-    LoginDTO dto = new LoginDTO("nonexistent_user", "password123");
+    LoginRequest dto = new LoginRequest("nonexistent_user", "password123");
 
-    BusinessException ex = assertThrows(BusinessException.class, () -> authService.login(dto));
+    BusinessException ex =
+        assertThrows(BusinessException.class, () -> authApplicationService.login(dto));
     assertEquals(ErrorCode.USER_NOT_FOUND.getCode(), ex.getCode());
   }
 
   @Test
   @DisplayName("应该抛出 USER_INVALID_PASSWORD 当密码错误")
   void should_throw_invalid_password_when_password_wrong() {
-    LoginDTO dto = new LoginDTO("login_test_user", "wrong_password");
+    LoginRequest dto = new LoginRequest("login_test_user", "wrong_password");
 
-    BusinessException ex = assertThrows(BusinessException.class, () -> authService.login(dto));
+    BusinessException ex =
+        assertThrows(BusinessException.class, () -> authApplicationService.login(dto));
     assertEquals(ErrorCode.USER_INVALID_PASSWORD.getCode(), ex.getCode());
   }
 
@@ -121,9 +123,10 @@ class LoginIntegrationTest extends IntegrationTest {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     jdbc.update("UPDATE sys_user SET status = 'DISABLED' WHERE id = ?", testUserId);
 
-    LoginDTO dto = new LoginDTO("login_test_user", "password123");
+    LoginRequest dto = new LoginRequest("login_test_user", "password123");
 
-    BusinessException ex = assertThrows(BusinessException.class, () -> authService.login(dto));
+    BusinessException ex =
+        assertThrows(BusinessException.class, () -> authApplicationService.login(dto));
     assertEquals(ErrorCode.USER_ACCOUNT_DISABLED.getCode(), ex.getCode());
   }
 
@@ -134,9 +137,10 @@ class LoginIntegrationTest extends IntegrationTest {
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     jdbc.update("UPDATE sys_user SET status = 'LOCKED' WHERE id = ?", testUserId);
 
-    LoginDTO dto = new LoginDTO("login_test_user", "password123");
+    LoginRequest dto = new LoginRequest("login_test_user", "password123");
 
-    BusinessException ex = assertThrows(BusinessException.class, () -> authService.login(dto));
+    BusinessException ex =
+        assertThrows(BusinessException.class, () -> authApplicationService.login(dto));
     assertEquals(ErrorCode.USER_ACCOUNT_DISABLED.getCode(), ex.getCode());
   }
 
@@ -159,9 +163,9 @@ class LoginIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该更新最后登录时间当登录成功")
   void should_update_last_login_at_when_login_success() {
-    LoginDTO dto = new LoginDTO("login_test_user", "password123");
+    LoginRequest dto = new LoginRequest("login_test_user", "password123");
 
-    authService.login(dto);
+    authApplicationService.login(dto);
 
     User updated = userRepository.findByUsername("login_test_user").orElseThrow();
     assertNotNull(updated.lastLoginAt(), "最后登录时间不应为空");
