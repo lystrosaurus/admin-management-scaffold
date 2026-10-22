@@ -16,8 +16,9 @@ import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeOrgVO;
 import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeVO;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,7 +37,7 @@ public class EmployeeService {
   private final EmployeeOrgDAO employeeOrgDAO;
   private final OrgUnitDAO orgUnitDAO;
   private final EmployeeMapper employeeMapper;
-  private final UserDAO userDAO;
+  private final UserRepository userRepository;
 
   @Transactional(rollbackFor = Exception.class)
   public EmployeeVO create(EmployeeCreateDTO dto) {
@@ -197,8 +198,8 @@ public class EmployeeService {
     Map<Long, String> usernameMap =
         userIds.isEmpty()
             ? Map.of()
-            : userDAO.findByIds(userIds).stream()
-                .collect(Collectors.toMap(SysUser::getId, SysUser::getUsername));
+            : userRepository.findByIds(userIds).stream()
+                .collect(Collectors.toMap(user -> user.id().value(), User::username));
 
     // 补充 orgUnitName 与 username
     List<EmployeeVO> employeeVOs =
@@ -231,8 +232,7 @@ public class EmployeeService {
     if (userId == null) {
       return null;
     }
-    SysUser user = userDAO.findById(userId);
-    return user != null ? user.getUsername() : null;
+    return userRepository.findById(UserId.of(userId)).map(User::username).orElse(null);
   }
 
   /** 组装员工VO（含组织名与用户名） */

@@ -4,13 +4,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import cn.dev33.satoken.context.mock.SaTokenContextMockUtil;
 import io.github.lystrosaurus.admin.IntegrationTest;
+import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
 import io.github.lystrosaurus.admin.auth.service.AuthService;
 import io.github.lystrosaurus.admin.auth.vo.LoginVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.dto.LoginDTO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,13 +30,15 @@ class LoginIntegrationTest extends IntegrationTest {
 
   @Autowired private AuthService authService;
 
-  @Autowired private UserDAO userDAO;
+  @Autowired private UserRepository userRepository;
+
+  @Autowired private IdGenerator idGenerator;
 
   @Autowired private BCryptPasswordEncoder passwordEncoder;
 
   @Autowired private DataSource dataSource;
 
-  private SysUser testUser;
+  private Long testUserId;
 
   @BeforeEach
   void setUp() {
@@ -47,13 +51,17 @@ class LoginIntegrationTest extends IntegrationTest {
         "DELETE FROM sys_user_role WHERE user_id IN (SELECT id FROM sys_user WHERE username = 'login_test_user')");
     jdbc.update("DELETE FROM sys_user WHERE username = 'login_test_user'");
 
-    // 创建测试用户
-    testUser = new SysUser();
-    testUser.setUsername("login_test_user");
-    testUser.setPasswordHash(passwordEncoder.encode("password123"));
-    testUser.setNickname("登录测试用户");
-    testUser.setStatus("ENABLED");
-    userDAO.save(testUser);
+    // 创建测试用户（ENABLED 由 User.register 保证）
+    testUserId = idGenerator.nextId();
+    User testUser =
+        User.register(
+            UserId.of(testUserId),
+            "login_test_user",
+            passwordEncoder.encode("password123"),
+            "登录测试用户",
+            null,
+            null);
+    userRepository.save(testUser);
   }
 
   @AfterEach
@@ -109,9 +117,9 @@ class LoginIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该抛出 USER_ACCOUNT_DISABLED 当用户被禁用")
   void should_throw_disabled_when_user_disabled() {
-    // 禁用用户
-    testUser.setStatus("DISABLED");
-    userDAO.update(testUser);
+    // 禁用用户（直接改库，模拟管理端状态变更后的持久状态）
+    JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+    jdbc.update("UPDATE sys_user SET status = 'DISABLED' WHERE id = ?", testUserId);
 
     LoginDTO dto = new LoginDTO("login_test_user", "password123");
 
@@ -123,8 +131,8 @@ class LoginIntegrationTest extends IntegrationTest {
   @DisplayName("应该抛出 USER_ACCOUNT_DISABLED 当用户被锁定")
   void should_throw_disabled_when_user_locked() {
     // 锁定用户
-    testUser.setStatus("LOCKED");
-    userDAO.update(testUser);
+    JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+    jdbc.update("UPDATE sys_user SET status = 'LOCKED' WHERE id = ?", testUserId);
 
     LoginDTO dto = new LoginDTO("login_test_user", "password123");
 
@@ -135,11 +143,10 @@ class LoginIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该使用 BCrypt 加密存储密码")
   void should_store_password_with_bcrypt_encryption() {
-    SysUser storedUser = userDAO.findByUsername("login_test_user");
-    assertNotNull(storedUser);
+    User storedUser = userRepository.findByUsername("login_test_user").orElseThrow();
 
     // 密码应该是 BCrypt 格式（$2a$ 或 $2b$ 开头）
-    String hash = storedUser.getPasswordHash();
+    String hash = storedUser.passwordHash();
     assertTrue(
         hash.startsWith("$2a$") || hash.startsWith("$2b$"),
         "密码应使用 BCrypt 加密，实际: " + hash.substring(0, 4));
@@ -156,7 +163,7 @@ class LoginIntegrationTest extends IntegrationTest {
 
     authService.login(dto);
 
-    SysUser updated = userDAO.findByUsername("login_test_user");
-    assertNotNull(updated.getLastLoginAt(), "最后登录时间不应为空");
+    User updated = userRepository.findByUsername("login_test_user").orElseThrow();
+    assertNotNull(updated.lastLoginAt(), "最后登录时间不应为空");
   }
 }

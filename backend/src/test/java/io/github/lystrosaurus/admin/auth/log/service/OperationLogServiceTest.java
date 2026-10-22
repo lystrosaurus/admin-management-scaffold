@@ -7,8 +7,11 @@ import static org.mockito.Mockito.*;
 import io.github.lystrosaurus.admin.auth.log.dao.OperationLogDAO;
 import io.github.lystrosaurus.admin.auth.log.entity.OperationLog;
 import io.github.lystrosaurus.admin.auth.log.vo.OperationLogVO;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserStatus;
+import java.util.Optional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class OperationLogServiceTest {
 
   @Mock private OperationLogDAO operationLogDAO;
-  @Mock private UserDAO userDAO;
+  @Mock private UserRepository userRepository;
 
   @InjectMocks private OperationLogService operationLogService;
 
@@ -49,10 +52,11 @@ class OperationLogServiceTest {
     log.setCreatedAt(LocalDateTime.now());
     when(operationLogDAO.listByUserId(1L, 10)).thenReturn(Arrays.asList(log));
 
-    SysUser user = new SysUser();
-    user.setId(1L);
-    user.setUsername("admin");
-    when(userDAO.findById(1L)).thenReturn(user);
+    User user =
+        User.restore(
+            UserId.of(1L), "admin", null, null, null, null, null, null, UserStatus.ENABLED, 1,
+            null, null, null, 0);
+    when(userRepository.findById(UserId.of(1L))).thenReturn(Optional.of(user));
 
     List<OperationLogVO> result = operationLogService.getRecentOperations(1L, 10);
 

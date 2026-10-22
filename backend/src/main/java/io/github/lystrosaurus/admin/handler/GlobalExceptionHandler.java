@@ -6,6 +6,7 @@ import cn.dev33.satoken.exception.NotRoleException;
 import io.github.lystrosaurus.admin.common.ApiResponse;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,14 @@ public class GlobalExceptionHandler {
   public ApiResponse<Void> handleBusinessException(BusinessException e) {
     log.warn("业务异常: code={}, message={}", e.getCode(), e.getMessage());
     return ApiResponse.error(e.getCode(), e.getMessage());
+  }
+
+  /** 处理领域异常（DDD 四层化后由聚合/应用服务抛出，数值错误码与业务异常同契约） */
+  @ExceptionHandler(DomainException.class)
+  @ResponseStatus(HttpStatus.OK)
+  public ApiResponse<Void> handleDomainException(DomainException e) {
+    log.warn("领域异常: code={}, message={}", e.code(), e.getMessage());
+    return ApiResponse.error(e.code(), e.getMessage());
   }
 
   /** 处理未登录异常（Sa-Token 拦截器在 /app/** 未携带有效 token 时抛出） */

@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.auth.vo;
 
 import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
 import java.util.List;
 
 /**
@@ -13,4 +13,4 @@ import java.util.List;
  * @param menus 菜单列表
  */
 public record ProfileVO(
-    UserVO user, List<String> roles, List<String> permissions, List<MenuVO> menus) {}
+    UserResponse user, List<String> roles, List<String> permissions, List<MenuVO> menus) {}

@@ -8,7 +8,7 @@ import io.github.lystrosaurus.admin.auth.external.dao.AuthExternalAccountDAO;
 import io.github.lystrosaurus.admin.auth.external.entity.AuthExternalAccount;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ class ExternalAccountServiceTest {
   private io.github.lystrosaurus.admin.auth.external.mapstruct.ExternalAccountMapStruct
       accountMapStruct;
 
-  @Mock private UserDAO userDAO;
+  @Mock private UserRepository userRepository;
 
   @InjectMocks private ExternalAccountService externalAccountService;
 

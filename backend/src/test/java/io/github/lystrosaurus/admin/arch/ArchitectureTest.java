@@ -295,7 +295,7 @@ class ArchitectureTest {
                 return method
                     .getOwner()
                     .getName()
-                    .equals("io.github.lystrosaurus.admin.system.user.controller.UserController");
+                    .equals("io.github.lystrosaurus.admin.system.user.adapter.web.UserController");
               }
             })
         .should(
@@ -358,7 +358,7 @@ class ArchitectureTest {
   void global_guard_default_deny_requires_full_coverage() {
     for (Class<?> controller :
         new Class<?>[] {
-          io.github.lystrosaurus.admin.system.user.controller.UserController.class,
+          io.github.lystrosaurus.admin.system.user.adapter.web.UserController.class,
           io.github.lystrosaurus.admin.system.permission.controller.PermissionController.class,
           io.github.lystrosaurus.admin.system.menu.controller.MenuController.class,
           io.github.lystrosaurus.admin.system.role.controller.RoleController.class

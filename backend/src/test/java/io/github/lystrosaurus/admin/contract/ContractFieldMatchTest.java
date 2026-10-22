@@ -41,7 +41,7 @@ class ContractFieldMatchTest {
               "io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO",
           "SecurityProfileVO",
               "io.github.lystrosaurus.admin.auth.vo.SecurityProfileVO",
-          "UserVO", "io.github.lystrosaurus.admin.system.user.vo.UserVO",
+          "UserVO", "io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse",
           "MenuVO", "io.github.lystrosaurus.admin.system.menu.vo.MenuVO");
 
   private Path typesFile() {

@@ -3,8 +3,9 @@ package io.github.lystrosaurus.admin.auth.config;
 import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class TokenVersionInterceptor implements HandlerInterceptor {
   private static final String TOKEN_VERSION_KEY_PREFIX = "satoken:login:token-version:";
 
   private final RedisTemplate<String, Object> redisTemplate;
-  private final UserDAO userDAO;
+  private final UserRepository userRepository;
 
   @Override
   public boolean preHandle(
@@ -45,22 +46,22 @@ public class TokenVersionInterceptor implements HandlerInterceptor {
     }
 
     // 2. 从数据库获取当前 tokenVersion
-    SysUser user = userDAO.findById(userId);
-    if (user == null) {
-      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-    }
+    User user =
+        userRepository
+            .findById(UserId.of(userId))
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     // 3. 比较，不一致则 Token 已失效
     Integer stored =
         storedVersion instanceof Integer
             ? (Integer) storedVersion
             : Integer.parseInt(storedVersion.toString());
-    if (!stored.equals(user.getTokenVersion())) {
+    if (!stored.equals(user.tokenVersion())) {
       log.warn(
           "Token version mismatch for userId={}, stored={}, actual={}",
           userId,
           stored,
-          user.getTokenVersion());
+          user.tokenVersion());
       StpUtil.logout();
       throw new BusinessException(ErrorCode.AUTH_401);
     }

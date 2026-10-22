@@ -8,10 +8,10 @@ import io.github.lystrosaurus.admin.system.menu.service.MenuService;
 import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
 import io.github.lystrosaurus.admin.system.role.service.RoleService;
 import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
-import io.github.lystrosaurus.admin.system.user.dto.ChangePasswordDTO;
-import io.github.lystrosaurus.admin.system.user.service.UserService;
-import io.github.lystrosaurus.admin.system.user.vo.UserDetailVO;
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserDetailResponse;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
+import io.github.lystrosaurus.admin.system.user.application.UserApplicationService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ProfileController {
 
-  private final UserService userService;
+  private final UserApplicationService userApplicationService;
   private final RoleService roleService;
   private final MenuService menuService;
 
@@ -46,9 +46,9 @@ public class ProfileController {
     Long currentUserId = UserContext.getCurrentUserId();
 
     // 查询用户信息
-    UserDetailVO userDetail = userService.findById(currentUserId);
-    UserVO userVO =
-        new UserVO(
+    UserDetailResponse userDetail = userApplicationService.findById(currentUserId);
+    UserResponse userResponse =
+        new UserResponse(
             userDetail.id(),
             userDetail.username(),
             userDetail.nickname(),
@@ -68,21 +68,21 @@ public class ProfileController {
     // 查询用户菜单
     List<MenuVO> menus = menuService.findByUserId(currentUserId);
 
-    ProfileVO profileVO = new ProfileVO(userVO, roleNames, permissions, menus);
+    ProfileVO profileVO = new ProfileVO(userResponse, roleNames, permissions, menus);
     return ApiResponse.success(profileVO);
   }
 
   /**
    * 修改自己的密码
    *
-   * @param dto 修改密码DTO
+   * @param request 修改密码请求
    * @return 空响应
    */
   @PermitAll(reason = "修改当前登录用户自身密码")
   @PutMapping("/password")
-  public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordDTO dto) {
+  public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
     Long currentUserId = UserContext.getCurrentUserId();
-    userService.changePassword(currentUserId, dto);
+    userApplicationService.changePassword(currentUserId, request.toCommand());
     return ApiResponse.success();
   }
 

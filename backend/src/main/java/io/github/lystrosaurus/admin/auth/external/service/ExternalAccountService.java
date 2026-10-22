@@ -8,8 +8,9 @@ import io.github.lystrosaurus.admin.auth.external.mapstruct.ExternalAccountMapSt
 import io.github.lystrosaurus.admin.auth.external.vo.ExternalAccountVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ExternalAccountService {
 
   private final AuthExternalAccountDAO accountDAO;
   private final ExternalAccountMapStruct accountMapStruct;
-  private final UserDAO userDAO;
+  private final UserRepository userRepository;
 
   @Transactional(rollbackFor = Exception.class)
   public ExternalAccountVO bind(ExternalAccountBindDTO dto) {
@@ -84,9 +85,9 @@ public class ExternalAccountService {
    */
   private void checkUnbindSafety(Long userId) {
     // 检查用户是否有密码
-    SysUser user = userDAO.findById(userId);
+    User user = userRepository.findById(UserId.of(userId)).orElse(null);
     boolean hasPassword =
-        user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
+        user != null && user.passwordHash() != null && !user.passwordHash().isBlank();
 
     // 统计当前用户的有效绑定数
     long activeBoundCount = accountDAO.countActiveBindsByUserId(userId);

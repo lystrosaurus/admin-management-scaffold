@@ -5,7 +5,9 @@ import io.github.lystrosaurus.admin.auth.log.dto.OperationLogQueryDTO;
 import io.github.lystrosaurus.admin.auth.log.entity.OperationLog;
 import io.github.lystrosaurus.admin.auth.log.vo.OperationLogVO;
 import io.github.lystrosaurus.admin.common.PageResult;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ import org.springframework.util.StringUtils;
 public class OperationLogService {
 
   private final OperationLogDAO operationLogDAO;
-  private final UserDAO userDAO;
+  private final UserRepository userRepository;
 
   public void recordOperation(
       Long userId,
@@ -57,8 +59,7 @@ public class OperationLogService {
     if (!StringUtils.hasText(username)) {
       return null;
     }
-    var user = userDAO.findByUsername(username);
-    return user == null ? null : user.getId();
+    return userRepository.findByUsername(username).map(user -> user.id().value()).orElse(null);
   }
 
   private OperationLogVO toVO(OperationLog log) {
@@ -77,7 +78,6 @@ public class OperationLogService {
     if (userId == null) {
       return null;
     }
-    var user = userDAO.findById(userId);
-    return user == null ? null : user.getUsername();
+    return userRepository.findById(UserId.of(userId)).map(User::username).orElse(null);
   }
 }

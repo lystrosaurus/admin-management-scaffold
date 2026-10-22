@@ -1,6 +1,6 @@
 package io.github.lystrosaurus.admin.auth.vo;
 
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
 
 /**
  * 登录VO
@@ -8,4 +8,4 @@ import io.github.lystrosaurus.admin.system.user.vo.UserVO;
  * @param accessToken 访问令牌
  * @param user 用户信息
  */
-public record LoginVO(String accessToken, UserVO user) {}
+public record LoginVO(String accessToken, UserResponse user) {}

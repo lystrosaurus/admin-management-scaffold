@@ -12,8 +12,8 @@ import io.github.lystrosaurus.admin.auth.service.AuthService;
 import io.github.lystrosaurus.admin.auth.vo.LoginVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dto.LoginDTO;
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,13 +40,13 @@ class AuthControllerTest extends BaseTest {
 
   private LoginDTO loginDTO;
   private LoginVO loginVO;
-  private UserVO userVO;
+  private UserResponse userVO;
 
   @BeforeEach
   void setUp() {
     loginDTO = new LoginDTO("admin", "password123");
     userVO =
-        new UserVO(
+        new UserResponse(
             1L,
             "admin",
             "管理员",

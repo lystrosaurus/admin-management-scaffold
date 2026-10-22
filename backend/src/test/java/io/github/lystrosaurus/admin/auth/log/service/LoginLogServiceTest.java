@@ -7,8 +7,10 @@ import static org.mockito.Mockito.*;
 import io.github.lystrosaurus.admin.auth.log.dao.LoginLogDAO;
 import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
+import java.util.Optional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class LoginLogServiceTest {
 
   @Mock private LoginLogDAO loginLogDAO;
-  @Mock private UserDAO userDAO;
+  @Mock private UserRepository userRepository;
 
   @InjectMocks private LoginLogService loginLogService;
 
@@ -49,9 +51,9 @@ class LoginLogServiceTest {
     loginLog.setLoginAt(LocalDateTime.now());
     when(loginLogDAO.listByUserId(1L, 10)).thenReturn(Arrays.asList(loginLog));
 
-    SysUser user = mock(SysUser.class);
-    when(user.getUsername()).thenReturn("admin");
-    when(userDAO.findById(1L)).thenReturn(user);
+    User user = mock(User.class);
+    when(user.username()).thenReturn("admin");
+    when(userRepository.findById(UserId.of(1L))).thenReturn(Optional.of(user));
 
     List<LoginLogVO> result = loginLogService.getRecentLogins(1L, 10);
 

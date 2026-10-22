@@ -10,8 +10,11 @@ import io.github.lystrosaurus.admin.organization.employee.dao.EmployeeOrgDAO;
 import io.github.lystrosaurus.admin.organization.employee.dto.EmployeeCreateDTO;
 import io.github.lystrosaurus.admin.organization.employee.entity.HrEmployee;
 import io.github.lystrosaurus.admin.organization.employee.vo.EmployeeVO;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserStatus;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +38,7 @@ class EmployeeServiceTest {
   private io.github.lystrosaurus.admin.organization.employee.mapstruct.EmployeeMapper
       employeeMapper;
 
-  @Mock private UserDAO userDAO;
+  @Mock private UserRepository userRepository;
 
   @InjectMocks private EmployeeService employeeService;
 
@@ -80,13 +83,26 @@ class EmployeeServiceTest {
     entity.setEmployeeNo("EMP001");
     entity.setName("张三");
     entity.setUserId(10L);
-    SysUser user = new SysUser();
-    user.setId(10L);
-    user.setUsername("linked_user");
+    User user =
+        User.restore(
+            UserId.of(10L),
+            "linked_user",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            UserStatus.ENABLED,
+            1,
+            null,
+            null,
+            null,
+            0);
 
     when(employeeDAO.existsByEmployeeNo("EMP001")).thenReturn(false);
     when(employeeMapper.toEntity(dto)).thenReturn(entity);
-    when(userDAO.findById(10L)).thenReturn(user);
+    when(userRepository.findById(UserId.of(10L))).thenReturn(Optional.of(user));
 
     // When
     EmployeeVO vo = employeeService.create(dto);

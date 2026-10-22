@@ -1,13 +1,15 @@
 package io.github.lystrosaurus.admin.auth.service;
 
 import cn.dev33.satoken.stp.StpUtil;
+import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
 import io.github.lystrosaurus.admin.auth.vo.LoginVO;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.dto.LoginDTO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserStatus;
 import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.web.util.ClientIpUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,17 +34,17 @@ public class AuthService {
 
   private static final String TOKEN_VERSION_KEY_PREFIX = "satoken:login:token-version:";
 
-  private final UserDAO userDAO;
+  private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final LoginLogService loginLogService;
   private final RedisTemplate<String, Object> redisTemplate;
 
   public AuthService(
-      UserDAO userDAO,
+      UserRepository userRepository,
       PasswordEncoder passwordEncoder,
       LoginLogService loginLogService,
       @Nullable RedisTemplate<String, Object> redisTemplate) {
-    this.userDAO = userDAO;
+    this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.loginLogService = loginLogService;
     this.redisTemplate = redisTemplate;
@@ -50,58 +52,48 @@ public class AuthService {
 
   public LoginVO login(LoginDTO dto) {
     // 1. 查找用户
-    SysUser user = userDAO.findByUsername(dto.username());
-    if (user == null) {
-      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-    }
+    User user =
+        userRepository
+            .findByUsername(dto.username())
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     // 2. 检查用户状态
-    if ("DISABLED".equals(user.getStatus())) {
+    if (user.status() == UserStatus.DISABLED) {
       throw new BusinessException(ErrorCode.USER_ACCOUNT_DISABLED);
     }
-    if ("LOCKED".equals(user.getStatus())) {
+    if (user.status() == UserStatus.LOCKED) {
       throw new BusinessException(ErrorCode.USER_ACCOUNT_DISABLED);
     }
 
     // 3. 验证密码
-    if (!passwordEncoder.matches(dto.password(), user.getPasswordHash())) {
+    if (!passwordEncoder.matches(dto.password(), user.passwordHash())) {
       throw new BusinessException(ErrorCode.USER_INVALID_PASSWORD);
     }
 
     // 4. 登录
-    StpUtil.login(user.getId());
+    StpUtil.login(user.id().value());
 
     // 5. 将 tokenVersion 写入 Redis，支持后续校验和强制下线
     if (redisTemplate != null) {
-      String redisKey = TOKEN_VERSION_KEY_PREFIX + user.getId();
-      redisTemplate.opsForValue().set(redisKey, user.getTokenVersion(), 2, TimeUnit.HOURS);
+      String redisKey = TOKEN_VERSION_KEY_PREFIX + user.id().value();
+      redisTemplate.opsForValue().set(redisKey, user.tokenVersion(), 2, TimeUnit.HOURS);
     }
 
     // 5.1 记录登录日志（审计）
     loginLogService.recordLogin(
-        user.getId(), "PASSWORD", null, getClientIp(), getClientUserAgent(), true, null);
+        user.id().value(), "PASSWORD", null, getClientIp(), getClientUserAgent(), true, null);
 
     // 6. 获取 JWT Token
     String token = StpUtil.getTokenValue();
 
     // 7. 更新最后登录时间和IP
-    user.setLastLoginAt(LocalDateTime.now());
-    user.setLastLoginIp(getClientIp());
-    userDAO.update(user);
+    user.recordLogin(LocalDateTime.now(), getClientIp());
+    userRepository.save(user);
 
     // 8. 返回 LoginVO
-    UserVO userVO =
-        new UserVO(
-            user.getId(),
-            user.getUsername(),
-            user.getNickname(),
-            user.getPhone(),
-            user.getEmail(),
-            user.getStatus(),
-            user.getLastLoginAt(),
-            user.getCreatedAt());
+    UserResponse userResponse = toUserResponse(user);
 
-    return new LoginVO(token, userVO);
+    return new LoginVO(token, userResponse);
   }
 
   public void logout() {
@@ -122,10 +114,10 @@ public class AuthService {
     Long userId = StpUtil.getLoginIdAsLong();
 
     // 3. 获取用户信息
-    SysUser user = userDAO.findById(userId);
-    if (user == null) {
-      throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-    }
+    User user =
+        userRepository
+            .findById(UserId.of(userId))
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     // 4. 延长 Token 有效期
     StpUtil.renewTimeout(7200);
@@ -134,23 +126,29 @@ public class AuthService {
     String token = StpUtil.getTokenValue();
 
     // 6. 返回新的 LoginVO
-    UserVO userVO =
-        new UserVO(
-            user.getId(),
-            user.getUsername(),
-            user.getNickname(),
-            user.getPhone(),
-            user.getEmail(),
-            user.getStatus(),
-            user.getLastLoginAt(),
-            user.getCreatedAt());
+    UserResponse userResponse = toUserResponse(user);
 
-    return new LoginVO(token, userVO);
+    return new LoginVO(token, userResponse);
   }
 
   public boolean hasPassword(Long userId) {
-    SysUser user = userDAO.findById(userId);
-    return user != null && user.getPasswordHash() != null && !user.getPasswordHash().isBlank();
+    return userRepository
+        .findById(UserId.of(userId))
+        .map(user -> user.passwordHash() != null && !user.passwordHash().isBlank())
+        .orElse(false);
+  }
+
+  /** 聚合 → 用户响应（保持登录相关接口的 wire 契约不变） */
+  private UserResponse toUserResponse(User user) {
+    return new UserResponse(
+        user.id().value(),
+        user.username(),
+        user.nickname(),
+        user.phone() == null ? null : user.phone().value(),
+        user.email() == null ? null : user.email().value(),
+        user.status() == null ? null : user.status().name(),
+        user.lastLoginAt(),
+        user.createdAt());
   }
 
   /** 获取当前请求的客户端 User-Agent */

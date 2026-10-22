@@ -6,6 +6,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
 import io.github.lystrosaurus.admin.shared.domain.primitive.AggregateRoot;
 import io.github.lystrosaurus.admin.shared.infrastructure.persistence.BasePO;
 import org.junit.jupiter.api.Disabled;
@@ -15,17 +16,20 @@ import org.junit.jupiter.api.Test;
 /**
  * 四层架构守卫（adapter / application / domain / infrastructure）。
  *
- * <p>波次 0 冻结：全部规则 @Disabled，随各上下文四层化迁移逐波启用； 波次 8 清理时全部启用并移除 @Disabled。规则细节见 {@code
+ * <p>波次 1（user 上下文）启用：除 {@code transactional_event_listener_only_in_application} 仍冻结至波次 5 外，
+ * 其余规则已启用。仅检查生产代码（排除测试类）；{@code only_infrastructure_depends_on_base_mapper} 暂限定在
+ * {@code ..system.user..} 范围，待其余上下文迁移后恢复全局。规则细节见 {@code
  * .trae/documents/ddd-four-layer-refactor-plan.md}。
  */
-@DisplayName("四层架构守卫（冻结态）")
+@DisplayName("四层架构守卫（波次1 user 上下文启用）")
 class FourLayerArchitectureTest {
 
   private final JavaClasses classes =
-      new ClassFileImporter().importPackages("io.github.lystrosaurus.admin");
+      new ClassFileImporter()
+          .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+          .importPackages("io.github.lystrosaurus.admin");
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("adapter 不应依赖 infrastructure")
   void adapter_should_not_depend_on_infrastructure() {
     noClasses()
@@ -39,7 +43,6 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("adapter 不应直接依赖 domain.model（经 application 出入参隔离）")
   void adapter_should_not_depend_on_domain_model() {
     noClasses()
@@ -53,7 +56,6 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("application 不应依赖 infrastructure")
   void application_should_not_depend_on_infrastructure() {
     noClasses()
@@ -67,7 +69,6 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("application 不应依赖 Spring Web / Servlet API")
   void application_should_not_depend_on_web() {
     noClasses()
@@ -81,7 +82,6 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("domain 层保持框架无关（Spring/MyBatis/Jackson/Servlet/Sa-Token）")
   void domain_should_be_framework_free() {
     noClasses()
@@ -101,7 +101,6 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("@TableName 持久化类必须以 PO 结尾并继承 BasePO")
   void po_naming_and_hierarchy() {
     classes()
@@ -118,12 +117,13 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
   @DisplayName("聚合根必须位于 domain.model 包")
   void aggregate_roots_must_reside_in_domain_model() {
     classes()
         .that()
         .areAssignableTo(AggregateRoot.class)
+        .and()
+        .doNotHaveFullyQualifiedName(AggregateRoot.class.getName())
         .should()
         .resideInAPackage("..domain.model..")
         .allowEmptyShould(true)
@@ -131,12 +131,17 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次1起逐上下文启用")
-  @DisplayName("仅 infrastructure 可依赖 BaseMapper")
+  @DisplayName("仅 infrastructure 可依赖 BaseMapper（波次1 限定 user 上下文）")
   void only_infrastructure_depends_on_base_mapper() {
     noClasses()
         .that()
+        .resideInAPackage("..system.user..")
+        .and()
         .resideOutsideOfPackage("..infrastructure..")
+        .and()
+        // SysUserRoleMapper 按计划保留至波次2 随 role 上下文迁移，其自身继承 BaseMapper 不算违规
+        .doNotHaveFullyQualifiedName(
+            "io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper")
         .should()
         .dependOnClassesThat()
         .areAssignableTo(com.baomidou.mybatisplus.core.mapper.BaseMapper.class)

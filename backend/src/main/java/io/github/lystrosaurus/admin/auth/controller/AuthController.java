@@ -3,7 +3,7 @@ package io.github.lystrosaurus.admin.auth.controller;
 import io.github.lystrosaurus.admin.auth.service.AuthService;
 import io.github.lystrosaurus.admin.auth.vo.LoginVO;
 import io.github.lystrosaurus.admin.common.ApiResponse;
-import io.github.lystrosaurus.admin.system.user.dto.LoginDTO;
+import io.github.lystrosaurus.admin.auth.dto.LoginDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

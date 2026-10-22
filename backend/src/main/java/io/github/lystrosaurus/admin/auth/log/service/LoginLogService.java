@@ -5,7 +5,9 @@ import io.github.lystrosaurus.admin.auth.log.dto.LoginLogQueryDTO;
 import io.github.lystrosaurus.admin.auth.log.entity.LoginLog;
 import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import io.github.lystrosaurus.admin.common.PageResult;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.User;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,7 @@ import org.springframework.util.StringUtils;
 public class LoginLogService {
 
   private final LoginLogDAO loginLogDAO;
-  private final UserDAO userDAO;
+  private final UserRepository userRepository;
 
   public void recordLogin(
       Long userId,
@@ -82,8 +84,7 @@ public class LoginLogService {
     if (!StringUtils.hasText(username)) {
       return null;
     }
-    var user = userDAO.findByUsername(username);
-    return user == null ? null : user.getId();
+    return userRepository.findByUsername(username).map(user -> user.id().value()).orElse(null);
   }
 
   /** userId → username（用于日志展示），未知或解析失败返回 null */
@@ -91,7 +92,6 @@ public class LoginLogService {
     if (userId == null) {
       return null;
     }
-    var user = userDAO.findById(userId);
-    return user == null ? null : user.getUsername();
+    return userRepository.findById(UserId.of(userId)).map(User::username).orElse(null);
   }
 }

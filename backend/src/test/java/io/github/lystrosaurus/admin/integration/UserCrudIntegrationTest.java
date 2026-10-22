@@ -4,15 +4,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.lystrosaurus.admin.IntegrationTest;
 import io.github.lystrosaurus.admin.common.PageResult;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.system.user.dao.UserDAO;
-import io.github.lystrosaurus.admin.system.user.dto.UserCreateDTO;
-import io.github.lystrosaurus.admin.system.user.dto.UserQueryDTO;
-import io.github.lystrosaurus.admin.system.user.dto.UserUpdateDTO;
-import io.github.lystrosaurus.admin.system.user.entity.SysUser;
-import io.github.lystrosaurus.admin.system.user.service.UserService;
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserDetailResponse;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
+import io.github.lystrosaurus.admin.system.user.application.UserApplicationService;
+import io.github.lystrosaurus.admin.system.user.application.command.UserCreateCommand;
+import io.github.lystrosaurus.admin.system.user.application.command.UserQuery;
+import io.github.lystrosaurus.admin.system.user.application.command.UserUpdateCommand;
+import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserErrorCode;
+import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,9 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class UserCrudIntegrationTest extends IntegrationTest {
 
-  @Autowired private UserService userService;
+  @Autowired private UserApplicationService userApplicationService;
 
-  @Autowired private UserDAO userDAO;
+  @Autowired private UserRepository userRepository;
 
   @Autowired private BCryptPasswordEncoder passwordEncoder;
 
@@ -48,9 +49,10 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该成功创建用户")
   void should_create_user_successfully() {
-    UserCreateDTO dto = new UserCreateDTO("crud_test_user", "pass123456", "CRUD测试", null, null);
+    UserCreateCommand command =
+        new UserCreateCommand("crud_test_user", "pass123456", "CRUD测试", null, null);
 
-    UserVO result = userService.create(dto);
+    UserResponse result = userApplicationService.create(command);
 
     assertNotNull(result);
     assertNotNull(result.id());
@@ -61,13 +63,13 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该抛出 USER_ALREADY_EXISTS 当用户名重复")
   void should_throw_already_exists_when_username_duplicate() {
-    UserCreateDTO first = new UserCreateDTO("dup_user", "pass123456", null, null, null);
-    userService.create(first);
+    UserCreateCommand first = new UserCreateCommand("dup_user", "pass123456", null, null, null);
+    userApplicationService.create(first);
 
-    UserCreateDTO duplicate = new UserCreateDTO("dup_user", "pass123456", null, null, null);
-    BusinessException ex =
-        assertThrows(BusinessException.class, () -> userService.create(duplicate));
-    assertEquals(ErrorCode.USER_ALREADY_EXISTS.getCode(), ex.getCode());
+    UserCreateCommand duplicate = new UserCreateCommand("dup_user", "pass123456", null, null, null);
+    DomainException ex =
+        assertThrows(DomainException.class, () -> userApplicationService.create(duplicate));
+    assertEquals(UserErrorCode.USER_ALREADY_EXISTS.code(), ex.code());
   }
 
   // ==================== 查询用户 ====================
@@ -75,10 +77,11 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该查询用户详情")
   void should_find_user_detail_by_id() {
-    UserCreateDTO dto = new UserCreateDTO("detail_user", "pass123456", "详情测试", null, null);
-    UserVO created = userService.create(dto);
+    UserCreateCommand command =
+        new UserCreateCommand("detail_user", "pass123456", "详情测试", null, null);
+    UserResponse created = userApplicationService.create(command);
 
-    var detail = userService.findById(created.id());
+    UserDetailResponse detail = userApplicationService.findById(created.id());
 
     assertNotNull(detail);
     assertEquals("detail_user", detail.username());
@@ -88,9 +91,9 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该抛出 USER_NOT_FOUND 当查询不存在的用户")
   void should_throw_not_found_when_user_not_exist() {
-    BusinessException ex =
-        assertThrows(BusinessException.class, () -> userService.findById(999999L));
-    assertEquals(ErrorCode.USER_NOT_FOUND.getCode(), ex.getCode());
+    DomainException ex =
+        assertThrows(DomainException.class, () -> userApplicationService.findById(999999L));
+    assertEquals(UserErrorCode.USER_NOT_FOUND.code(), ex.code());
   }
 
   // ==================== 更新用户 ====================
@@ -98,11 +101,13 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该成功更新用户信息")
   void should_update_user_successfully() {
-    UserCreateDTO createDto = new UserCreateDTO("update_user", "pass123456", null, null, null);
-    UserVO created = userService.create(createDto);
+    UserCreateCommand createCommand =
+        new UserCreateCommand("update_user", "pass123456", null, null, null);
+    UserResponse created = userApplicationService.create(createCommand);
 
-    UserUpdateDTO updateDto = new UserUpdateDTO("更新昵称", "13900139000", "update@test.com", null);
-    UserVO updated = userService.update(created.id(), updateDto);
+    UserUpdateCommand updateCommand =
+        new UserUpdateCommand("更新昵称", "13900139000", "update@test.com", null);
+    UserResponse updated = userApplicationService.update(created.id(), updateCommand);
 
     assertEquals("更新昵称", updated.nickname());
     assertEquals("13900139000", updated.phone());
@@ -114,14 +119,14 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("应该逻辑删除用户")
   void should_soft_delete_user() {
-    UserCreateDTO dto = new UserCreateDTO("delete_user", "pass123456", null, null, null);
-    UserVO created = userService.create(dto);
+    UserCreateCommand command = new UserCreateCommand("delete_user", "pass123456", null, null, null);
+    UserResponse created = userApplicationService.create(command);
 
-    userService.deleteById(created.id());
+    userApplicationService.deleteById(created.id());
 
-    // 逻辑删除后 DAO findById 应返回 null（@TableLogic）
-    SysUser deleted = userDAO.findById(created.id());
-    assertNull(deleted, "逻辑删除后不应查到该用户");
+    // 逻辑删除后仓储 findById 应为空（@TableLogic）
+    assertTrue(
+        userRepository.findById(UserId.of(created.id())).isEmpty(), "逻辑删除后不应查到该用户");
   }
 
   // ==================== 分页查询 ====================
@@ -131,12 +136,13 @@ class UserCrudIntegrationTest extends IntegrationTest {
   void should_find_users_with_pagination() {
     // 创建多个测试用户
     for (int i = 1; i <= 5; i++) {
-      userService.create(new UserCreateDTO("page_user_" + i, "pass123456", "分页测试" + i, null, null));
+      userApplicationService.create(
+          new UserCreateCommand("page_user_" + i, "pass123456", "分页测试" + i, null, null));
     }
 
-    UserQueryDTO query = new UserQueryDTO("page_user_", null, null);
-    PageResult<UserVO> page1 = userService.findPage(query, 1, 3);
-    PageResult<UserVO> page2 = userService.findPage(query, 2, 3);
+    UserQuery query = new UserQuery("page_user_", null, null);
+    PageResult<UserResponse> page1 = userApplicationService.findPage(query, 1, 3);
+    PageResult<UserResponse> page2 = userApplicationService.findPage(query, 2, 3);
 
     assertTrue(page1.total() >= 5, "总记录数应 >= 5");
     assertEquals(3, page1.items().size(), "第一页应有 3 条记录");
@@ -148,8 +154,9 @@ class UserCrudIntegrationTest extends IntegrationTest {
   @Test
   @DisplayName("创建用户时密码应使用 BCrypt 加密")
   void should_encrypt_password_with_bcrypt_on_create() {
-    UserCreateDTO dto = new UserCreateDTO("bcrypt_user", "plaintext_pwd", null, null, null);
-    UserVO created = userService.create(dto);
+    UserCreateCommand command =
+        new UserCreateCommand("bcrypt_user", "plaintext_pwd", null, null, null);
+    UserResponse created = userApplicationService.create(command);
 
     // 直接从数据库查询密码哈希
     JdbcTemplate jdbc = new JdbcTemplate(dataSource);

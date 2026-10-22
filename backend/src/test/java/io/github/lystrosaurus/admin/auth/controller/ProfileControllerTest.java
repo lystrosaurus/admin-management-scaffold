@@ -14,10 +14,11 @@ import io.github.lystrosaurus.admin.system.menu.service.MenuService;
 import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
 import io.github.lystrosaurus.admin.system.role.service.RoleService;
 import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
-import io.github.lystrosaurus.admin.system.user.dto.ChangePasswordDTO;
-import io.github.lystrosaurus.admin.system.user.service.UserService;
-import io.github.lystrosaurus.admin.system.user.vo.UserDetailVO;
-import io.github.lystrosaurus.admin.system.user.vo.UserVO;
+import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserDetailResponse;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
+import io.github.lystrosaurus.admin.system.user.application.UserApplicationService;
+import io.github.lystrosaurus.admin.system.user.application.command.ChangePasswordCommand;
 import io.github.lystrosaurus.admin.test.SaTokenTest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,19 +43,19 @@ class ProfileControllerTest extends SaTokenTest {
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean private UserService userService;
+  @MockitoBean private UserApplicationService userApplicationService;
 
   @MockitoBean private RoleService roleService;
 
   @MockitoBean private MenuService menuService;
 
-  private UserVO userVO;
+  private UserResponse userVO;
   private ProfileVO profileVO;
 
   @BeforeEach
   void setUp() {
     userVO =
-        new UserVO(
+        new UserResponse(
             1L,
             "admin",
             "管理员",
@@ -78,8 +79,8 @@ class ProfileControllerTest extends SaTokenTest {
   @DisplayName("应该成功获取当前用户资料")
   void should_get_current_user_profile() throws Exception {
     RoleVO roleVO = new RoleVO(1L, "ADMIN", "管理员", "系统管理员", "ENABLED", "ALL");
-    UserDetailVO userDetail =
-        new UserDetailVO(
+    UserDetailResponse userDetail =
+        new UserDetailResponse(
             1L,
             "admin",
             "管理员",
@@ -92,7 +93,7 @@ class ProfileControllerTest extends SaTokenTest {
             "127.0.0.1",
             List.of(roleVO),
             LocalDateTime.now());
-    when(userService.findById(1L)).thenReturn(userDetail);
+    when(userApplicationService.findById(1L)).thenReturn(userDetail);
     when(roleService.findByUserId(1L)).thenReturn(List.of(roleVO));
     when(menuService.findByUserId(1L)).thenReturn(List.<MenuVO>of());
 
@@ -105,8 +106,10 @@ class ProfileControllerTest extends SaTokenTest {
   @Test
   @DisplayName("应该成功修改自己的密码")
   void should_change_own_password_successfully() throws Exception {
-    ChangePasswordDTO changePasswordDTO = new ChangePasswordDTO("oldPassword", "newPassword");
-    doNothing().when(userService).changePassword(eq(1L), any(ChangePasswordDTO.class));
+    ChangePasswordRequest changePasswordDTO = new ChangePasswordRequest("oldPassword", "newPassword");
+    doNothing()
+        .when(userApplicationService)
+        .changePassword(eq(1L), any(ChangePasswordCommand.class));
 
     mockMvc
         .perform(
@@ -120,7 +123,7 @@ class ProfileControllerTest extends SaTokenTest {
   @Test
   @DisplayName("应该返回400当旧密码为空")
   void should_return_400_when_old_password_is_blank() throws Exception {
-    ChangePasswordDTO invalidDTO = new ChangePasswordDTO("", "newPassword");
+    ChangePasswordRequest invalidDTO = new ChangePasswordRequest("", "newPassword");
 
     mockMvc
         .perform(
@@ -133,7 +136,7 @@ class ProfileControllerTest extends SaTokenTest {
   @Test
   @DisplayName("应该返回400当新密码为空")
   void should_return_400_when_new_password_is_blank() throws Exception {
-    ChangePasswordDTO invalidDTO = new ChangePasswordDTO("oldPassword", "");
+    ChangePasswordRequest invalidDTO = new ChangePasswordRequest("oldPassword", "");
 
     mockMvc
         .perform(
