@@ -16,7 +16,7 @@ import lombok.Data;
  * <p>ID 采用 {@link IdType#INPUT}，由领域层通过 {@code IdGenerator} 端口预生成。
  */
 @Data
-public abstract class BasePO implements Serializable {
+public abstract class BasePO implements PersistentObject, Serializable {
 
   /** 主键 ID（领域层预生成） */
   @TableId(type = IdType.INPUT)

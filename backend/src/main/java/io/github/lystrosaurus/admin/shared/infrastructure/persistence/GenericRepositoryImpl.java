@@ -12,7 +12,7 @@ import java.util.Optional;
  *
  * <p>子类只需实现 {@link #toPo} / {@link #toDomain} 两个转换钩子（建议委托 MapStruct converter）， 并以
  * {@code @Repository} 声明为 Spring Bean。乐观锁由 {@link BasePO#version} 上的 {@code @Version} 驱动，更新冲突时由
- * MyBatis-Plus 抛出异常。
+ * MyBatis-Plus 抛出异常；无审计列/乐观锁列的旧表可使用仅实现 {@link PersistentObject} 的 PO。
  *
  * @param <T> 聚合根类型
  * @param <ID> 标识类型
@@ -22,7 +22,7 @@ import java.util.Optional;
 public abstract class GenericRepositoryImpl<
         T extends AggregateRoot<ID>,
         ID extends Identifier,
-        PO extends BasePO,
+        PO extends PersistentObject,
         M extends BaseMapper<PO>>
     implements GenericRepository<T, ID> {
 

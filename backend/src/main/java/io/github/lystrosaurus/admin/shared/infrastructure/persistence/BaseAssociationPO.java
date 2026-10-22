@@ -13,7 +13,7 @@ import lombok.Data;
  * 保持与历史写入行为一致。
  */
 @Data
-public abstract class BaseAssociationPO implements Serializable {
+public abstract class BaseAssociationPO implements PersistentObject, Serializable {
 
   /** 主键 ID（雪花分配） */
   @TableId(type = IdType.ASSIGN_ID)

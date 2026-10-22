@@ -8,7 +8,7 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import io.github.lystrosaurus.admin.shared.domain.primitive.AggregateRoot;
-import io.github.lystrosaurus.admin.shared.infrastructure.persistence.BasePO;
+import io.github.lystrosaurus.admin.shared.infrastructure.persistence.PersistentObject;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -100,7 +100,7 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @DisplayName("@TableName 持久化类必须以 PO 结尾并继承 BasePO")
+  @DisplayName("@TableName 持久化类必须以 PO 结尾并实现 PersistentObject")
   void po_naming_and_hierarchy() {
     classes()
         .that()
@@ -110,7 +110,7 @@ class FourLayerArchitectureTest {
         .should()
         .haveSimpleNameEndingWith("PO")
         .andShould()
-        .beAssignableTo(BasePO.class)
+        .beAssignableTo(PersistentObject.class)
         .allowEmptyShould(true)
         .check(classes);
   }
