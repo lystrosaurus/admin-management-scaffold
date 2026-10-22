@@ -4,8 +4,8 @@ import io.github.lystrosaurus.admin.audit.adapter.request.OperationLogQueryReque
 import io.github.lystrosaurus.admin.audit.adapter.response.OperationLogResponse;
 import io.github.lystrosaurus.admin.audit.application.OperationLogApplicationService;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
-import io.github.lystrosaurus.admin.common.ApiResponse;
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

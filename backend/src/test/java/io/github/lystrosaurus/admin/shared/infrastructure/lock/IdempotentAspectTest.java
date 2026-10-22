@@ -12,8 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.shared.annotation.Idempotent;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;

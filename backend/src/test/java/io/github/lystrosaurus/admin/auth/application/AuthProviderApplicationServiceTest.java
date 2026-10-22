@@ -5,8 +5,8 @@ import static org.mockito.Mockito.*;
 
 import io.github.lystrosaurus.admin.auth.domain.acl.AuthProviderRepository;
 import io.github.lystrosaurus.admin.auth.domain.model.AuthProvider;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

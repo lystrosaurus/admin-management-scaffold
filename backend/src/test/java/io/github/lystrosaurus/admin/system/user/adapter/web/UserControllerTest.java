@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
 import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
 import io.github.lystrosaurus.admin.system.user.adapter.request.EmployeeBindRequest;

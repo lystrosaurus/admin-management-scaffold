@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.stp.StpUtil;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -3,7 +3,7 @@ package io.github.lystrosaurus.admin.auth.adapter.web;
 import io.github.lystrosaurus.admin.auth.adapter.response.ProfileResponse;
 import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.application.ProfileApplicationService;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.shared.annotation.RateLimit;
 import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
 import jakarta.validation.Valid;

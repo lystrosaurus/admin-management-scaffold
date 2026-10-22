@@ -5,8 +5,8 @@ import io.github.lystrosaurus.admin.auth.application.command.AuthProviderCreateC
 import io.github.lystrosaurus.admin.auth.application.command.AuthProviderUpdateCommand;
 import io.github.lystrosaurus.admin.auth.domain.acl.AuthProviderRepository;
 import io.github.lystrosaurus.admin.auth.domain.model.AuthProvider;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

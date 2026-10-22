@@ -1,8 +1,8 @@
 package io.github.lystrosaurus.admin.auth.config;
 
 import cn.dev33.satoken.stp.StpUtil;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;

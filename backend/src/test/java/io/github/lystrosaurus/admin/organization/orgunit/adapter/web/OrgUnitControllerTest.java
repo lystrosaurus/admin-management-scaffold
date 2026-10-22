@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.github.lystrosaurus.admin.common.PageResult;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.organization.orgunit.adapter.request.OrgUnitCreateRequest;
 import io.github.lystrosaurus.admin.organization.orgunit.adapter.request.OrgUnitUpdateRequest;
 import io.github.lystrosaurus.admin.organization.orgunit.adapter.response.OrgUnitResponse;

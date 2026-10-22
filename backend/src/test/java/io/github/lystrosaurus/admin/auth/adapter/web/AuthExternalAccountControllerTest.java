@@ -13,8 +13,8 @@ import io.github.lystrosaurus.admin.auth.adapter.request.ExternalAccountBindRequ
 import io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountResponse;
 import io.github.lystrosaurus.admin.auth.application.ExternalAccountApplicationService;
 import io.github.lystrosaurus.admin.auth.application.command.BindExternalAccountCommand;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.test.SaTokenTest;
 import java.time.LocalDateTime;
 import java.util.List;

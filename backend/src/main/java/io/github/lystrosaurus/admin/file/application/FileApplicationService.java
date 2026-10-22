@@ -1,8 +1,8 @@
 package io.github.lystrosaurus.admin.file.application;
 
-import io.github.lystrosaurus.admin.common.PageResult;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.file.adapter.response.FileDownloadResponse;
 import io.github.lystrosaurus.admin.file.adapter.response.FileResponse;
 import io.github.lystrosaurus.admin.file.application.command.FileUploadCommand;

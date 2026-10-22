@@ -1,6 +1,6 @@
 package io.github.lystrosaurus.admin.organization.orgunit.application;
 
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.organization.employee.domain.acl.EmployeeQueryPort;
 import io.github.lystrosaurus.admin.organization.orgunit.adapter.response.OrgUnitResponse;
 import io.github.lystrosaurus.admin.organization.orgunit.adapter.response.OrgUnitTreeResponse;

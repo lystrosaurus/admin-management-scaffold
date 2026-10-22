@@ -4,7 +4,7 @@ import io.github.lystrosaurus.admin.auth.adapter.request.ExternalAccountBindRequ
 import io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountResponse;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.application.ExternalAccountApplicationService;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.shared.annotation.Idempotent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

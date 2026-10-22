@@ -1,6 +1,6 @@
 package io.github.lystrosaurus.admin.organization.employee.application;
 
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.organization.employee.adapter.response.EmployeeDetailResponse;
 import io.github.lystrosaurus.admin.organization.employee.adapter.response.EmployeeOrgResponse;
 import io.github.lystrosaurus.admin.organization.employee.adapter.response.EmployeeResponse;

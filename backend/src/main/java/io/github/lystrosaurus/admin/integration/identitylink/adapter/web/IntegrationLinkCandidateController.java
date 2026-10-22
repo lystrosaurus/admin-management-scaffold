@@ -2,7 +2,7 @@ package io.github.lystrosaurus.admin.integration.identitylink.adapter.web;
 
 import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.integration.identitylink.adapter.response.IdentityLinkCandidateResponse;
 import io.github.lystrosaurus.admin.integration.identitylink.application.IdentityLinkCandidateApplicationService;
 import java.util.List;

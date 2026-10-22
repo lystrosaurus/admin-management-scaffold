@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.ops.adapter.web;
 
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.ops.adapter.response.AppInfoResponse;
 import io.github.lystrosaurus.admin.ops.application.OpsApplicationService;
 import java.util.Map;

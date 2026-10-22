@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.system.role.adapter.web;
 
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.system.role.adapter.request.RoleCreateRequest;
 import io.github.lystrosaurus.admin.system.role.adapter.request.RoleUpdateRequest;
 import io.github.lystrosaurus.admin.system.role.adapter.response.RoleDetailResponse;

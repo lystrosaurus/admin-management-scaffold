@@ -4,7 +4,7 @@ import io.github.lystrosaurus.admin.auth.adapter.request.OAuthCallbackRequest;
 import io.github.lystrosaurus.admin.auth.adapter.response.OAuthAuthorizeResponse;
 import io.github.lystrosaurus.admin.auth.adapter.response.OAuthLoginResponse;
 import io.github.lystrosaurus.admin.auth.application.OAuthApplicationService;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.shared.annotation.RateLimit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

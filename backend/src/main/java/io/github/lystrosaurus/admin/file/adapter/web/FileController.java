@@ -2,8 +2,8 @@ package io.github.lystrosaurus.admin.file.adapter.web;
 
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
-import io.github.lystrosaurus.admin.common.ApiResponse;
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.file.adapter.request.FileQueryRequest;
 import io.github.lystrosaurus.admin.file.adapter.response.FileDownloadResponse;
 import io.github.lystrosaurus.admin.file.adapter.response.FileResponse;

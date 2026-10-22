@@ -12,7 +12,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.BaseTest;
 import io.github.lystrosaurus.admin.auth.adapter.request.ExternalAccountBindRequest;
 import io.github.lystrosaurus.admin.auth.application.ExternalAccountApplicationService;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

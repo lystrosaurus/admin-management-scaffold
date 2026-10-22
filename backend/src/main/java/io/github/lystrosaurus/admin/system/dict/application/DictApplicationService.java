@@ -1,6 +1,6 @@
 package io.github.lystrosaurus.admin.system.dict.application;
 
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.shared.domain.acl.PageQuery;

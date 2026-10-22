@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.BaseTest;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.system.menu.adapter.request.MenuCreateRequest;
 import io.github.lystrosaurus.admin.system.menu.adapter.request.MenuUpdateRequest;
 import io.github.lystrosaurus.admin.system.menu.adapter.response.MenuResponse;

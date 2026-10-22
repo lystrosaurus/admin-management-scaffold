@@ -2,8 +2,8 @@ package io.github.lystrosaurus.admin.auth.infrastructure.oauth.state;
 
 import io.github.lystrosaurus.admin.auth.domain.acl.OAuthStatePort;
 import io.github.lystrosaurus.admin.auth.domain.model.StateData;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

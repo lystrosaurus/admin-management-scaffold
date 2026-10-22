@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.auth.infrastructure.acl;
 
 import io.github.lystrosaurus.admin.auth.domain.acl.ClientRequestInfoPort;
-import io.github.lystrosaurus.admin.web.util.ClientIpUtil;
+import io.github.lystrosaurus.admin.shared.adapter.web.util.ClientIpUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

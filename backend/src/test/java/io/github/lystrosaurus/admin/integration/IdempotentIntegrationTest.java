@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import io.github.lystrosaurus.admin.BaseTest;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;

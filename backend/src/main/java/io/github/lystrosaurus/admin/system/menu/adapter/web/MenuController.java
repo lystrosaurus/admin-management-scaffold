@@ -3,7 +3,7 @@ package io.github.lystrosaurus.admin.system.menu.adapter.web;
 import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
 import io.github.lystrosaurus.admin.auth.context.UserContext;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.system.menu.adapter.request.MenuCreateRequest;
 import io.github.lystrosaurus.admin.system.menu.adapter.request.MenuUpdateRequest;
 import io.github.lystrosaurus.admin.system.menu.adapter.response.MenuResponse;

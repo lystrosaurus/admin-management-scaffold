@@ -3,7 +3,7 @@ package io.github.lystrosaurus.admin.auth.adapter.web;
 import io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse;
 import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
 import io.github.lystrosaurus.admin.auth.application.ProfileApplicationService;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

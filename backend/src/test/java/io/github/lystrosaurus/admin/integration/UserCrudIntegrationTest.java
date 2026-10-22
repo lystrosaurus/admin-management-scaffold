@@ -3,7 +3,7 @@ package io.github.lystrosaurus.admin.integration;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.lystrosaurus.admin.IntegrationTest;
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserDetailResponse;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;

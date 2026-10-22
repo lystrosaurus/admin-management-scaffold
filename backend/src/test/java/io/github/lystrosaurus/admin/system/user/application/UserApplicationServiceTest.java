@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.shared.domain.acl.PageQuery;

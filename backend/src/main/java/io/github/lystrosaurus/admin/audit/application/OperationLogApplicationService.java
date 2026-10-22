@@ -4,7 +4,7 @@ import io.github.lystrosaurus.admin.audit.adapter.request.OperationLogQueryReque
 import io.github.lystrosaurus.admin.audit.adapter.response.OperationLogResponse;
 import io.github.lystrosaurus.admin.audit.domain.acl.OperationLogRepository;
 import io.github.lystrosaurus.admin.audit.domain.model.OperationLog;
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;

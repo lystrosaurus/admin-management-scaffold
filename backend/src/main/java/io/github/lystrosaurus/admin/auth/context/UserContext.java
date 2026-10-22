@@ -1,8 +1,8 @@
 package io.github.lystrosaurus.admin.auth.context;
 
 import cn.dev33.satoken.stp.StpUtil;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import java.util.List;
 
 /**

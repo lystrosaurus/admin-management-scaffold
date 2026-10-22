@@ -2,8 +2,8 @@ package io.github.lystrosaurus.admin.auth.infrastructure.oauth;
 
 import io.github.lystrosaurus.admin.auth.domain.acl.OAuthClient;
 import io.github.lystrosaurus.admin.auth.domain.acl.OAuthClientCatalog;
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 

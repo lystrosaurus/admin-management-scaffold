@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.BaseTest;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.system.role.adapter.request.RoleCreateRequest;
 import io.github.lystrosaurus.admin.system.role.adapter.response.RoleResponse;
 import io.github.lystrosaurus.admin.system.role.application.RoleApplicationService;

@@ -1,9 +1,9 @@
 package io.github.lystrosaurus.admin.shared.infrastructure.lock;
 
-import io.github.lystrosaurus.admin.exception.BusinessException;
-import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.kernel.exception.BusinessException;
+import io.github.lystrosaurus.admin.shared.kernel.exception.ErrorCode;
 import io.github.lystrosaurus.admin.shared.annotation.RateLimit;
-import io.github.lystrosaurus.admin.web.util.ClientIpUtil;
+import io.github.lystrosaurus.admin.shared.adapter.web.util.ClientIpUtil;
 import java.lang.reflect.Method;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

@@ -3,8 +3,8 @@ package io.github.lystrosaurus.admin.db;
 import static org.junit.jupiter.api.Assertions.*;
 
 import cn.dev33.satoken.dao.SaTokenDaoForRedisTemplate;
-import io.github.lystrosaurus.admin.config.TestDatabaseInitializer;
-import io.github.lystrosaurus.admin.config.TestRedisConfig;
+import io.github.lystrosaurus.admin.shared.infrastructure.config.TestDatabaseInitializer;
+import io.github.lystrosaurus.admin.shared.infrastructure.config.TestRedisConfig;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;

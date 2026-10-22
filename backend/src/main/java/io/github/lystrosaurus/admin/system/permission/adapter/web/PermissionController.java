@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.system.permission.adapter.web;
 
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
-import io.github.lystrosaurus.admin.common.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
 import io.github.lystrosaurus.admin.system.permission.adapter.request.PermissionCreateRequest;
 import io.github.lystrosaurus.admin.system.permission.adapter.request.PermissionUpdateRequest;
 import io.github.lystrosaurus.admin.system.permission.adapter.response.PermissionResponse;

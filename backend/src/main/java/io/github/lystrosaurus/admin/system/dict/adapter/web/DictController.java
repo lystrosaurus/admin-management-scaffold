@@ -1,8 +1,8 @@
 package io.github.lystrosaurus.admin.system.dict.adapter.web;
 
 import io.github.lystrosaurus.admin.auth.annotation.RequiresPermission;
-import io.github.lystrosaurus.admin.common.ApiResponse;
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.ApiResponse;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.system.dict.adapter.request.DictCreateRequest;
 import io.github.lystrosaurus.admin.system.dict.adapter.request.DictUpdateRequest;
 import io.github.lystrosaurus.admin.system.dict.adapter.response.DictResponse;

@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin;
 
 import cn.dev33.satoken.dao.SaTokenDaoForRedisTemplate;
-import io.github.lystrosaurus.admin.config.TestRedisConfig;
+import io.github.lystrosaurus.admin.shared.infrastructure.config.TestRedisConfig;
 import org.junit.jupiter.api.Test;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

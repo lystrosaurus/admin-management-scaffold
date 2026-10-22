@@ -9,7 +9,7 @@ import io.github.lystrosaurus.admin.audit.adapter.response.LoginLogResponse;
 import io.github.lystrosaurus.admin.audit.domain.acl.LoginLogRepository;
 import io.github.lystrosaurus.admin.audit.domain.model.LoginLog;
 import io.github.lystrosaurus.admin.auth.domain.event.LoginSucceeded;
-import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.adapter.web.PageResult;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;

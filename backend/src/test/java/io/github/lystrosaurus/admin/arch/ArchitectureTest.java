@@ -2,7 +2,6 @@ package io.github.lystrosaurus.admin.arch;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -10,7 +9,6 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.conditions.ArchConditions;
 import io.github.lystrosaurus.admin.auth.annotation.PermitAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -346,33 +344,5 @@ class ArchitectureTest {
                     ArchConditions.beAnnotatedWith(
                         io.github.lystrosaurus.admin.auth.annotation.PermitAll.class)))
         .check(classes);
-  }
-
-  @Test
-  @Disabled(
-      "默认拒绝闸门（auth.default-deny.enabled=true）启用前的 CI 守卫：必须保证所有 /api/app/**"
-          + " 端点已声明 @RequiresPermission 或 @PermitAll。当前仅 User/Permission/Menu/Role"
-          + " 控制器已覆盖，其余端点（Profile/SecurityProfile/OAuthBind 等）仍为遗留放行端点，故禁用。"
-          + " 启用默认拒绝时取消 @Disabled 并将本守卫扩展至全部控制器。")
-  @DisplayName("全局守卫：默认拒绝启用前所有 /api/app 端点必须已声明授权注解")
-  void global_guard_default_deny_requires_full_coverage() {
-    for (Class<?> controller :
-        new Class<?>[] {
-          io.github.lystrosaurus.admin.system.user.adapter.web.UserController.class,
-          io.github.lystrosaurus.admin.system.permission.adapter.web.PermissionController.class,
-          io.github.lystrosaurus.admin.system.menu.adapter.web.MenuController.class,
-          io.github.lystrosaurus.admin.system.role.adapter.web.RoleController.class
-        }) {
-      for (java.lang.reflect.Method method : controller.getDeclaredMethods()) {
-        if (java.lang.reflect.Modifier.isPublic(method.getModifiers()) && !method.isSynthetic()) {
-          assertTrue(
-              method.isAnnotationPresent(
-                      io.github.lystrosaurus.admin.auth.annotation.RequiresPermission.class)
-                  || method.isAnnotationPresent(
-                      io.github.lystrosaurus.admin.auth.annotation.PermitAll.class),
-              () -> controller.getSimpleName() + "#" + method.getName() + " 缺少授权注解");
-        }
-      }
-    }
   }
 }

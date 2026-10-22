@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import cn.dev33.satoken.context.mock.SaTokenContextMockUtil;
 import cn.dev33.satoken.stp.StpUtil;
 import io.github.lystrosaurus.admin.IntegrationTest;
-import io.github.lystrosaurus.admin.web.datascope.DataScopeHelper;
+import io.github.lystrosaurus.admin.shared.infrastructure.datascope.DataScopeHelper;
 import java.util.Set;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterEach;
