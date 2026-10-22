@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.system.menu.infrastructure.acl;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import io.github.lystrosaurus.admin.shared.infrastructure.cache.TwoLevelCache;
 import io.github.lystrosaurus.admin.system.menu.domain.acl.MenuQueryRepository;
 import io.github.lystrosaurus.admin.system.menu.domain.acl.MenuSummary;
 import io.github.lystrosaurus.admin.system.menu.domain.model.Menu;
@@ -15,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.ObjectMapper;
 
 /** MenuQueryPortImpl 单元测试 */
 @ExtendWith(MockitoExtension.class)
@@ -22,12 +26,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class MenuQueryPortImplTest {
 
   @Mock private MenuQueryRepository queryRepository;
+  @Mock private StringRedisTemplate stringRedisTemplate;
 
   private MenuQueryPortImpl port;
 
   @BeforeEach
   void setUp() {
-    port = new MenuQueryPortImpl(queryRepository);
+    TwoLevelCache cache = new TwoLevelCache(stringRedisTemplate, new ObjectMapper());
+    ReflectionTestUtils.setField(cache, "enabled", false);
+    port = new MenuQueryPortImpl(queryRepository, cache);
   }
 
   private Menu menu() {

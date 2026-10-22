@@ -1,5 +1,6 @@
 package io.github.lystrosaurus.admin.system.role.application;
 
+import io.github.lystrosaurus.admin.shared.annotation.AggregateLock;
 import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
 import io.github.lystrosaurus.admin.shared.domain.exception.DomainException;
 import io.github.lystrosaurus.admin.system.menu.domain.acl.MenuQueryPort;
@@ -82,6 +83,7 @@ public class RoleApplicationService {
   }
 
   /** 分配权限给角色 */
+  @AggregateLock(prefix = "role:assign-permissions", key = "#roleId")
   @Transactional(rollbackFor = Exception.class)
   public void assignPermissions(Long roleId, List<Long> permissionIds) {
     Role role = findRole(roleId);
@@ -91,6 +93,7 @@ public class RoleApplicationService {
   }
 
   /** 分配菜单给角色 */
+  @AggregateLock(prefix = "role:assign-menus", key = "#roleId")
   @Transactional(rollbackFor = Exception.class)
   public void assignMenus(Long roleId, List<Long> menuIds) {
     Role role = findRole(roleId);

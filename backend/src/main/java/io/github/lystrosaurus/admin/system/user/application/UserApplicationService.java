@@ -1,6 +1,7 @@
 package io.github.lystrosaurus.admin.system.user.application;
 
 import io.github.lystrosaurus.admin.common.PageResult;
+import io.github.lystrosaurus.admin.shared.annotation.AggregateLock;
 import io.github.lystrosaurus.admin.shared.domain.acl.IdGenerator;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.shared.domain.acl.PageQuery;
@@ -62,6 +63,7 @@ public class UserApplicationService {
   }
 
   /** 更新用户（部分更新：仅非空文本字段生效） */
+  @AggregateLock(prefix = "user:update", key = "#id")
   @Transactional(rollbackFor = Exception.class)
   public UserResponse update(Long id, UserUpdateCommand command) {
     User user = findOrThrow(UserId.of(id));
@@ -75,6 +77,7 @@ public class UserApplicationService {
   }
 
   /** 删除用户 */
+  @AggregateLock(prefix = "user:delete", key = "#id")
   @Transactional(rollbackFor = Exception.class)
   public void deleteById(Long id) {
     userRepository.deleteById(UserId.of(id));
@@ -96,6 +99,7 @@ public class UserApplicationService {
   }
 
   /** 修改密码 */
+  @AggregateLock(prefix = "user:change-password", key = "#id")
   @Transactional(rollbackFor = Exception.class)
   public void changePassword(Long id, ChangePasswordCommand command) {
     User user = findOrThrow(UserId.of(id));
@@ -109,6 +113,7 @@ public class UserApplicationService {
   }
 
   /** 绑定员工 */
+  @AggregateLock(prefix = "user:bind-employee", key = "#userId")
   @Transactional(rollbackFor = Exception.class)
   public void bindEmployee(Long userId, BindEmployeeCommand command) {
     User user = findOrThrow(UserId.of(userId));
@@ -130,6 +135,7 @@ public class UserApplicationService {
   }
 
   /** 解绑员工 */
+  @AggregateLock(prefix = "user:unbind-employee", key = "#userId")
   @Transactional(rollbackFor = Exception.class)
   public void unbindEmployee(Long userId) {
     User user = findOrThrow(UserId.of(userId));

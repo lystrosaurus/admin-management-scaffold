@@ -29,6 +29,10 @@ app:
     enabled: false
   idempotent:
     enabled: false
+  cache:
+    enabled: false
+  aggregate-lock:
+    enabled: false
 
 # 日志级别（测试环境）
 logging:

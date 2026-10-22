@@ -3,6 +3,7 @@ package io.github.lystrosaurus.admin.system.permission.infrastructure.acl;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import io.github.lystrosaurus.admin.shared.infrastructure.cache.TwoLevelCache;
 import io.github.lystrosaurus.admin.system.permission.domain.acl.PermissionQueryRepository;
 import io.github.lystrosaurus.admin.system.permission.domain.acl.PermissionSummary;
 import io.github.lystrosaurus.admin.system.permission.domain.model.Permission;
@@ -15,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.ObjectMapper;
 
 /** PermissionQueryPortImpl 单元测试 */
 @ExtendWith(MockitoExtension.class)
@@ -22,12 +26,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PermissionQueryPortImplTest {
 
   @Mock private PermissionQueryRepository queryRepository;
+  @Mock private StringRedisTemplate stringRedisTemplate;
 
   private PermissionQueryPortImpl port;
 
   @BeforeEach
   void setUp() {
-    port = new PermissionQueryPortImpl(queryRepository);
+    TwoLevelCache cache = new TwoLevelCache(stringRedisTemplate, new ObjectMapper());
+    ReflectionTestUtils.setField(cache, "enabled", false);
+    port = new PermissionQueryPortImpl(queryRepository, cache);
   }
 
   private Permission permission(Long id, String code) {
