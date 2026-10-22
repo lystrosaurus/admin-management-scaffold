@@ -5,16 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
-import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
-import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
+import io.github.lystrosaurus.admin.organization.orgunit.domain.acl.OrgUnitQueryPort;
 import io.github.lystrosaurus.admin.system.role.domain.acl.RoleAssociationPort;
 import io.github.lystrosaurus.admin.system.role.domain.acl.RoleQueryPort;
 import io.github.lystrosaurus.admin.system.role.domain.acl.RoleSummary;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +34,7 @@ public class DataScopeHelper {
 
   private final RoleQueryPort roleQueryPort;
   private final RoleAssociationPort roleAssociationPort;
-  private final OrgUnitDAO orgUnitDAO;
+  private final OrgUnitQueryPort orgUnitQueryPort;
 
   /**
    * 获取当前用户可访问的部门ID集合
@@ -206,37 +203,8 @@ public class DataScopeHelper {
     return new HashSet<>(roleAssociationPort.findOrgIdsByRoleId(roleId));
   }
 
-  /**
-   * 获取某个部门的所有下级部门ID
-   *
-   * <p>一次性加载全部部门到内存构建父子映射，避免递归查询数据库。
-   */
+  /** 获取某个部门的所有下级部门ID（委托 organization 上下文查询端口） */
   private Set<Long> getDescendantOrgIds(Long orgId) {
-    // 一次性加载全部部门到内存
-    List<OrgUnit> allOrgUnits = orgUnitDAO.findAll();
-    if (allOrgUnits.isEmpty()) {
-      return Set.of();
-    }
-
-    // 构建 parentId -> childIds 映射
-    Map<Long, List<Long>> parentChildMap =
-        allOrgUnits.stream()
-            .collect(
-                Collectors.groupingBy(
-                    OrgUnit::getParentId, Collectors.mapping(OrgUnit::getId, Collectors.toList())));
-
-    Set<Long> result = new HashSet<>();
-    collectDescendantIds(orgId, parentChildMap, result);
-    return result;
-  }
-
-  /** 基于内存父子映射递归收集下级部门ID */
-  private void collectDescendantIds(
-      Long parentId, Map<Long, List<Long>> parentChildMap, Set<Long> result) {
-    List<Long> childIds = parentChildMap.getOrDefault(parentId, List.of());
-    for (Long childId : childIds) {
-      result.add(childId);
-      collectDescendantIds(childId, parentChildMap, result);
-    }
+    return orgUnitQueryPort.findDescendantIds(orgId);
   }
 }

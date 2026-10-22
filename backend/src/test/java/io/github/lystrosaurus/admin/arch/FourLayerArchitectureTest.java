@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 /**
  * 四层架构守卫（adapter / application / domain / infrastructure）。
  *
- * <p>波次 2B（dict / configitem 迁移）后：除 {@code transactional_event_listener_only_in_application}
- * 仍冻结至波次 5 外，其余规则均已启用并覆盖 {@code ..system..} 全量上下文。仅检查生产代码（排除测试类）。规则细节见
+ * <p>波次 3（employee / orgunit 迁移）后：除 {@code transactional_event_listener_only_in_application}
+ * 仍冻结至波次 5 外，其余规则均已启用并覆盖 {@code ..system..}、{@code ..organization..} 上下文。仅检查生产代码（排除测试类）。规则细节见
  * {@code .trae/documents/ddd-four-layer-refactor-plan.md}。
  */
-@DisplayName("四层架构守卫（波次2 覆盖 system 上下文）")
+@DisplayName("四层架构守卫（波次3 覆盖 system + organization 上下文）")
 class FourLayerArchitectureTest {
 
   private final JavaClasses classes =
@@ -130,11 +130,11 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @DisplayName("仅 infrastructure 可依赖 BaseMapper（波次2 覆盖 system 上下文）")
+  @DisplayName("仅 infrastructure 可依赖 BaseMapper（波次3 覆盖 system + organization 上下文）")
   void only_infrastructure_depends_on_base_mapper() {
     noClasses()
         .that()
-        .resideInAPackage("..system..")
+        .resideInAnyPackage("..system..", "..organization..")
         .and()
         .resideOutsideOfPackage("..infrastructure..")
         .should()
