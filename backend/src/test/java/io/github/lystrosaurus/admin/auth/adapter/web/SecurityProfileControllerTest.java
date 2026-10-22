@@ -5,10 +5,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.github.lystrosaurus.admin.audit.adapter.response.LoginLogResponse;
 import io.github.lystrosaurus.admin.auth.adapter.response.ExternalAccountResponse;
 import io.github.lystrosaurus.admin.auth.adapter.response.SecurityProfileResponse;
 import io.github.lystrosaurus.admin.auth.application.ProfileApplicationService;
-import io.github.lystrosaurus.admin.auth.log.vo.LoginLogVO;
 import io.github.lystrosaurus.admin.test.SaTokenTest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,13 +46,13 @@ class SecurityProfileControllerTest extends SaTokenTest {
             LocalDateTime.of(2025, 1, 1, 10, 0));
 
     // 有登录记录（字段与前端 LoginLog 契约一致：username / ip / success）
-    LoginLogVO loginLogVO =
-        new LoginLogVO(
+    LoginLogResponse loginLogResponse =
+        new LoginLogResponse(
             1L, "admin", "192.168.1.1", true, LocalDateTime.of(2025, 1, 1, 10, 0), "Chrome");
 
     when(profileApplicationService.getSecurityProfile())
         .thenReturn(
-            new SecurityProfileResponse(true, List.of(accountVO), List.of(loginLogVO)));
+            new SecurityProfileResponse(true, List.of(accountVO), List.of(loginLogResponse)));
 
     // When & Then
     mockMvc

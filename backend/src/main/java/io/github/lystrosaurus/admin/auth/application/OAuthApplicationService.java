@@ -12,11 +12,12 @@ import io.github.lystrosaurus.admin.auth.domain.acl.OAuthStatePort;
 import io.github.lystrosaurus.admin.auth.domain.acl.OAuthTokenResponse;
 import io.github.lystrosaurus.admin.auth.domain.acl.OAuthUserInfo;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
+import io.github.lystrosaurus.admin.auth.domain.event.LoginSucceeded;
 import io.github.lystrosaurus.admin.auth.domain.model.AuthProvider;
 import io.github.lystrosaurus.admin.auth.domain.model.ExternalAccount;
-import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.domain.acl.DomainEventPublisher;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,7 @@ public class OAuthApplicationService {
   private final ExternalAccountRepository accountRepository;
   private final ExternalAccountApplicationService externalAccountService;
   private final TokenSessionPort tokenSessionPort;
-  private final LoginLogService loginLogService;
+  private final DomainEventPublisher domainEventPublisher;
 
   @Value("${app.oauth.redirect-uri:http://localhost:3001}")
   private String redirectUri;
@@ -89,8 +90,9 @@ public class OAuthApplicationService {
       existing.touchLastLogin(LocalDateTime.now());
       accountRepository.update(existing);
 
-      loginLogService.recordLogin(
-          existing.getUserId(), "OAUTH", providerCode, null, null, true, null);
+      domainEventPublisher.publish(
+          new LoginSucceeded(
+              existing.getUserId(), "OAUTH", providerCode, null, null, LocalDateTime.now()));
 
       return new OAuthLoginResponse(null, false, null);
     }

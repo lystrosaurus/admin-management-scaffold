@@ -7,9 +7,10 @@ import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
 import io.github.lystrosaurus.admin.auth.application.command.LoginCommand;
 import io.github.lystrosaurus.admin.auth.domain.acl.ClientRequestInfoPort;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
-import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
+import io.github.lystrosaurus.admin.auth.domain.event.LoginSucceeded;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.domain.acl.DomainEventPublisher;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,7 +37,7 @@ class AuthApplicationServiceTest {
 
   @Mock private BCryptPasswordEncoder passwordEncoder;
 
-  @Mock private LoginLogService loginLogService;
+  @Mock private DomainEventPublisher domainEventPublisher;
 
   @Mock private RedisTemplate<String, Object> redisTemplate;
 
@@ -91,8 +93,8 @@ class AuthApplicationServiceTest {
   }
 
   @Test
-  @DisplayName("应该成功登录并记录登录日志")
-  void should_login_successfully_and_record_log() {
+  @DisplayName("应该成功登录并发布登录成功事件")
+  void should_login_successfully_and_publish_login_succeeded() {
     LoginCommand loginRequest = new LoginCommand("admin", "password123");
     when(userRepository.findByUsername("admin")).thenReturn(Optional.of(activeUser));
     when(passwordEncoder.matches("password123", activeUser.passwordHash())).thenReturn(true);
@@ -107,8 +109,15 @@ class AuthApplicationServiceTest {
     assertEquals("jwt-token-123", response.accessToken());
     assertEquals("admin", response.user().username());
     verify(tokenSessionPort).login(1L);
-    verify(loginLogService)
-        .recordLogin(1L, "PASSWORD", null, "127.0.0.1", "Chrome", true, null);
+    ArgumentCaptor<LoginSucceeded> captor = ArgumentCaptor.forClass(LoginSucceeded.class);
+    verify(domainEventPublisher).publish(captor.capture());
+    LoginSucceeded event = captor.getValue();
+    assertEquals(1L, event.userId());
+    assertEquals("PASSWORD", event.loginType());
+    assertNull(event.providerCode());
+    assertEquals("127.0.0.1", event.ipAddress());
+    assertEquals("Chrome", event.userAgent());
+    assertNotNull(event.occurredAt());
     verify(userRepository).save(activeUser);
   }
 

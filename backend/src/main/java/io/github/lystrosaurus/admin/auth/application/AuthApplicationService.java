@@ -4,9 +4,10 @@ import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
 import io.github.lystrosaurus.admin.auth.application.command.LoginCommand;
 import io.github.lystrosaurus.admin.auth.domain.acl.ClientRequestInfoPort;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
-import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
+import io.github.lystrosaurus.admin.auth.domain.event.LoginSucceeded;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.domain.acl.DomainEventPublisher;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
@@ -33,7 +34,7 @@ public class AuthApplicationService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final LoginLogService loginLogService;
+  private final DomainEventPublisher domainEventPublisher;
   private final RedisTemplate<String, Object> redisTemplate;
   private final TokenSessionPort tokenSessionPort;
   private final ClientRequestInfoPort clientRequestInfoPort;
@@ -41,13 +42,13 @@ public class AuthApplicationService {
   public AuthApplicationService(
       UserRepository userRepository,
       PasswordEncoder passwordEncoder,
-      LoginLogService loginLogService,
+      DomainEventPublisher domainEventPublisher,
       @Nullable RedisTemplate<String, Object> redisTemplate,
       TokenSessionPort tokenSessionPort,
       ClientRequestInfoPort clientRequestInfoPort) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
-    this.loginLogService = loginLogService;
+    this.domainEventPublisher = domainEventPublisher;
     this.redisTemplate = redisTemplate;
     this.tokenSessionPort = tokenSessionPort;
     this.clientRequestInfoPort = clientRequestInfoPort;
@@ -83,15 +84,15 @@ public class AuthApplicationService {
       redisTemplate.opsForValue().set(redisKey, user.tokenVersion(), 2, TimeUnit.HOURS);
     }
 
-    // 5.1 记录登录日志（审计）
-    loginLogService.recordLogin(
-        user.id().value(),
-        "PASSWORD",
-        null,
-        clientRequestInfoPort.clientIp(),
-        clientRequestInfoPort.userAgent(),
-        true,
-        null);
+    // 5.1 发布登录成功事件（审计上下文监听落库）
+    domainEventPublisher.publish(
+        new LoginSucceeded(
+            user.id().value(),
+            "PASSWORD",
+            null,
+            clientRequestInfoPort.clientIp(),
+            clientRequestInfoPort.userAgent(),
+            LocalDateTime.now()));
 
     // 6. 获取 JWT Token
     String token = tokenSessionPort.currentToken();

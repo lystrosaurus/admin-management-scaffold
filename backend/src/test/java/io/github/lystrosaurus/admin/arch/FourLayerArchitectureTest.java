@@ -9,18 +9,17 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import io.github.lystrosaurus.admin.shared.domain.primitive.AggregateRoot;
 import io.github.lystrosaurus.admin.shared.infrastructure.persistence.PersistentObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
  * 四层架构守卫（adapter / application / domain / infrastructure）。
  *
- * <p>波次 4（source / principal / identitylink 迁移）后：除 {@code transactional_event_listener_only_in_application}
- * 仍冻结至波次 5 外，其余规则均已启用并覆盖 {@code ..system..}、{@code ..organization..}、 {@code ..integration..}
- * 上下文。仅检查生产代码（排除测试类）。规则细节见 {@code .trae/documents/ddd-four-layer-refactor-plan.md}。
+ * <p>波次 5C（登录日志事件化并独立为 audit 上下文）后：全部规则均已启用，覆盖 {@code ..system..}、 {@code
+ * ..organization..}、{@code ..integration..}、{@code ..auth..}、{@code ..audit..} 上下文。仅检查生产代码（排除测试类）。
+ * 规则细节见 {@code .trae/documents/ddd-four-layer-refactor-plan.md}。
  */
-@DisplayName("四层架构守卫（波次4 覆盖 system + organization + integration 上下文）")
+@DisplayName("四层架构守卫（波次5C 全量启用，覆盖 system + organization + integration + auth + audit）")
 class FourLayerArchitectureTest {
 
   private final JavaClasses classes =
@@ -145,8 +144,7 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @Disabled("波次5启用（audit 事件化）")
-  @DisplayName("@TransactionalEventListener 仅允许出现在 application 包")
+  @DisplayName("@TransactionalEventListener 仅允许出现在 application 包（波次5C 启用）")
   void transactional_event_listener_only_in_application() {
     methods()
         .that()

@@ -9,9 +9,9 @@ import io.github.lystrosaurus.admin.auth.domain.acl.OAuthClientCatalog;
 import io.github.lystrosaurus.admin.auth.domain.acl.OAuthStatePort;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
 import io.github.lystrosaurus.admin.auth.domain.model.AuthProvider;
-import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
+import io.github.lystrosaurus.admin.shared.domain.acl.DomainEventPublisher;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class OAuthApplicationServiceTest {
 
   @Mock private TokenSessionPort tokenSessionPort;
 
-  @Mock private LoginLogService loginLogService;
+  @Mock private DomainEventPublisher domainEventPublisher;
 
   @InjectMocks private OAuthApplicationService oAuthApplicationService;
 
