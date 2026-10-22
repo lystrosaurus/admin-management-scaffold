@@ -32,7 +32,7 @@ public class AuthController {
    */
   @PostMapping("/login")
   public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-    LoginResponse loginResponse = authApplicationService.login(request);
+    LoginResponse loginResponse = authApplicationService.login(request.toCommand());
     return ApiResponse.success(loginResponse);
   }
 

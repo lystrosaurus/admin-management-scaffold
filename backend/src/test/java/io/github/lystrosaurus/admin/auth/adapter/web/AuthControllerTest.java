@@ -11,6 +11,7 @@ import io.github.lystrosaurus.admin.BaseTest;
 import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
 import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
 import io.github.lystrosaurus.admin.auth.application.AuthApplicationService;
+import io.github.lystrosaurus.admin.auth.application.command.LoginCommand;
 import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
@@ -61,7 +62,7 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该成功登录")
   void should_login_successfully() throws Exception {
-    when(authApplicationService.login(any(LoginRequest.class))).thenReturn(loginResponse);
+    when(authApplicationService.login(any(LoginCommand.class))).thenReturn(loginResponse);
 
     mockMvc
         .perform(
@@ -104,7 +105,7 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回401当用户不存在")
   void should_return_401_when_user_not_found() throws Exception {
-    when(authApplicationService.login(any(LoginRequest.class)))
+    when(authApplicationService.login(any(LoginCommand.class)))
         .thenThrow(new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     mockMvc
@@ -119,7 +120,7 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回401当密码错误")
   void should_return_401_when_password_mismatch() throws Exception {
-    when(authApplicationService.login(any(LoginRequest.class)))
+    when(authApplicationService.login(any(LoginCommand.class)))
         .thenThrow(new BusinessException(ErrorCode.PASSWORD_MISMATCH));
 
     mockMvc
@@ -134,7 +135,7 @@ class AuthControllerTest extends BaseTest {
   @Test
   @DisplayName("应该返回401当用户被禁用")
   void should_return_401_when_user_disabled() throws Exception {
-    when(authApplicationService.login(any(LoginRequest.class)))
+    when(authApplicationService.login(any(LoginCommand.class)))
         .thenThrow(new BusinessException(ErrorCode.USER_DISABLED));
 
     mockMvc

@@ -1,7 +1,7 @@
 package io.github.lystrosaurus.admin.auth.application;
 
-import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
 import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
+import io.github.lystrosaurus.admin.auth.application.command.LoginCommand;
 import io.github.lystrosaurus.admin.auth.domain.acl.ClientRequestInfoPort;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
 import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
@@ -54,11 +54,11 @@ public class AuthApplicationService {
   }
 
   /** 用户登录 */
-  public LoginResponse login(LoginRequest request) {
+  public LoginResponse login(LoginCommand command) {
     // 1. 查找用户
     User user =
         userRepository
-            .findByUsername(request.username())
+            .findByUsername(command.username())
             .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
     // 2. 检查用户状态
@@ -70,7 +70,7 @@ public class AuthApplicationService {
     }
 
     // 3. 验证密码
-    if (!passwordEncoder.matches(request.password(), user.passwordHash())) {
+    if (!passwordEncoder.matches(command.password(), user.passwordHash())) {
       throw new BusinessException(ErrorCode.USER_INVALID_PASSWORD);
     }
 

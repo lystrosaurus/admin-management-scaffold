@@ -3,8 +3,8 @@ package io.github.lystrosaurus.admin.auth.application;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import io.github.lystrosaurus.admin.auth.adapter.request.LoginRequest;
 import io.github.lystrosaurus.admin.auth.adapter.response.LoginResponse;
+import io.github.lystrosaurus.admin.auth.application.command.LoginCommand;
 import io.github.lystrosaurus.admin.auth.domain.acl.ClientRequestInfoPort;
 import io.github.lystrosaurus.admin.auth.domain.acl.TokenSessionPort;
 import io.github.lystrosaurus.admin.auth.log.service.LoginLogService;
@@ -59,7 +59,7 @@ class AuthApplicationServiceTest {
   @Test
   @DisplayName("应该抛出异常当用户不存在")
   void should_throw_exception_when_user_not_found() {
-    LoginRequest loginRequest = new LoginRequest("nonexistent", "password123");
+    LoginCommand loginRequest = new LoginCommand("nonexistent", "password123");
     when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
 
     BusinessException exception =
@@ -70,7 +70,7 @@ class AuthApplicationServiceTest {
   @Test
   @DisplayName("应该抛出异常当用户被禁用")
   void should_throw_exception_when_user_disabled() {
-    LoginRequest loginRequest = new LoginRequest("disabled", "password123");
+    LoginCommand loginRequest = new LoginCommand("disabled", "password123");
     when(userRepository.findByUsername("disabled")).thenReturn(Optional.of(disabledUser));
 
     BusinessException exception =
@@ -81,7 +81,7 @@ class AuthApplicationServiceTest {
   @Test
   @DisplayName("应该抛出异常当密码错误")
   void should_throw_exception_when_password_mismatch() {
-    LoginRequest loginRequest = new LoginRequest("admin", "wrong-password");
+    LoginCommand loginRequest = new LoginCommand("admin", "wrong-password");
     when(userRepository.findByUsername("admin")).thenReturn(Optional.of(activeUser));
     when(passwordEncoder.matches("wrong-password", activeUser.passwordHash())).thenReturn(false);
 
@@ -93,7 +93,7 @@ class AuthApplicationServiceTest {
   @Test
   @DisplayName("应该成功登录并记录登录日志")
   void should_login_successfully_and_record_log() {
-    LoginRequest loginRequest = new LoginRequest("admin", "password123");
+    LoginCommand loginRequest = new LoginCommand("admin", "password123");
     when(userRepository.findByUsername("admin")).thenReturn(Optional.of(activeUser));
     when(passwordEncoder.matches("password123", activeUser.passwordHash())).thenReturn(true);
     when(clientRequestInfoPort.clientIp()).thenReturn("127.0.0.1");
