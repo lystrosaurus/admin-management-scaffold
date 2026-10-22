@@ -1,6 +1,5 @@
 package io.github.lystrosaurus.admin.system.user.adapter.response;
 
-import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,5 +30,5 @@ public record UserDetailResponse(
     Integer tokenVersion,
     LocalDateTime lastLoginAt,
     String lastLoginIp,
-    List<RoleVO> roles,
+    List<UserRoleResponse> roles,
     LocalDateTime createdAt) {}

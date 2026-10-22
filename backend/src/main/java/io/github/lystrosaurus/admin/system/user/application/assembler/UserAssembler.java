@@ -1,8 +1,8 @@
 package io.github.lystrosaurus.admin.system.user.application.assembler;
 
-import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserDetailResponse;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
+import io.github.lystrosaurus.admin.system.user.adapter.response.UserRoleResponse;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRoleInfo;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import java.util.List;
@@ -27,11 +27,11 @@ public class UserAssembler {
 
   /** 聚合与角色信息转用户详情响应 */
   public UserDetailResponse toDetailResponse(User user, List<UserRoleInfo> roles) {
-    List<RoleVO> roleVOs =
+    List<UserRoleResponse> roleResponses =
         roles.stream()
             .map(
                 role ->
-                    new RoleVO(
+                    new UserRoleResponse(
                         role.id(),
                         role.code(),
                         role.name(),
@@ -50,7 +50,7 @@ public class UserAssembler {
         user.tokenVersion(),
         user.lastLoginAt(),
         user.lastLoginIp(),
-        roleVOs,
+        roleResponses,
         user.createdAt());
   }
 }

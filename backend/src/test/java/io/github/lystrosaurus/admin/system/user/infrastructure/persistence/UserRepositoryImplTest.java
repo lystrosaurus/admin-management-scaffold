@@ -9,23 +9,18 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import io.github.lystrosaurus.admin.shared.domain.acl.DomainEventPublisher;
-import io.github.lystrosaurus.admin.system.role.entity.SysRole;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleAssociationPort;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
-import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.infrastructure.converter.UserPoConverter;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.mapper.UserMpMapper;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.po.UserPO;
-import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,9 +40,7 @@ class UserRepositoryImplTest {
 
   @Mock private UserMpMapper userMpMapper;
   @Mock private DomainEventPublisher eventPublisher;
-  @Mock private SysUserRoleMapper userRoleMapper;
-  @Mock private SqlSessionFactory sqlSessionFactory;
-  @Mock private SqlSession sqlSession;
+  @Mock private RoleAssociationPort roleAssociationPort;
 
   private final UserPoConverter converter = new UserPoConverter();
 
@@ -62,15 +55,12 @@ class UserRepositoryImplTest {
     MybatisConfiguration configuration = new MybatisConfiguration();
     MapperBuilderAssistant assistant = new MapperBuilderAssistant(configuration, "");
     TableInfoHelper.initTableInfo(assistant, UserPO.class);
-    TableInfoHelper.initTableInfo(assistant, SysRole.class);
-    TableInfoHelper.initTableInfo(assistant, SysUserRole.class);
   }
 
   @BeforeEach
   void setUp() {
     userRepository =
-        new UserRepositoryImpl(
-            userMpMapper, eventPublisher, converter, userRoleMapper, sqlSessionFactory);
+        new UserRepositoryImpl(userMpMapper, eventPublisher, converter, roleAssociationPort);
 
     testPo = new UserPO();
     testPo.setId(1L);
@@ -289,33 +279,22 @@ class UserRepositoryImplTest {
   void should_assignRoles_when_validUserIdAndRoleIds() {
     // Given
     List<Long> roleIds = Arrays.asList(1L, 2L);
-    // 批量分配通过 SqlSession 获取 batch mapper，复用同一 mock 实例以匹配 verify
-    when(sqlSessionFactory.openSession(ExecutorType.BATCH)).thenReturn(sqlSession);
-    when(sqlSession.getMapper(SysUserRoleMapper.class)).thenReturn(userRoleMapper);
-    // 先 mock 删除现有角色
-    when(userRoleMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(0);
-    // 再 mock 插入新角色
-    when(userRoleMapper.insert(any(SysUserRole.class))).thenReturn(1);
 
     // When
     userRepository.assignRoles(1L, roleIds);
 
     // Then
-    verify(userRoleMapper).delete(any(LambdaQueryWrapper.class));
-    verify(userRoleMapper, times(2)).insert(any(SysUserRole.class));
+    verify(roleAssociationPort).assignRoles(1L, roleIds);
   }
 
   @Test
   @DisplayName("应该移除用户的所有角色")
   void should_removeRoles_when_userIdProvided() {
-    // Given
-    when(userRoleMapper.delete(any(LambdaQueryWrapper.class))).thenReturn(2);
-
     // When
     userRepository.removeRoles(1L);
 
     // Then
-    verify(userRoleMapper).delete(any(LambdaQueryWrapper.class));
+    verify(roleAssociationPort).removeRoles(1L);
   }
 
   @Test
@@ -328,6 +307,6 @@ class UserRepositoryImplTest {
     userRepository.assignRoles(1L, emptyRoleIds);
 
     // Then
-    verify(userRoleMapper, never()).insert(any(SysUserRole.class));
+    verify(roleAssociationPort).assignRoles(1L, emptyRoleIds);
   }
 }

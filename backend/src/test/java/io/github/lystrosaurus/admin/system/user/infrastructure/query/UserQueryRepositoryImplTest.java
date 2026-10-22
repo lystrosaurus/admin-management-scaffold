@@ -9,19 +9,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.shared.domain.acl.PageQuery;
-import io.github.lystrosaurus.admin.system.role.entity.SysRole;
-import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMapper;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleQueryPort;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleSummary;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRoleInfo;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
-import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.infrastructure.converter.UserPoConverter;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.mapper.UserMpMapper;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.po.UserPO;
-import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,15 +39,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserQueryRepositoryImplTest {
 
   @Mock private UserMpMapper userMpMapper;
-  @Mock private SysUserRoleMapper userRoleMapper;
-  @Mock private SysRoleMapper roleMapper;
+  @Mock private RoleQueryPort roleQueryPort;
 
   private final UserPoConverter converter = new UserPoConverter();
 
   private UserQueryRepositoryImpl userQueryRepository;
 
   private UserPO testPo;
-  private SysRole testRole;
+  private RoleSummary testRole;
 
   @BeforeAll
   static void initTableInfo() {
@@ -58,13 +54,11 @@ class UserQueryRepositoryImplTest {
     MybatisConfiguration configuration = new MybatisConfiguration();
     MapperBuilderAssistant assistant = new MapperBuilderAssistant(configuration, "");
     TableInfoHelper.initTableInfo(assistant, UserPO.class);
-    TableInfoHelper.initTableInfo(assistant, SysRole.class);
-    TableInfoHelper.initTableInfo(assistant, SysUserRole.class);
   }
 
   @BeforeEach
   void setUp() {
-    userQueryRepository = new UserQueryRepositoryImpl(userMpMapper, userRoleMapper, roleMapper, converter);
+    userQueryRepository = new UserQueryRepositoryImpl(userMpMapper, roleQueryPort, converter);
 
     testPo = new UserPO();
     testPo.setId(1L);
@@ -76,11 +70,7 @@ class UserQueryRepositoryImplTest {
     testPo.setCreatedAt(LocalDateTime.now());
     testPo.setUpdatedAt(LocalDateTime.now());
 
-    testRole = new SysRole();
-    testRole.setId(1L);
-    testRole.setCode("ADMIN");
-    testRole.setName("管理员");
-    testRole.setStatus("ENABLED");
+    testRole = new RoleSummary(1L, "ADMIN", "管理员", "系统管理员", "ENABLED", "ALL");
   }
 
   @Test
@@ -130,13 +120,7 @@ class UserQueryRepositoryImplTest {
   @DisplayName("应该查找用户关联的角色")
   void should_findRolesByUserId_when_userHasRoles() {
     // Given
-    SysUserRole userRole = new SysUserRole();
-    userRole.setId(1L);
-    userRole.setUserId(1L);
-    userRole.setRoleId(1L);
-    when(userRoleMapper.selectList(any(LambdaQueryWrapper.class)))
-        .thenReturn(Arrays.asList(userRole));
-    when(roleMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(Arrays.asList(testRole));
+    when(roleQueryPort.findByUserId(1L)).thenReturn(List.of(testRole));
 
     // When
     List<UserRoleInfo> result = userQueryRepository.findRolesByUserId(UserId.of(1L));
@@ -146,16 +130,14 @@ class UserQueryRepositoryImplTest {
     assertEquals(1, result.size());
     assertEquals("ADMIN", result.get(0).code());
     assertEquals("管理员", result.get(0).name());
-    verify(userRoleMapper).selectList(any(LambdaQueryWrapper.class));
-    verify(roleMapper).selectList(any(LambdaQueryWrapper.class));
+    verify(roleQueryPort).findByUserId(1L);
   }
 
   @Test
   @DisplayName("应该返回空列表当用户没有角色时")
   void should_returnEmptyList_when_userHasNoRoles() {
     // Given
-    when(userRoleMapper.selectList(any(LambdaQueryWrapper.class)))
-        .thenReturn(Collections.emptyList());
+    when(roleQueryPort.findByUserId(1L)).thenReturn(List.of());
 
     // When
     List<UserRoleInfo> result = userQueryRepository.findRolesByUserId(UserId.of(1L));
@@ -163,7 +145,6 @@ class UserQueryRepositoryImplTest {
     // Then
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(userRoleMapper).selectList(any(LambdaQueryWrapper.class));
-    verify(roleMapper, never()).selectList(any(LambdaQueryWrapper.class));
+    verify(roleQueryPort).findByUserId(1L);
   }
 }

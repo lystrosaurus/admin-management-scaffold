@@ -1,10 +1,8 @@
 package io.github.lystrosaurus.admin.auth.config;
 
 import cn.dev33.satoken.stp.StpInterface;
-import io.github.lystrosaurus.admin.system.permission.dao.PermissionDAO;
-import io.github.lystrosaurus.admin.system.permission.entity.SysPermission;
-import io.github.lystrosaurus.admin.system.role.dao.RoleDAO;
-import io.github.lystrosaurus.admin.system.role.entity.SysRole;
+import io.github.lystrosaurus.admin.system.permission.domain.acl.PermissionQueryPort;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleQueryPort;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +17,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StpInterfaceImpl implements StpInterface {
 
-  private final PermissionDAO permissionDAO;
-  private final RoleDAO roleDAO;
+  private final PermissionQueryPort permissionQueryPort;
+  private final RoleQueryPort roleQueryPort;
 
   @Override
   public List<String> getPermissionList(Object loginId, String loginType) {
@@ -28,12 +26,7 @@ public class StpInterfaceImpl implements StpInterface {
     if (userId == null) {
       return Collections.emptyList();
     }
-
-    List<SysPermission> permissions = permissionDAO.findByUserId(userId);
-    return permissions.stream()
-        .map(SysPermission::getCode)
-        .filter(code -> code != null && !code.isBlank())
-        .toList();
+    return permissionQueryPort.findCodesByUserId(userId);
   }
 
   @Override
@@ -42,10 +35,8 @@ public class StpInterfaceImpl implements StpInterface {
     if (userId == null) {
       return Collections.emptyList();
     }
-
-    List<SysRole> roles = roleDAO.findByUserId(userId);
-    return roles.stream()
-        .map(SysRole::getCode)
+    return roleQueryPort.findByUserId(userId).stream()
+        .map(role -> role.code())
         .filter(code -> code != null && !code.isBlank())
         .toList();
   }

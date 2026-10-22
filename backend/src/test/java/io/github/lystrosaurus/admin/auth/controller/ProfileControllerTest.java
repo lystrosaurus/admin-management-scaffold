@@ -10,10 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.lystrosaurus.admin.auth.vo.ProfileVO;
-import io.github.lystrosaurus.admin.system.menu.service.MenuService;
-import io.github.lystrosaurus.admin.system.menu.vo.MenuVO;
-import io.github.lystrosaurus.admin.system.role.service.RoleService;
-import io.github.lystrosaurus.admin.system.role.vo.RoleVO;
+import io.github.lystrosaurus.admin.system.menu.adapter.response.MenuResponse;
+import io.github.lystrosaurus.admin.system.menu.domain.acl.MenuQueryPort;
+import io.github.lystrosaurus.admin.system.menu.domain.acl.MenuSummary;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleQueryPort;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleSummary;
 import io.github.lystrosaurus.admin.system.user.adapter.request.ChangePasswordRequest;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserDetailResponse;
 import io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse;
@@ -45,9 +46,9 @@ class ProfileControllerTest extends SaTokenTest {
 
   @MockitoBean private UserApplicationService userApplicationService;
 
-  @MockitoBean private RoleService roleService;
+  @MockitoBean private RoleQueryPort roleQueryPort;
 
-  @MockitoBean private MenuService menuService;
+  @MockitoBean private MenuQueryPort menuQueryPort;
 
   private UserResponse userVO;
   private ProfileVO profileVO;
@@ -65,20 +66,24 @@ class ProfileControllerTest extends SaTokenTest {
             LocalDateTime.now(),
             LocalDateTime.now());
 
-    MenuVO menuVO =
-        new MenuVO(
-            1L, null, "系统管理", "/system", "Layout", "setting", 1, (byte) 1, null, (byte) 1, (byte) 1,
-            List.of());
+    MenuResponse menuResponse =
+        new MenuResponse(
+            1L, null, "系统管理", "/system", "Layout", "setting", 1, (byte) 1, null, (byte) 1,
+            (byte) 1, List.of());
 
     profileVO =
         new ProfileVO(
-            userVO, List.of("ADMIN"), List.of("user:create", "user:update"), List.of(menuVO));
+            userVO, List.of("ADMIN"), List.of("user:create", "user:update"), List.of(menuResponse));
   }
 
   @Test
   @DisplayName("应该成功获取当前用户资料")
   void should_get_current_user_profile() throws Exception {
-    RoleVO roleVO = new RoleVO(1L, "ADMIN", "管理员", "系统管理员", "ENABLED", "ALL");
+    RoleSummary roleSummary = new RoleSummary(1L, "ADMIN", "管理员", "系统管理员", "ENABLED", "ALL");
+    MenuSummary menuSummary =
+        new MenuSummary(
+            1L, null, "系统管理", "/system", "Layout", "setting", 1, (byte) 1, null, (byte) 1,
+            (byte) 1);
     UserDetailResponse userDetail =
         new UserDetailResponse(
             1L,
@@ -91,11 +96,11 @@ class ProfileControllerTest extends SaTokenTest {
             1,
             LocalDateTime.now(),
             "127.0.0.1",
-            List.of(roleVO),
+            List.of(),
             LocalDateTime.now());
     when(userApplicationService.findById(1L)).thenReturn(userDetail);
-    when(roleService.findByUserId(1L)).thenReturn(List.of(roleVO));
-    when(menuService.findByUserId(1L)).thenReturn(List.<MenuVO>of());
+    when(roleQueryPort.findByUserId(1L)).thenReturn(List.of(roleSummary));
+    when(menuQueryPort.findByUserId(1L)).thenReturn(List.of(menuSummary));
 
     mockMvc
         .perform(get("/app/profile"))

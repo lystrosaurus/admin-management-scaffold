@@ -131,17 +131,16 @@ class FourLayerArchitectureTest {
   }
 
   @Test
-  @DisplayName("仅 infrastructure 可依赖 BaseMapper（波次1 限定 user 上下文）")
+  @DisplayName("仅 infrastructure 可依赖 BaseMapper（波次2 覆盖 system 上下文）")
   void only_infrastructure_depends_on_base_mapper() {
     noClasses()
         .that()
-        .resideInAPackage("..system.user..")
+        .resideInAPackage("..system..")
         .and()
         .resideOutsideOfPackage("..infrastructure..")
+        // dict / configitem 尚未迁移，mapper 仍位于各自 mapper 包，留待后续波次
         .and()
-        // SysUserRoleMapper 按计划保留至波次2 随 role 上下文迁移，其自身继承 BaseMapper 不算违规
-        .doNotHaveFullyQualifiedName(
-            "io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper")
+        .resideOutsideOfPackages("..system.dict..", "..system.configitem..")
         .should()
         .dependOnClassesThat()
         .areAssignableTo(com.baomidou.mybatisplus.core.mapper.BaseMapper.class)

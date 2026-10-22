@@ -42,7 +42,7 @@ class ContractFieldMatchTest {
           "SecurityProfileVO",
               "io.github.lystrosaurus.admin.auth.vo.SecurityProfileVO",
           "UserVO", "io.github.lystrosaurus.admin.system.user.adapter.response.UserResponse",
-          "MenuVO", "io.github.lystrosaurus.admin.system.menu.vo.MenuVO");
+          "MenuVO", "io.github.lystrosaurus.admin.system.menu.adapter.response.MenuResponse");
 
   private Path typesFile() {
     // Maven Surefire 的工作目录是后端模块目录（backend/）

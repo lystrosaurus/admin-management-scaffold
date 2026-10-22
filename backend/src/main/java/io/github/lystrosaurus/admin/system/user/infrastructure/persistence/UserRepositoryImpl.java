@@ -3,20 +3,16 @@ package io.github.lystrosaurus.admin.system.user.infrastructure.persistence;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.github.lystrosaurus.admin.shared.domain.acl.DomainEventPublisher;
 import io.github.lystrosaurus.admin.shared.infrastructure.persistence.GenericRepositoryImpl;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleAssociationPort;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRepository;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
-import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.infrastructure.converter.UserPoConverter;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.mapper.UserMpMapper;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.po.UserPO;
-import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Repository;
 
 /** 用户仓储的 MyBatis-Plus 实现。 */
@@ -25,19 +21,16 @@ public class UserRepositoryImpl extends GenericRepositoryImpl<User, UserId, User
     implements UserRepository {
 
   private final UserPoConverter converter;
-  private final SysUserRoleMapper userRoleMapper;
-  private final SqlSessionFactory sqlSessionFactory;
+  private final RoleAssociationPort roleAssociationPort;
 
   public UserRepositoryImpl(
       UserMpMapper mapper,
       DomainEventPublisher eventPublisher,
       UserPoConverter converter,
-      SysUserRoleMapper userRoleMapper,
-      SqlSessionFactory sqlSessionFactory) {
+      RoleAssociationPort roleAssociationPort) {
     super(mapper, eventPublisher);
     this.converter = converter;
-    this.userRoleMapper = userRoleMapper;
-    this.sqlSessionFactory = sqlSessionFactory;
+    this.roleAssociationPort = roleAssociationPort;
   }
 
   @Override
@@ -91,28 +84,11 @@ public class UserRepositoryImpl extends GenericRepositoryImpl<User, UserId, User
 
   @Override
   public void assignRoles(Long userId, List<Long> roleIds) {
-    if (roleIds == null || roleIds.isEmpty()) {
-      return;
-    }
-
-    // 先移除现有角色
-    removeRoles(userId);
-
-    // 批量分配新角色
-    try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
-      SysUserRoleMapper batchMapper = sqlSession.getMapper(SysUserRoleMapper.class);
-      for (Long roleId : roleIds) {
-        SysUserRole userRole = new SysUserRole();
-        userRole.setUserId(userId);
-        userRole.setRoleId(roleId);
-        batchMapper.insert(userRole);
-      }
-      sqlSession.commit();
-    }
+    roleAssociationPort.assignRoles(userId, roleIds);
   }
 
   @Override
   public void removeRoles(Long userId) {
-    userRoleMapper.delete(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId));
+    roleAssociationPort.removeRoles(userId);
   }
 }

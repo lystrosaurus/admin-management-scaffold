@@ -3,17 +3,14 @@ package io.github.lystrosaurus.admin.system.user.infrastructure.query;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.github.lystrosaurus.admin.shared.domain.acl.Page;
 import io.github.lystrosaurus.admin.shared.domain.acl.PageQuery;
-import io.github.lystrosaurus.admin.system.role.entity.SysRole;
-import io.github.lystrosaurus.admin.system.role.mapper.SysRoleMapper;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleQueryPort;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserQueryRepository;
 import io.github.lystrosaurus.admin.system.user.domain.acl.UserRoleInfo;
 import io.github.lystrosaurus.admin.system.user.domain.model.User;
 import io.github.lystrosaurus.admin.system.user.domain.model.UserId;
-import io.github.lystrosaurus.admin.system.user.entity.SysUserRole;
 import io.github.lystrosaurus.admin.system.user.infrastructure.converter.UserPoConverter;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.mapper.UserMpMapper;
 import io.github.lystrosaurus.admin.system.user.infrastructure.persistence.po.UserPO;
-import io.github.lystrosaurus.admin.system.user.mapper.SysUserRoleMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -25,8 +22,7 @@ import org.springframework.util.StringUtils;
 public class UserQueryRepositoryImpl implements UserQueryRepository {
 
   private final UserMpMapper userMpMapper;
-  private final SysUserRoleMapper userRoleMapper;
-  private final SysRoleMapper roleMapper;
+  private final RoleQueryPort roleQueryPort;
   private final UserPoConverter converter;
 
   @Override
@@ -48,29 +44,16 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 
   @Override
   public List<UserRoleInfo> findRolesByUserId(UserId userId) {
-    // 先查询用户角色关联
-    List<SysUserRole> userRoles =
-        userRoleMapper.selectList(
-            new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId.value()));
-
-    if (userRoles.isEmpty()) {
-      return List.of();
-    }
-
-    // 再查询角色详情
-    List<Long> roleIds = userRoles.stream().map(SysUserRole::getRoleId).toList();
-    return roleMapper
-        .selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIds))
-        .stream()
+    return roleQueryPort.findByUserId(userId.value()).stream()
         .map(
             role ->
                 new UserRoleInfo(
-                    role.getId(),
-                    role.getCode(),
-                    role.getName(),
-                    role.getDescription(),
-                    role.getStatus(),
-                    role.getDataScopeType()))
+                    role.id(),
+                    role.code(),
+                    role.name(),
+                    role.description(),
+                    role.status(),
+                    role.dataScopeType()))
         .toList();
   }
 

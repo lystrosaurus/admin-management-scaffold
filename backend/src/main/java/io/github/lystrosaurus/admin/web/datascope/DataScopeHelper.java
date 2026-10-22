@@ -7,10 +7,9 @@ import io.github.lystrosaurus.admin.exception.BusinessException;
 import io.github.lystrosaurus.admin.exception.ErrorCode;
 import io.github.lystrosaurus.admin.organization.orgunit.dao.OrgUnitDAO;
 import io.github.lystrosaurus.admin.organization.orgunit.entity.OrgUnit;
-import io.github.lystrosaurus.admin.system.role.dao.RoleDAO;
-import io.github.lystrosaurus.admin.system.role.dao.RoleOrgDAO;
-import io.github.lystrosaurus.admin.system.role.entity.SysRole;
-import io.github.lystrosaurus.admin.system.role.entity.SysRoleOrg;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleAssociationPort;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleQueryPort;
+import io.github.lystrosaurus.admin.system.role.domain.acl.RoleSummary;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataScopeHelper {
 
-  private final RoleDAO roleDAO;
-  private final RoleOrgDAO roleOrgDAO;
+  private final RoleQueryPort roleQueryPort;
+  private final RoleAssociationPort roleAssociationPort;
   private final OrgUnitDAO orgUnitDAO;
 
   /**
@@ -47,7 +46,7 @@ public class DataScopeHelper {
    */
   public Set<Long> getAccessibleOrgIds() {
     Long userId = getCurrentUserId();
-    List<SysRole> roles = getRolesByUserId(userId);
+    List<RoleSummary> roles = getRolesByUserId(userId);
     return doGetAccessibleOrgIds(roles);
   }
 
@@ -58,7 +57,7 @@ public class DataScopeHelper {
    */
   public boolean hasSelfScope() {
     Long userId = getCurrentUserId();
-    List<SysRole> roles = getRolesByUserId(userId);
+    List<RoleSummary> roles = getRolesByUserId(userId);
     return doHasSelfScope(roles);
   }
 
@@ -69,7 +68,7 @@ public class DataScopeHelper {
    */
   public boolean hasAllScope() {
     Long userId = getCurrentUserId();
-    List<SysRole> roles = getRolesByUserId(userId);
+    List<RoleSummary> roles = getRolesByUserId(userId);
     return doHasAllScope(roles);
   }
 
@@ -106,7 +105,7 @@ public class DataScopeHelper {
       LambdaQueryWrapper<T> wrapper, SFunction<T, ?> orgIdColumn, SFunction<T, ?> createdByColumn) {
     // 只查询一次角色，避免重复查询
     Long userId = getCurrentUserId();
-    List<SysRole> roles = getRolesByUserId(userId);
+    List<RoleSummary> roles = getRolesByUserId(userId);
 
     Set<Long> orgIds = doGetAccessibleOrgIds(roles);
 
@@ -135,26 +134,26 @@ public class DataScopeHelper {
   // ==================== 内部方法 ====================
 
   /** 基于角色列表计算可访问的部门ID集合 */
-  private Set<Long> doGetAccessibleOrgIds(List<SysRole> roles) {
+  private Set<Long> doGetAccessibleOrgIds(List<RoleSummary> roles) {
     if (roles.isEmpty()) {
       return Set.of();
     }
 
     // 如果任意角色为 ALL，则不限制
     boolean hasAll =
-        roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
+        roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.dataScopeType()));
     if (hasAll) {
       return null;
     }
 
     // 合并所有角色可访问的部门ID
     Set<Long> orgIds = new HashSet<>();
-    for (SysRole role : roles) {
-      DataScopeType scopeType = DataScopeType.valueOf(role.getDataScopeType());
+    for (RoleSummary role : roles) {
+      DataScopeType scopeType = DataScopeType.valueOf(role.dataScopeType());
       switch (scopeType) {
         case ORG_TREE:
           // 获取该角色绑定的部门ID，并查找所有下级部门
-          Set<Long> treeOrgIds = getRoleOrgIds(role.getId());
+          Set<Long> treeOrgIds = getRoleOrgIds(role.id());
           for (Long orgId : treeOrgIds) {
             orgIds.add(orgId);
             orgIds.addAll(getDescendantOrgIds(orgId));
@@ -162,7 +161,7 @@ public class DataScopeHelper {
           break;
         case ORG_ONLY:
         case CUSTOM:
-          orgIds.addAll(getRoleOrgIds(role.getId()));
+          orgIds.addAll(getRoleOrgIds(role.id()));
           break;
         case SELF:
           // SELF 范围不贡献部门ID，由 hasSelfScope() 单独处理
@@ -176,13 +175,13 @@ public class DataScopeHelper {
   }
 
   /** 基于角色列表判断是否有 SELF 数据权限 */
-  private boolean doHasSelfScope(List<SysRole> roles) {
-    return roles.stream().anyMatch(r -> DataScopeType.SELF.name().equals(r.getDataScopeType()));
+  private boolean doHasSelfScope(List<RoleSummary> roles) {
+    return roles.stream().anyMatch(r -> DataScopeType.SELF.name().equals(r.dataScopeType()));
   }
 
   /** 基于角色列表判断是否有 ALL 数据权限 */
-  private boolean doHasAllScope(List<SysRole> roles) {
-    return roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.getDataScopeType()));
+  private boolean doHasAllScope(List<RoleSummary> roles) {
+    return roles.stream().anyMatch(r -> DataScopeType.ALL.name().equals(r.dataScopeType()));
   }
 
   /** 获取当前登录用户ID */
@@ -198,15 +197,13 @@ public class DataScopeHelper {
    *
    * <p>查询链路：userId → sys_user_role → sys_role（对应 spec 中的要求）
    */
-  List<SysRole> getRolesByUserId(Long userId) {
-    return roleDAO.findByUserId(userId);
+  List<RoleSummary> getRolesByUserId(Long userId) {
+    return roleQueryPort.findByUserId(userId);
   }
 
   /** 获取角色绑定的部门ID列表 */
   private Set<Long> getRoleOrgIds(Long roleId) {
-    return roleOrgDAO.findByRoleId(roleId).stream()
-        .map(SysRoleOrg::getOrgId)
-        .collect(Collectors.toSet());
+    return new HashSet<>(roleAssociationPort.findOrgIdsByRoleId(roleId));
   }
 
   /**

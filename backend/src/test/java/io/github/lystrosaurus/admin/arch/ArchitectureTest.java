@@ -273,7 +273,7 @@ class ArchitectureTest {
                 return method
                     .getOwner()
                     .getName()
-                    .equals("io.github.lystrosaurus.admin.system.role.controller.RoleController");
+                    .equals("io.github.lystrosaurus.admin.system.role.adapter.web.RoleController");
               }
             })
         .should(
@@ -316,7 +316,7 @@ class ArchitectureTest {
                     .getOwner()
                     .getName()
                     .equals(
-                        "io.github.lystrosaurus.admin.system.permission.controller.PermissionController");
+                        "io.github.lystrosaurus.admin.system.permission.adapter.web.PermissionController");
               }
             })
         .should(
@@ -336,7 +336,7 @@ class ArchitectureTest {
                 return method
                     .getOwner()
                     .getName()
-                    .equals("io.github.lystrosaurus.admin.system.menu.controller.MenuController");
+                    .equals("io.github.lystrosaurus.admin.system.menu.adapter.web.MenuController");
               }
             })
         .should(
@@ -359,9 +359,9 @@ class ArchitectureTest {
     for (Class<?> controller :
         new Class<?>[] {
           io.github.lystrosaurus.admin.system.user.adapter.web.UserController.class,
-          io.github.lystrosaurus.admin.system.permission.controller.PermissionController.class,
-          io.github.lystrosaurus.admin.system.menu.controller.MenuController.class,
-          io.github.lystrosaurus.admin.system.role.controller.RoleController.class
+          io.github.lystrosaurus.admin.system.permission.adapter.web.PermissionController.class,
+          io.github.lystrosaurus.admin.system.menu.adapter.web.MenuController.class,
+          io.github.lystrosaurus.admin.system.role.adapter.web.RoleController.class
         }) {
       for (java.lang.reflect.Method method : controller.getDeclaredMethods()) {
         if (java.lang.reflect.Modifier.isPublic(method.getModifiers()) && !method.isSynthetic()) {
