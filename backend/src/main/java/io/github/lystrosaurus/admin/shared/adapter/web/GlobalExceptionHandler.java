@@ -16,6 +16,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /** 全局异常处理器 */
 @Slf4j
@@ -76,6 +78,14 @@ public class GlobalExceptionHandler {
             .collect(Collectors.joining(", "));
     log.warn("参数绑定失败: {}", message);
     return ApiResponse.error(ErrorCode.SYSTEM_400.getCode(), message);
+  }
+
+  /** 处理不存在的接口 / 静态资源：应返回 404，而不是落到 500 */
+  @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ApiResponse<Void> handleNotFound(Exception e) {
+    log.warn("资源不存在: {}", e.getMessage());
+    return ApiResponse.error(ErrorCode.SYSTEM_404);
   }
 
   /** 处理运行时异常 */

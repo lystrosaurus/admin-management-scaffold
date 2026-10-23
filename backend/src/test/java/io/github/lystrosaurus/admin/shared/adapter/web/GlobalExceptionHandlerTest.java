@@ -68,6 +68,19 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
+  void should_return_api_response_when_handling_not_found_exception() {
+    org.springframework.web.servlet.resource.NoResourceFoundException exception =
+        mock(org.springframework.web.servlet.resource.NoResourceFoundException.class);
+    when(exception.getMessage()).thenReturn("No static resource public/ping.");
+
+    ApiResponse<Void> response = globalExceptionHandler.handleNotFound(exception);
+
+    assertEquals(ErrorCode.SYSTEM_404.getCode(), response.getCode());
+    assertEquals(ErrorCode.SYSTEM_404.getMessage(), response.getMessage());
+    assertNull(response.getData());
+  }
+
+  @Test
   void should_return_api_response_when_handling_runtime_exception() {
     RuntimeException exception = new RuntimeException("运行时异常");
 
