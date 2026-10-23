@@ -53,7 +53,7 @@ npx shadcn@latest add @reui/<name>
 | 层 | 命令 | 覆盖 |
 |---|---|---|
 | 单元测试 | `npm run test` | api/authStore/hooks 纯逻辑 + 5 个页面渲染冒烟（Vitest + Testing Library，16/16） |
-| e2e 冒烟 | `npm run test:e2e` | 真实登录 → 16 个路由逐一渲染（含 pageerror 断言）→ 关键数据链路（Playwright + chromium，27/27） |
+| e2e 冒烟 | `npm run test:e2e` | 真实登录（含回车提交）→ 16 个路由逐一渲染（含 pageerror 断言）→ 关键数据链路（Playwright + chromium，28/28） |
 
 e2e 说明：
 - `e2e/global-setup.ts` 走真实登录接口拿 JWT 预置 localStorage，落盘 storageState 复用；
@@ -125,18 +125,20 @@ web-reui/
   - 系统配置（SettingsPage）：ops 系统信息 + 本地配置表单 + 身份源管理（integrationSource API）
   - 仪表盘（DashboardPage）：dashboard stats 统计卡 + Recharts 资源分布图 + 最近操作日志（真实数据）
 - [x] P4：e2e、部署与切流准备
-  - Playwright e2e：登录流程 + 16 路由全渲染（pageerror 断言）+ 关键数据链路，**27/27 通过**
+  - Playwright e2e：登录流程（按钮 + 回车两种提交方式）+ 16 路由全渲染（pageerror 断言）+ 关键数据链路，**28/28 通过**
   - `deploy/nginx.conf`：SPA fallback / assets immutable 缓存 / `/api` 代理（透传 Authorization）/ gzip / healthz
   - `Dockerfile`：node:22-alpine 构建 → nginx:1.27-alpine 托管（多阶段 + HEALTHCHECK）
   - `deploy/cutover-plan.md`：同源替换步骤、蓝绿备选、回滚预案、切换后验证清单
   - 修复 e2e 暴露的真实 bug：侧边栏「集成管理」分组缺 `CollapsibleTrigger`，折叠后无法展开
 
-> 已验证：`tsc + vite build` 通过、16/16 单元测试通过（含 4 个 P3 新页面渲染冒烟测试）、27/27 Playwright e2e 通过、
+> 已验证：`tsc + vite build` 通过、16/16 单元测试通过（含 4 个 P3 新页面渲染冒烟测试）、28/28 Playwright e2e 通过、
 > 经 3100 代理真实登录与 dashboard/ops/files/integration×3/profile/security 全部接口 200 打通，
 > 返回结构与类型定义逐一核对一致。构建产物按路由分包（17 个页面 chunk + vendor-dataviz 独立 chunk）。
 >
-> **已知后端问题（需 Trae 侧排查）**：`GET /api/app/employees` 列表接口在查询命中员工记录时返回 500
-> （空结果 200；员工详情 `/api/app/employees/{id}` 正常）。已排除表结构、实体字段、MapStruct 字节码、
-> 参数名与权限校验；堆栈需查看 Trae 后端进程控制台（GlobalExceptionHandler 有 log.error）。
-> 另外已修正前端员工搜索参数契约：后端实际只认 `keyword`（模糊匹配姓名/工号/手机号）、`employmentStatus`、`orgId`，
-> antd 版传的 name/employeeNo/status 均被忽略导致搜索失效。
+> **后端已知问题已修复**：`GET /api/app/employees` 在查询命中员工记录时返回 500 的根因是查询端口
+> 在空结果时返回 `Map.of()`，调用方以 `null` 为键查询触发 NPE。后端已改为 `Collections.emptyMap()`
+> 并补充回归测试，空结果与命中结果的列表接口现均返回 200。
+>
+> 员工列表参数契约：后端只认 `keyword`（模糊匹配姓名/工号/手机号）、`employmentStatus`、`orgId`；
+> 本目录已按该契约实现。antd 版 `frontend/` 仍使用旧的 name/employeeNo/status 参数（会被后端忽略，
+> 搜索不生效），本次未修改。

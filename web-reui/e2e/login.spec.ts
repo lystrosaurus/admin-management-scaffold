@@ -33,4 +33,16 @@ test.describe('登录流程', () => {
       page.locator('[data-slot="sidebar"]').getByRole('link', { name: '用户管理' }),
     ).toBeVisible()
   })
+
+  test('密码框回车可提交登录', async ({ page }) => {
+    await page.goto('/login')
+    await page.evaluate(() => window.localStorage.clear())
+    await page.reload()
+
+    await page.getByLabel('用户名').fill('admin')
+    await page.getByLabel('密码').fill('admin123')
+    await page.getByLabel('密码').press('Enter')
+
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15_000 })
+  })
 })

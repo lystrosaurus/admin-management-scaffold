@@ -42,11 +42,7 @@ export default defineConfig({
           ) {
             return 'vendor-dataviz'
           }
-          if (
-            id.includes('node_modules/axios') ||
-            id.includes('node_modules/dayjs') ||
-            id.includes('node_modules/date-fns')
-          ) {
+          if (id.includes('node_modules/axios') || id.includes('node_modules/dayjs')) {
             return 'vendor-utils'
           }
         },
