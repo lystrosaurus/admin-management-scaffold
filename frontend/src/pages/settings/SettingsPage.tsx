@@ -84,7 +84,7 @@ const SettingsPage = () => {
 
   // === 外部身份源管理 ===
   const [sources, setSources] = useState<IntegrationSource[]>([]);
-  const [sourcesLoading, setSourcesLoading] = useState(false);
+  const [sourcesLoading, setSourcesLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSource, setEditingSource] = useState<IntegrationSource | null>(null);
   const [sourceForm] = Form.useForm();
@@ -102,8 +102,23 @@ const SettingsPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchSources();
-  }, [fetchSources]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const data = await listIntegrationSources();
+        if (ignore) return;
+        setSources(data);
+      } catch {
+        if (!ignore) message.error('加载身份源列表失败');
+      } finally {
+        if (!ignore) setSourcesLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const handleAddSource = () => {
     setEditingSource(null);

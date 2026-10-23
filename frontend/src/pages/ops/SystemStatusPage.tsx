@@ -18,7 +18,7 @@ import type { AppInfo } from '@/types/ops';
  */
 const SystemStatusPage = () => {
   const [info, setInfo] = useState<AppInfo | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchInfo = useCallback(async () => {
     setLoading(true);
@@ -33,8 +33,23 @@ const SystemStatusPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchInfo();
-  }, [fetchInfo]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const data = await getAppInfo();
+        if (ignore) return;
+        setInfo(data);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取系统信息失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const statusColor = info?.status === 'UP' ? 'green' : info?.status === 'DOWN' ? 'red' : 'default';
 

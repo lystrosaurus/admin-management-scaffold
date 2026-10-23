@@ -42,7 +42,7 @@ const SecurityProfilePage = () => {
 
   // OAuth 账户列表
   const [accounts, setAccounts] = useState<OAuthAccount[]>([]);
-  const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   /**
    * 获取已绑定的 OAuth 账户列表
@@ -60,8 +60,23 @@ const SecurityProfilePage = () => {
   }, []);
 
   useEffect(() => {
-    fetchAccounts();
-  }, [fetchAccounts]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const data = await listBoundAccounts();
+        if (ignore) return;
+        setAccounts(data);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取绑定账户失败');
+      } finally {
+        if (!ignore) setLoadingAccounts(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   /**
    * 处理密码修改
@@ -107,7 +122,7 @@ const SecurityProfilePage = () => {
   const handleBind = async (provider: string) => {
     try {
       const { url } = await getAuthorizeUrl(provider);
-      window.location.href = url;
+      window.location.assign(url);
     } catch (error) {
       message.error((error as Error).message || '获取授权链接失败');
     }

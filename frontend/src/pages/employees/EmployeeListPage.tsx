@@ -32,12 +32,14 @@ const EmployeeListPage = () => {
   });
 
   // 加载员工列表
+  const paginationCurrent = pagination.current;
+  const paginationPageSize = pagination.pageSize;
   const loadEmployees = useCallback(async (params?: EmployeeQueryParams) => {
     setLoading(true);
     try {
       const queryParams = {
-        page: pagination.current,
-        size: pagination.pageSize,
+        page: paginationCurrent,
+        size: paginationPageSize,
         ...params,
       };
       const data = await listEmployees(queryParams);
@@ -53,7 +55,7 @@ const EmployeeListPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.current, pagination.pageSize]);
+  }, [paginationCurrent, paginationPageSize]);
 
   // 加载组织树数据
   const loadOrgTreeData = useCallback(async () => {

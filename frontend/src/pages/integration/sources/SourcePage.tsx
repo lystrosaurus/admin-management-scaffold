@@ -45,7 +45,7 @@ const statusOptions = [
 const SourcePage = () => {
   // 列表数据
   const [dataSource, setDataSource] = useState<SourceVO[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -82,13 +82,34 @@ const SourcePage = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    fetchSources();
-  }, [fetchSources]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const all = await listSources();
+        if (ignore) return;
+        const filtered = all.filter((s) => {
+          if (searchParams.name && !s.name.includes(searchParams.name)) return false;
+          if (searchParams.code && !s.code.includes(searchParams.code)) return false;
+          return true;
+        });
+        setDataSource(filtered);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取身份源列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [searchParams]);
 
   /**
    * 处理搜索
    */
   const handleSearch = () => {
+    setLoading(true);
     setCurrent(1);
     setSearchParams({
       name: form.getFieldValue('searchName'),
@@ -100,6 +121,7 @@ const SourcePage = () => {
    * 处理重置
    */
   const handleReset = () => {
+    setLoading(true);
     form.resetFields(['searchName', 'searchCode']);
     setCurrent(1);
     setSearchParams({});

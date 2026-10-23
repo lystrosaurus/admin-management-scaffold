@@ -48,7 +48,7 @@ const configTypeColor: Record<string, string> = {
 const ConfigItemPage = () => {
   // 列表数据
   const [dataSource, setDataSource] = useState<ConfigItemVO[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -87,13 +87,35 @@ const ConfigItemPage = () => {
   }, [current, pageSize, searchParams]);
 
   useEffect(() => {
-    fetchConfig();
-  }, [fetchConfig]);
+    // 首屏/翻页加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const params: ConfigItemQuery = {
+          page: current,
+          size: pageSize,
+          ...searchParams,
+        };
+        const result = await listConfig(params);
+        if (ignore) return;
+        setDataSource(result.items);
+        setTotal(result.total);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取配置项列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [current, pageSize, searchParams]);
 
   /**
    * 处理搜索
    */
   const handleSearch = () => {
+    setLoading(true);
     setCurrent(1);
     setSearchParams({
       configKey: form.getFieldValue('searchConfigKey'),
@@ -104,6 +126,7 @@ const ConfigItemPage = () => {
    * 处理重置
    */
   const handleReset = () => {
+    setLoading(true);
     form.resetFields(['searchConfigKey']);
     setCurrent(1);
     setSearchParams({});
@@ -113,6 +136,7 @@ const ConfigItemPage = () => {
    * 处理分页变化
    */
   const handleTableChange = (pagination: TablePaginationConfig) => {
+    setLoading(true);
     setCurrent(pagination.current || 1);
     setPageSize(pagination.pageSize || 10);
   };

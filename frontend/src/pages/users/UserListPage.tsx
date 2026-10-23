@@ -68,8 +68,24 @@ const UserListPage = () => {
   }, [current, pageSize, searchParams]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    // 首屏/翻页加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const result = await listUsers({ page: current, size: pageSize, ...searchParams });
+        if (ignore) return;
+        setDataSource(result.items);
+        setTotal(result.total);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取用户列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [current, pageSize, searchParams]);
 
   /**
    * 处理搜索

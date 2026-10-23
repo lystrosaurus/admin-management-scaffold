@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Tabs,
@@ -37,27 +37,30 @@ const LogTable = <T extends { id: number }>({ fetcher, columns }: LogTableProps<
   const [searchParams, setSearchParams] = useState<Record<string, unknown>>({});
   const [form] = Form.useForm();
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params: Record<string, unknown> = {
-        page: current,
-        size: pageSize,
-        ...searchParams,
-      };
-      const result = await fetcher(params);
-      setDataSource(result.items);
-      setTotal(result.total);
-    } catch (error) {
-      message.error((error as Error).message || '获取日志失败');
-    } finally {
-      setLoading(false);
-    }
-  }, [fetcher, current, pageSize, searchParams]);
-
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    // 首屏/翻页加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const params: Record<string, unknown> = {
+          page: current,
+          size: pageSize,
+          ...searchParams,
+        };
+        const result = await fetcher(params);
+        if (ignore) return;
+        setDataSource(result.items);
+        setTotal(result.total);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取日志失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [fetcher, current, pageSize, searchParams]);
 
   const handleSearch = () => {
     const range = form.getFieldValue('timeRange') as [Dayjs, Dayjs] | undefined;

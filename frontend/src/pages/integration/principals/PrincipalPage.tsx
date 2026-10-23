@@ -61,7 +61,7 @@ const canonicalTypeOptions = [
 const PrincipalPage = () => {
   // 列表数据
   const [dataSource, setDataSource] = useState<PrincipalVO[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -79,20 +79,6 @@ const PrincipalPage = () => {
   const [form] = Form.useForm();
 
   /**
-   * 加载身份源下拉选项（用于 sourceId 选择）
-   */
-  const fetchSources = useCallback(async () => {
-    try {
-      const sources = await listSources();
-      setSourceOptions(
-        sources.map((s: SourceVO) => ({ label: s.name, value: s.id })),
-      );
-    } catch {
-      // 忽略，下拉为空不影响主流程
-    }
-  }, []);
-
-  /**
    * 获取外部主体列表
    */
   const fetchPrincipals = useCallback(async () => {
@@ -108,14 +94,39 @@ const PrincipalPage = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    fetchSources();
-    fetchPrincipals();
-  }, [fetchSources, fetchPrincipals]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    // 身份源下拉选项（失败忽略，下拉为空不影响主流程）
+    void (async () => {
+      try {
+        const sources = await listSources();
+        if (ignore) return;
+        setSourceOptions(sources.map((s: SourceVO) => ({ label: s.name, value: s.id })));
+      } catch {
+        // 忽略
+      }
+    })();
+    void (async () => {
+      try {
+        const result = await listPrincipals(searchParams);
+        if (ignore) return;
+        setDataSource(result);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取外部主体列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [searchParams]);
 
   /**
    * 处理搜索
    */
   const handleSearch = () => {
+    setLoading(true);
     setCurrent(1);
     setSearchParams({
       sourceId: form.getFieldValue('searchSourceId'),
@@ -127,6 +138,7 @@ const PrincipalPage = () => {
    * 处理重置
    */
   const handleReset = () => {
+    setLoading(true);
     form.resetFields(['searchSourceId', 'searchLinkStatus']);
     setCurrent(1);
     setSearchParams({});

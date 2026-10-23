@@ -41,7 +41,7 @@ const renderStatusTag = (status: string) => {
 const LinkCandidatePage = () => {
   // 列表数据
   const [dataSource, setDataSource] = useState<LinkCandidateVO[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [processingId, setProcessingId] = useState<number | null>(null);
@@ -62,8 +62,23 @@ const LinkCandidatePage = () => {
   }, []);
 
   useEffect(() => {
-    fetchCandidates();
-  }, [fetchCandidates]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const result = await listPendingLinkCandidates();
+        if (ignore) return;
+        setDataSource(result);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取待处理候选列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   /**
    * 处理分页变化

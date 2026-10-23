@@ -39,7 +39,7 @@ const permissionTypeMap: Record<string, string> = {
 const RoleListPage = () => {
   // 列表数据
   const [dataSource, setDataSource] = useState<Role[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -84,13 +84,31 @@ const RoleListPage = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    fetchRoles();
-  }, [fetchRoles]);
+    // 首屏加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const result = await listRoles(searchParams);
+        if (ignore) return;
+        // 后端返回全量数组，前端做客户端分页
+        setDataSource(result);
+        setTotal(result.length);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取角色列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [searchParams]);
 
   /**
    * 处理搜索
    */
   const handleSearch = () => {
+    setLoading(true);
     setCurrent(1);
     setSearchParams({
       code: form.getFieldValue('searchCode'),
@@ -103,6 +121,7 @@ const RoleListPage = () => {
    * 处理重置
    */
   const handleReset = () => {
+    setLoading(true);
     form.resetFields(['searchCode', 'searchName', 'searchStatus']);
     setCurrent(1);
     setSearchParams({});

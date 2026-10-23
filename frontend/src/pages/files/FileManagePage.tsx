@@ -39,7 +39,7 @@ const formatSize = (bytes: number): string => {
  */
 const FileManagePage = () => {
   const [dataSource, setDataSource] = useState<FileItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -66,21 +66,45 @@ const FileManagePage = () => {
   }, [current, pageSize, searchParams]);
 
   useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+    // 首屏/翻页加载：setState 仅在 await 之后执行，并带取消保护
+    let ignore = false;
+    void (async () => {
+      try {
+        const params = {
+          page: current,
+          size: pageSize,
+          ...searchParams,
+        };
+        const result = await listFiles(params);
+        if (ignore) return;
+        setDataSource(result.items);
+        setTotal(result.total);
+      } catch (error) {
+        if (!ignore) message.error((error as Error).message || '获取文件列表失败');
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [current, pageSize, searchParams]);
 
   const handleSearch = (originalName: string) => {
+    setLoading(true);
     setCurrent(1);
     setSearchParams({ originalName: originalName || undefined, bizType });
   };
 
   const handleReset = () => {
+    setLoading(true);
     setCurrent(1);
     setBizType('GENERAL');
     setSearchParams({});
   };
 
   const handleTableChange = (pagination: TablePaginationConfig) => {
+    setLoading(true);
     setCurrent(pagination.current || 1);
     setPageSize(pagination.pageSize || 10);
   };
