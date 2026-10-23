@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAuthStore } from '@/stores/authStore';
 import * as authApi from '@/api/auth';
+import type { LoginResponse, ProfileVO, UserVO } from '@/types/auth';
 
 // Mock the auth API
 vi.mock('@/api/auth', () => ({
@@ -33,19 +34,19 @@ describe('authStore', () => {
 
   describe('login', () => {
     it('should login successfully and fetch profile', async () => {
-      const mockLoginResponse = {
+      const mockLoginResponse: LoginResponse = {
         accessToken: 'test-token-123',
         user: { id: 1, username: 'admin', nickname: '管理员', status: 'ENABLED', createdAt: '2026-01-01' },
       };
-      const mockProfile = {
+      const mockProfile: ProfileVO = {
         user: { id: 1, username: 'admin', nickname: '管理员', status: 'ENABLED', createdAt: '2026-01-01' },
         roles: ['admin'],
         permissions: ['system:user:view'],
         menus: [],
       };
 
-      vi.mocked(authApi.login).mockResolvedValue(mockLoginResponse as any);
-      vi.mocked(authApi.getProfile).mockResolvedValue(mockProfile as any);
+      vi.mocked(authApi.login).mockResolvedValue(mockLoginResponse);
+      vi.mocked(authApi.getProfile).mockResolvedValue(mockProfile);
 
       await useAuthStore.getState().login('admin', 'admin123');
 
@@ -58,23 +59,23 @@ describe('authStore', () => {
     });
 
     it('should set loading state during login', async () => {
-      let resolveLogin: (value: any) => void;
-      const loginPromise = new Promise((resolve) => {
+      let resolveLogin: (value: LoginResponse) => void;
+      const loginPromise = new Promise<LoginResponse>((resolve) => {
         resolveLogin = resolve;
       });
-      vi.mocked(authApi.login).mockReturnValue(loginPromise as any);
+      vi.mocked(authApi.login).mockReturnValue(loginPromise);
 
       const loginCall = useAuthStore.getState().login('admin', 'admin123');
 
       expect(useAuthStore.getState().loading).toBe(true);
 
-      resolveLogin!({ accessToken: 'token', user: { id: 1, username: 'admin' } });
+      resolveLogin!({ accessToken: 'token', user: { id: 1, username: 'admin' } as unknown as UserVO });
       vi.mocked(authApi.getProfile).mockResolvedValue({
         user: { id: 1, username: 'admin' },
         roles: [],
         permissions: [],
         menus: [],
-      } as any);
+      } as unknown as ProfileVO);
 
       await loginCall;
 
@@ -85,7 +86,7 @@ describe('authStore', () => {
   describe('logout', () => {
     it('should clear auth state after logout', async () => {
       useAuthStore.setState({ isAuthenticated: true, token: 'some-token' });
-      vi.mocked(authApi.logout).mockResolvedValue(undefined as any);
+      vi.mocked(authApi.logout).mockResolvedValue(undefined);
 
       await useAuthStore.getState().logout();
 
@@ -113,7 +114,7 @@ describe('authStore', () => {
       useAuthStore.setState({
         isAuthenticated: true,
         token: 'some-token',
-        user: { id: 1, username: 'admin' } as any,
+        user: { id: 1, username: 'admin' } as unknown as UserVO,
         roles: ['admin'],
         permissions: ['system:user:view'],
       });

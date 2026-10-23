@@ -7,10 +7,22 @@ import type {
   ConfigItemQuery,
 } from '@/types/config';
 
+/** 后端 ConfigItemResponse 返回结构 */
+interface RawConfigItemVO {
+  id: number;
+  configKey: string;
+  configValue: string;
+  configType: string;
+  description?: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 /**
  * 后端 ConfigItemVO → 前端 ConfigItemVO 类型映射
  */
-const mapConfigItem = (raw: any): ConfigItemVO => ({
+const mapConfigItem = (raw: RawConfigItemVO): ConfigItemVO => ({
   id: raw.id,
   configKey: raw.configKey,
   configValue: raw.configValue,
@@ -25,7 +37,7 @@ const mapConfigItem = (raw: any): ConfigItemVO => ({
  * 获取配置项列表（分页）
  */
 export const listConfig = async (params?: ConfigItemQuery): Promise<PageResult<ConfigItemVO>> => {
-  const result = await get<PageResult<any>>('/app/system/config-item', { params });
+  const result = await get<PageResult<RawConfigItemVO>>('/app/system/config-item', { params });
   return { ...result, items: result.items.map(mapConfigItem) };
 };
 
@@ -33,7 +45,7 @@ export const listConfig = async (params?: ConfigItemQuery): Promise<PageResult<C
  * 获取配置项详情
  */
 export const getConfig = async (id: number): Promise<ConfigItemVO> => {
-  const raw = await get<any>(`/app/system/config-item/${id}`);
+  const raw = await get<RawConfigItemVO>(`/app/system/config-item/${id}`);
   return mapConfigItem(raw);
 };
 
@@ -41,7 +53,7 @@ export const getConfig = async (id: number): Promise<ConfigItemVO> => {
  * 创建配置项
  */
 export const createConfig = async (data: ConfigItemCreateDTO): Promise<ConfigItemVO> => {
-  const raw = await post<any>('/app/system/config-item', data);
+  const raw = await post<RawConfigItemVO>('/app/system/config-item', data);
   return mapConfigItem(raw);
 };
 
@@ -49,7 +61,7 @@ export const createConfig = async (data: ConfigItemCreateDTO): Promise<ConfigIte
  * 更新配置项
  */
 export const updateConfig = async (id: number, data: ConfigItemUpdateDTO): Promise<ConfigItemVO> => {
-  const raw = await put<any>(`/app/system/config-item/${id}`, data);
+  const raw = await put<RawConfigItemVO>(`/app/system/config-item/${id}`, data);
   return mapConfigItem(raw);
 };
 

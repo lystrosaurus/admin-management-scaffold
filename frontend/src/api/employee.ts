@@ -2,11 +2,33 @@ import { get, post, put, del } from './client';
 import type { PageResult } from '@/types/api';
 import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest, EmployeeQueryParams } from '@/types/employee';
 
+/** 后端 EmployeeResponse / EmployeeDetailResponse 返回结构 */
+interface RawEmployeeVO {
+  id: number;
+  employeeNo: string;
+  name: string;
+  preferredName?: string;
+  mobile?: string;
+  email?: string;
+  jobTitle?: string;
+  employmentStatus?: string;
+  primaryOrgId?: number;
+  orgUnitName?: string;
+  entryDate?: string;
+  leaveDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: number;
+  updatedBy?: number;
+  userId: number;
+  username: string;
+}
+
 /**
  * 后端 EmployeeVO → 前端 Employee 类型映射
  * 字段映射: mobile→phone, jobTitle→position, employmentStatus→status, primaryOrgId→orgUnitId
  */
-const mapEmployee = (raw: any): Employee => ({
+const mapEmployee = (raw: RawEmployeeVO): Employee => ({
   id: raw.id,
   userId: raw.userId,
   username: raw.username,
@@ -55,7 +77,7 @@ const toBackendUpdatePayload = (data: UpdateEmployeeRequest) => ({
  * 获取员工列表（分页）
  */
 export const listEmployees = async (params?: EmployeeQueryParams): Promise<PageResult<Employee>> => {
-  const result = await get<PageResult<any>>('/app/employees', { params });
+  const result = await get<PageResult<RawEmployeeVO>>('/app/employees', { params });
   return { ...result, items: result.items.map(mapEmployee) };
 };
 
@@ -63,7 +85,7 @@ export const listEmployees = async (params?: EmployeeQueryParams): Promise<PageR
  * 获取员工详情
  */
 export const getEmployee = async (id: number): Promise<Employee> => {
-  const raw = await get<any>(`/app/employees/${id}`);
+  const raw = await get<RawEmployeeVO>(`/app/employees/${id}`);
   return mapEmployee(raw);
 };
 
@@ -71,7 +93,7 @@ export const getEmployee = async (id: number): Promise<Employee> => {
  * 创建员工
  */
 export const createEmployee = async (data: CreateEmployeeRequest): Promise<Employee> => {
-  const raw = await post<any>('/app/employees', toBackendCreatePayload(data));
+  const raw = await post<RawEmployeeVO>('/app/employees', toBackendCreatePayload(data));
   return mapEmployee(raw);
 };
 
@@ -79,7 +101,7 @@ export const createEmployee = async (data: CreateEmployeeRequest): Promise<Emplo
  * 更新员工
  */
 export const updateEmployee = async (id: number, data: UpdateEmployeeRequest): Promise<Employee> => {
-  const raw = await put<any>(`/app/employees/${id}`, toBackendUpdatePayload(data));
+  const raw = await put<RawEmployeeVO>(`/app/employees/${id}`, toBackendUpdatePayload(data));
   return mapEmployee(raw);
 };
 

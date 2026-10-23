@@ -15,8 +15,28 @@ const reverseTypeMap: Record<string, number> = {
   BUTTON: 3,
 };
 
+/** 后端 MenuResponse 返回结构 */
+interface RawMenuVO {
+  id: number;
+  parentId?: number;
+  name: string;
+  path?: string;
+  component?: string;
+  icon?: string;
+  sortOrder?: number;
+  type: number;
+  permissionCode?: string;
+  visible?: number;
+  status: number;
+  children?: RawMenuVO[];
+  createdAt: string;
+  createdBy?: number;
+  updatedAt: string;
+  updatedBy?: number;
+}
+
 /** 后端响应 → 前端 Menu 类型 */
-const mapMenu = (raw: any): Menu => ({
+const mapMenu = (raw: RawMenuVO): Menu => ({
   id: raw.id,
   parentId: raw.parentId,
   name: raw.name,
@@ -36,7 +56,7 @@ const mapMenu = (raw: any): Menu => ({
 
 /** 前端请求 → 后端请求格式 */
 const toBackendMenu = (data: CreateMenuRequest | UpdateMenuRequest) => {
-  const { sort, permission, type, status, ...rest } = data as any;
+  const { sort, permission, type, status, ...rest } = data as CreateMenuRequest & UpdateMenuRequest;
   return {
     ...rest,
     ...(sort !== undefined && { sortOrder: sort }),
@@ -50,28 +70,28 @@ const toBackendMenu = (data: CreateMenuRequest | UpdateMenuRequest) => {
  * 获取菜单列表（树形结构）
  */
 export const listMenus = (params?: MenuQueryParams): Promise<Menu[]> => {
-  return get<any[]>('/app/menus/tree', { params }).then(items => items.map(mapMenu));
+  return get<RawMenuVO[]>('/app/menus/tree', { params }).then(items => items.map(mapMenu));
 };
 
 /**
  * 获取菜单详情
  */
 export const getMenu = (id: number): Promise<Menu> => {
-  return get<any>(`/app/menus/${id}`).then(mapMenu);
+  return get<RawMenuVO>(`/app/menus/${id}`).then(mapMenu);
 };
 
 /**
  * 创建菜单
  */
 export const createMenu = (data: CreateMenuRequest): Promise<Menu> => {
-  return post<any>('/app/menus', toBackendMenu(data)).then(mapMenu);
+  return post<RawMenuVO>('/app/menus', toBackendMenu(data)).then(mapMenu);
 };
 
 /**
  * 更新菜单
  */
 export const updateMenu = (id: number, data: UpdateMenuRequest): Promise<Menu> => {
-  return put<any>(`/app/menus/${id}`, toBackendMenu(data)).then(mapMenu);
+  return put<RawMenuVO>(`/app/menus/${id}`, toBackendMenu(data)).then(mapMenu);
 };
 
 /**

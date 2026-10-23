@@ -80,7 +80,7 @@ describe('user API', () => {
 
   describe('deleteUser', () => {
     it('should call DELETE /app/users/:id', async () => {
-      vi.mocked(del).mockResolvedValue(undefined as any);
+      vi.mocked(del).mockResolvedValue(undefined);
 
       await userApi.deleteUser(1);
 

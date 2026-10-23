@@ -1,8 +1,23 @@
 import { get, post, put, del } from './client';
 import type { Role, CreateRoleRequest, UpdateRoleRequest, RoleQueryParams } from '@/types/role';
 
+/** 后端 RoleResponse / RoleDetailResponse 返回结构 */
+interface RawRoleVO {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  status: string;
+  dataScopeType?: string;
+  sortOrder?: number;
+  createdAt: string;
+  createdBy?: number;
+  updatedAt: string;
+  updatedBy?: number;
+}
+
 /** 后端响应 → 前端 Role 类型 */
-const mapRole = (raw: any): Role => ({
+const mapRole = (raw: RawRoleVO): Role => ({
   id: raw.id,
   code: raw.code,
   name: raw.name,
@@ -34,28 +49,28 @@ const toBackendUpdate = (data: UpdateRoleRequest) => {
  * 获取角色列表（不分页）
  */
 export const listRoles = (params?: RoleQueryParams): Promise<Role[]> => {
-  return get<any[]>('/app/roles', { params }).then(items => items.map(mapRole));
+  return get<RawRoleVO[]>('/app/roles', { params }).then(items => items.map(mapRole));
 };
 
 /**
  * 获取角色详情
  */
 export const getRole = (id: number): Promise<Role> => {
-  return get<any>(`/app/roles/${id}`).then(mapRole);
+  return get<RawRoleVO>(`/app/roles/${id}`).then(mapRole);
 };
 
 /**
  * 创建角色
  */
 export const createRole = (data: CreateRoleRequest): Promise<Role> => {
-  return post<any>('/app/roles', toBackendCreate(data)).then(mapRole);
+  return post<RawRoleVO>('/app/roles', toBackendCreate(data)).then(mapRole);
 };
 
 /**
  * 更新角色
  */
 export const updateRole = (id: number, data: UpdateRoleRequest): Promise<Role> => {
-  return put<any>(`/app/roles/${id}`, toBackendUpdate(data)).then(mapRole);
+  return put<RawRoleVO>(`/app/roles/${id}`, toBackendUpdate(data)).then(mapRole);
 };
 
 /**

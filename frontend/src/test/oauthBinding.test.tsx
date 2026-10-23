@@ -11,9 +11,9 @@ vi.mock('@/api/oauth', () => ({
 import { bindAccount } from '@/api/oauth';
 
 // 受控的 useParams（用于「缺 provider」分支的专项用例）
-let mockProvider = 'LARK';
+let mockProvider: string | undefined = 'LARK';
 vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<typeof import('react-router-dom')>();
   return {
     ...actual,
     useParams: () => ({ provider: mockProvider }),
@@ -22,10 +22,10 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 beforeEach(() => {
   mockProvider = 'LARK';
-  vi.spyOn(message, 'success').mockImplementation(() => ({}) as any);
-  vi.spyOn(message, 'error').mockImplementation(() => ({}) as any);
-  (bindAccount as any).mockReset();
-  (bindAccount as any).mockResolvedValue(undefined);
+  vi.spyOn(message, 'success').mockImplementation(() => ({}) as unknown as ReturnType<typeof message.success>);
+  vi.spyOn(message, 'error').mockImplementation(() => ({}) as unknown as ReturnType<typeof message.error>);
+  vi.mocked(bindAccount).mockReset();
+  vi.mocked(bindAccount).mockResolvedValue(undefined);
 });
 
 function renderAt(path: string) {
@@ -70,7 +70,7 @@ describe('OAuth 绑定回调流程', () => {
   });
 
   it('缺少 provider 时提示错误并跳安全页', async () => {
-    mockProvider = undefined as any; // 模拟 useParams 未解析到 provider
+    mockProvider = undefined; // 模拟 useParams 未解析到 provider
     renderAt('/oauth/callback/LARK?code=abc&state=xyz');
 
     await waitFor(() => expect(message.error).toHaveBeenCalled());

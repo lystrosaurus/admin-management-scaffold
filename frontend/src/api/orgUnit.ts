@@ -8,8 +8,27 @@ const inferType = (level?: number): OrgUnitType => {
   return 'TEAM';
 };
 
+/** 后端 OrgUnitResponse / OrgUnitTreeResponse 返回结构 */
+interface RawOrgUnitVO {
+  id: number;
+  code: string;
+  name: string;
+  parentId?: number;
+  fullPath?: string;
+  level?: number;
+  managerEmployeeId?: number;
+  sortOrder?: number;
+  status: string;
+  leaderName?: string;
+  children?: RawOrgUnitVO[];
+  createdAt: string;
+  createdBy?: number;
+  updatedAt: string;
+  updatedBy?: number;
+}
+
 /** 后端响应 → 前端 OrgUnit 类型（适用于 TreeVO 和普通 VO） */
-const mapOrgUnit = (raw: any): OrgUnit => ({
+const mapOrgUnit = (raw: RawOrgUnitVO): OrgUnit => ({
   id: raw.id,
   parentId: raw.parentId,
   name: raw.name,
@@ -51,28 +70,28 @@ const toBackendUpdate = (data: UpdateOrgUnitRequest) => {
  * 调用后端 /tree 接口获取树形数据
  */
 export const listOrgUnits = (params?: OrgUnitQueryParams): Promise<OrgUnit[]> => {
-  return get<any[]>('/app/org-units/tree', { params }).then(items => items.map(mapOrgUnit));
+  return get<RawOrgUnitVO[]>('/app/org-units/tree', { params }).then(items => items.map(mapOrgUnit));
 };
 
 /**
  * 获取组织单元详情
  */
 export const getOrgUnit = (id: number): Promise<OrgUnit> => {
-  return get<any>(`/app/org-units/${id}`).then(mapOrgUnit);
+  return get<RawOrgUnitVO>(`/app/org-units/${id}`).then(mapOrgUnit);
 };
 
 /**
  * 创建组织单元
  */
 export const createOrgUnit = (data: CreateOrgUnitRequest): Promise<OrgUnit> => {
-  return post<any>('/app/org-units', toBackendCreate(data)).then(mapOrgUnit);
+  return post<RawOrgUnitVO>('/app/org-units', toBackendCreate(data)).then(mapOrgUnit);
 };
 
 /**
  * 更新组织单元
  */
 export const updateOrgUnit = (id: number, data: UpdateOrgUnitRequest): Promise<OrgUnit> => {
-  return put<any>(`/app/org-units/${id}`, toBackendUpdate(data)).then(mapOrgUnit);
+  return put<RawOrgUnitVO>(`/app/org-units/${id}`, toBackendUpdate(data)).then(mapOrgUnit);
 };
 
 /**
