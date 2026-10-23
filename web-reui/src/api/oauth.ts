@@ -1,0 +1,36 @@
+import { get, post, del } from './client';
+import type { OAuthAuthorizeUrl, OAuthBindRequest, OAuthAccount, SecurityProfileVO } from '@/types/auth';
+
+/**
+ * 获取 OAuth 授权 URL
+ * 传入前端实际访问源，后端据此拼接回调地址 /oauth/callback/{provider}
+ */
+export const getAuthorizeUrl = (provider: string): Promise<OAuthAuthorizeUrl> => {
+  return get<OAuthAuthorizeUrl>(`/public/oauth/${provider}/authorize`, {
+    params: { redirectBase: window.location.origin },
+  });
+};
+
+/**
+ * 绑定 OAuth 账户
+ */
+export const bindAccount = (provider: string, data: OAuthBindRequest): Promise<void> => {
+  return post<void>(`/app/auth/oauth/${provider}/bind`, data);
+};
+
+/**
+ * 解绑 OAuth 账户
+ * 后端使用 Query Param: DELETE /app/auth/oauth/{provider}/unbind?accountId=xxx
+ */
+export const unbindAccount = (provider: string, accountId: number): Promise<void> => {
+  return del<void>(`/app/auth/oauth/${provider}/unbind`, { params: { accountId } });
+};
+
+/**
+ * 获取已绑定的 OAuth 账户列表
+ * 后端返回 SecurityProfileVO，提取 boundAccounts 数组
+ */
+export const listBoundAccounts = async (): Promise<OAuthAccount[]> => {
+  const profile = await get<SecurityProfileVO>('/app/profile/security');
+  return profile.boundAccounts ?? [];
+};
