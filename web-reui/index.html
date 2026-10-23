@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Scaffold — ReUI</title>
+    <script>
+      // 首屏渲染前应用主题，避免亮/暗切换闪烁（存储键与 ThemeProvider 保持一致）
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('admin_theme') || 'system'
+          var dark =
+            stored === 'dark' ||
+            (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.toggle('dark', dark)
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch (error) {
+          /* 隐私模式下 localStorage 不可用时忽略，交由 ThemeProvider 默认值处理 */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

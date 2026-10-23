@@ -88,7 +88,7 @@ const emptyForm: OrgUnitFormValues = {
 /** 组织管理页面 */
 const OrgUnitListPage = () => {
   const [orgUnits, setOrgUnits] = useState<OrgUnit[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   // 搜索条件
   const [searchName, setSearchName] = useState('')
@@ -103,7 +103,6 @@ const OrgUnitListPage = () => {
   const [deleting, setDeleting] = useState<OrgUnit | null>(null)
 
   const loadOrgUnits = useCallback(async (params?: OrgUnitQueryParams) => {
-    setLoading(true)
     try {
       const data = await listOrgUnits(params)
       setOrgUnits(data)
@@ -114,12 +113,35 @@ const OrgUnitListPage = () => {
     }
   }, [])
 
+  /** 交互触发的重新拉取：loading 在事件中开启，effect 内不同步 setState */
+  const reloadOrgUnits = useCallback(
+    (params?: OrgUnitQueryParams) => {
+      setLoading(true)
+      void loadOrgUnits(params)
+    },
+    [loadOrgUnits],
+  )
+
+  // 首屏加载：状态更新在 promise 回调中完成，并带取消保护
   useEffect(() => {
-    void loadOrgUnits()
-  }, [loadOrgUnits])
+    let cancelled = false
+    listOrgUnits()
+      .then((data) => {
+        if (!cancelled) setOrgUnits(data)
+      })
+      .catch((err: Error) => {
+        if (!cancelled) toast.error(err.message || '加载组织列表失败')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleSearch = () => {
-    void loadOrgUnits({
+    reloadOrgUnits({
       name: searchName || undefined,
       code: searchCode || undefined,
       type: searchType || undefined,
@@ -132,7 +154,7 @@ const OrgUnitListPage = () => {
     setSearchCode('')
     setSearchType('')
     setSearchStatus('')
-    void loadOrgUnits()
+    reloadOrgUnits()
   }
 
   const openCreate = (parentId?: number) => {
@@ -164,7 +186,7 @@ const OrgUnitListPage = () => {
       await createOrgUnit(base as CreateOrgUnitRequest)
       toast.success('创建成功')
     }
-    void loadOrgUnits()
+    reloadOrgUnits()
   }
 
   const handleDelete = async () => {
@@ -172,7 +194,7 @@ const OrgUnitListPage = () => {
     try {
       await deleteOrgUnit(deleting.id)
       toast.success('删除成功')
-      void loadOrgUnits()
+      reloadOrgUnits()
     } finally {
       setDeleting(null)
     }

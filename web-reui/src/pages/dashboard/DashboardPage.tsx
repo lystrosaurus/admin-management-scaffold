@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Bar,
@@ -51,25 +51,24 @@ const DashboardPage = () => {
   const [recentLogs, setRecentLogs] = useState<OperationLog[]>([])
   const [loading, setLoading] = useState(true)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [statsData, logsData] = await Promise.all([
-        getDashboardStats(),
-        getOperationLogs({ size: 8 }),
-      ])
-      setStats(statsData)
-      setRecentLogs(logsData.items)
-    } catch {
-      // 统计失败时保持占位，不阻塞页面
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([getDashboardStats(), getOperationLogs({ size: 8 })])
+      .then(([statsData, logsData]) => {
+        if (cancelled) return
+        setStats(statsData)
+        setRecentLogs(logsData.items)
+      })
+      .catch(() => {
+        // 统计失败时保持占位，不阻塞页面
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
   }, [])
-
-  useEffect(() => {
-    void load()
-  }, [load])
 
   /** 图表数据（真实统计值） */
   const chartData = statCards.map((card) => ({

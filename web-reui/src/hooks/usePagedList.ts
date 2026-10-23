@@ -26,18 +26,20 @@ export function usePagedList<TData, TQuery extends object = Record<string, never
   initialSize = 10,
 }: UsePagedListOptions<TData, TQuery>) {
   const [query, setQueryState] = useState<TQuery>(initialQuery ?? ({} as TQuery))
-  const [page, setPage] = useState(1)
-  const [size, setSize] = useState(initialSize)
+  const [page, setPageState] = useState(1)
+  const [size, setSizeState] = useState(initialSize)
   const [rows, setRows] = useState<TData[]>([])
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
+  // 首屏即为加载中，避免在 effect 内同步开启 loading 造成级联渲染
+  const [loading, setLoading] = useState(true)
 
   // fetcher 可能每次渲染都是新闭包，用 ref 避免重复触发 effect
   const fetcherRef = useRef(fetcher)
-  fetcherRef.current = fetcher
+  useEffect(() => {
+    fetcherRef.current = fetcher
+  }, [fetcher])
 
   const load = useCallback(async () => {
-    setLoading(true)
     try {
       const result = await fetcherRef.current({ ...query, page, size } as TQuery & { page: number; size: number })
       setRows(result.items)
@@ -55,15 +57,29 @@ export function usePagedList<TData, TQuery extends object = Record<string, never
 
   /** 更新查询条件时重置回第一页 */
   const setQuery = useCallback((next: TQuery) => {
+    setLoading(true)
     setQueryState(next)
-    setPage(1)
+    setPageState(1)
   }, [])
 
   /** 切换每页条数时重置回第一页 */
   const changeSize = useCallback((next: number) => {
-    setSize(next)
-    setPage(1)
+    setLoading(true)
+    setSizeState(next)
+    setPageState(1)
   }, [])
+
+  /** 切换页码 */
+  const setPage = useCallback((next: number) => {
+    setLoading(true)
+    setPageState(next)
+  }, [])
+
+  /** 保持当前条件重新拉取 */
+  const refresh = useCallback(() => {
+    setLoading(true)
+    void load()
+  }, [load])
 
   return {
     rows,
@@ -75,6 +91,6 @@ export function usePagedList<TData, TQuery extends object = Record<string, never
     setSize: changeSize,
     query,
     setQuery,
-    refresh: load,
+    refresh,
   }
 }

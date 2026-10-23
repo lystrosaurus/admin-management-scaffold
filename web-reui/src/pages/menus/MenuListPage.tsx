@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { createColumnHelper } from '@tanstack/react-table'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import {
   Folder,
   LayoutDashboard,
@@ -83,7 +83,7 @@ const emptyForm: MenuFormValues = {
 const MenuListPage = () => {
   // 菜单为树形全量数据（/app/menus/tree），列表本身不分页，仅沿用拉取状态
   const [menus, setMenus] = useState<Menu[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   // 搜索条件
   const [searchName, setSearchName] = useState('')
@@ -97,7 +97,6 @@ const MenuListPage = () => {
   const [deleting, setDeleting] = useState<Menu | null>(null)
 
   const loadMenus = useCallback(async (params?: MenuQueryParams) => {
-    setLoading(true)
     try {
       const data = await listMenus(params)
       setMenus(data)
@@ -108,12 +107,35 @@ const MenuListPage = () => {
     }
   }, [])
 
+  /** 交互触发的重新拉取：loading 在事件中开启，effect 内不同步 setState */
+  const reloadMenus = useCallback(
+    (params?: MenuQueryParams) => {
+      setLoading(true)
+      void loadMenus(params)
+    },
+    [loadMenus],
+  )
+
+  // 首屏加载：状态更新在 promise 回调中完成，并带取消保护
   useEffect(() => {
-    void loadMenus()
-  }, [loadMenus])
+    let cancelled = false
+    listMenus()
+      .then((data) => {
+        if (!cancelled) setMenus(data)
+      })
+      .catch((err: Error) => {
+        if (!cancelled) toast.error(err.message || '加载菜单列表失败')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleSearch = () => {
-    void loadMenus({
+    reloadMenus({
       name: searchName || undefined,
       type: searchType || undefined,
       status: searchStatus || undefined,
@@ -124,7 +146,7 @@ const MenuListPage = () => {
     setSearchName('')
     setSearchType('')
     setSearchStatus('')
-    void loadMenus()
+    reloadMenus()
   }
 
   const openCreate = (parentId?: number) => {
@@ -159,7 +181,7 @@ const MenuListPage = () => {
       await createMenu(base as CreateMenuRequest)
       toast.success('创建成功')
     }
-    void loadMenus()
+    reloadMenus()
   }
 
   const handleDelete = async () => {
@@ -167,7 +189,7 @@ const MenuListPage = () => {
     try {
       await deleteMenu(deleting.id)
       toast.success('删除成功')
-      void loadMenus()
+      reloadMenus()
     } finally {
       setDeleting(null)
     }
@@ -401,7 +423,9 @@ function MenuFormDialog({
   })
 
   // 表单类型联动：MENU 显示路径/组件；非 BUTTON 显示图标；BUTTON 显示权限标识
-  const watchType = form.watch('type')
+  const watchType = useWatch({ control: form.control, name: 'type' })
+  // 上级菜单为受控展示，用 useWatch 订阅避免整表重渲染
+  const watchParentId = useWatch({ control: form.control, name: 'parentId' })
 
   // 上级菜单树数据（弹窗打开时拉取）
   const [menuTree, setMenuTree] = useState<Menu[]>()
@@ -423,7 +447,7 @@ function MenuFormDialog({
           <Label htmlFor="parentId">上级菜单</Label>
           <TreeSelectPopover
             nodes={menuTree}
-            value={form.watch('parentId')}
+            value={watchParentId}
             onChange={(value) => form.setValue('parentId', value)}
             placeholder="请选择上级菜单（可选）"
           />

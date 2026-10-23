@@ -23,6 +23,9 @@ const PERMISSION_GROUPS: { type: Permission['type']; label: string }[] = [
   { type: 'API', label: '接口' },
 ]
 
+/** 稳定空数组引用，避免未加载时每帧新建 */
+const EMPTY_PERMISSIONS: Permission[] = []
+
 export interface PermissionAssignDialogProps {
   open: boolean
   roleId: number | null
@@ -40,31 +43,33 @@ export function PermissionAssignDialog({
   roleName,
   onOpenChange,
 }: PermissionAssignDialogProps) {
-  const [permissions, setPermissions] = useState<Permission[]>([])
+  const [loaded, setLoaded] = useState<{ roleId: number; permissions: Permission[] } | null>(null)
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set())
-  const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (!open || roleId == null) return
     let cancelled = false
-    setLoading(true)
     Promise.all([listPermissions(), getPermissionsByRoleId(roleId)])
       .then(([all, owned]) => {
         if (cancelled) return
-        setPermissions(all)
+        setLoaded({ roleId, permissions: all })
         setCheckedIds(new Set(owned.map((p) => p.id)))
       })
       .catch((err: Error) => {
-        if (!cancelled) toast.error(err.message || '获取权限数据失败')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (cancelled) return
+        toast.error(err.message || '获取权限数据失败')
+        // 标记该角色已尝试加载，结束 loading 态并落到空数据提示
+        setLoaded({ roleId, permissions: [] })
       })
     return () => {
       cancelled = true
     }
   }, [open, roleId])
+
+  // loading 由「当前角色是否已加载完」派生，避免在 effect 内同步 setState
+  const loading = open && roleId != null && loaded?.roleId !== roleId
+  const permissions = loaded?.roleId === roleId ? loaded.permissions : EMPTY_PERMISSIONS
 
   const toggle = (id: number, checked: boolean) => {
     setCheckedIds((prev) => {

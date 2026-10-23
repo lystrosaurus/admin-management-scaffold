@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/theme-context'
 import {
   Activity,
   BookOpen,

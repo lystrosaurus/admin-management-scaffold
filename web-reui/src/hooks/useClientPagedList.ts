@@ -24,17 +24,19 @@ export function useClientPagedList<TData, TQuery extends object = Record<string,
   initialSize = 10,
 }: UseClientPagedListOptions<TData, TQuery>) {
   const [query, setQueryState] = useState<TQuery>(initialQuery ?? ({} as TQuery))
-  const [page, setPage] = useState(1)
-  const [size, setSize] = useState(initialSize)
+  const [page, setPageState] = useState(1)
+  const [size, setSizeState] = useState(initialSize)
   const [allRows, setAllRows] = useState<TData[]>([])
-  const [loading, setLoading] = useState(false)
+  // 首屏即为加载中，避免在 effect 内同步开启 loading 造成级联渲染
+  const [loading, setLoading] = useState(true)
 
   // fetcher 可能每次渲染都是新闭包，用 ref 避免重复触发 effect
   const fetcherRef = useRef(fetcher)
-  fetcherRef.current = fetcher
+  useEffect(() => {
+    fetcherRef.current = fetcher
+  }, [fetcher])
 
   const load = useCallback(async () => {
-    setLoading(true)
     try {
       const rows = await fetcherRef.current(query)
       setAllRows(rows)
@@ -55,30 +57,40 @@ export function useClientPagedList<TData, TQuery extends object = Record<string,
     [allRows, query, filter],
   )
 
-  /** 当前页切片 */
-  const rows = useMemo(() => {
-    const start = (page - 1) * size
-    return filtered.slice(start, start + size)
-  }, [filtered, page, size])
-
-  // 过滤条件变化后当前页可能越界，自动收敛
+  // 过滤条件变化后当前页可能越界，展示与切片统一使用收敛后的页码
   const totalPages = Math.max(1, Math.ceil(filtered.length / size))
   const safePage = Math.min(page, totalPages)
-  useEffect(() => {
-    if (safePage !== page) setPage(safePage)
-  }, [safePage, page])
+
+  /** 当前页切片 */
+  const rows = useMemo(() => {
+    const start = (safePage - 1) * size
+    return filtered.slice(start, start + size)
+  }, [filtered, safePage, size])
 
   /** 更新查询条件时重置回第一页 */
   const setQuery = useCallback((next: TQuery) => {
+    setLoading(true)
     setQueryState(next)
-    setPage(1)
+    setPageState(1)
   }, [])
 
   /** 切换每页条数时重置回第一页 */
   const changeSize = useCallback((next: number) => {
-    setSize(next)
-    setPage(1)
+    setLoading(true)
+    setSizeState(next)
+    setPageState(1)
   }, [])
+
+  /** 切换页码（越界由渲染期收敛处理） */
+  const setPage = useCallback((next: number) => {
+    setPageState(next)
+  }, [])
+
+  /** 保持当前条件重新拉取 */
+  const refresh = useCallback(() => {
+    setLoading(true)
+    void load()
+  }, [load])
 
   return {
     rows,
@@ -90,6 +102,6 @@ export function useClientPagedList<TData, TQuery extends object = Record<string,
     setSize: changeSize,
     query,
     setQuery,
-    refresh: load,
+    refresh,
   }
 }

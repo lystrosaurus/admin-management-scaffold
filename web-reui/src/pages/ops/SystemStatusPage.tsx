@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Activity, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,25 +17,38 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 /** 系统状态页面 */
 const SystemStatusPage = () => {
   const [info, setInfo] = useState<AppInfo | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  const fetchInfo = useCallback(async () => {
-    setLoading(true)
-    try {
-      const data = await getAppInfo()
-      setInfo(data)
-    } catch (error) {
-      setInfo(null)
-      // 静默处理：下方以「-」占位，避免页面空白
-      console.error(error)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let cancelled = false
+    getAppInfo()
+      .then((data) => {
+        if (!cancelled) setInfo(data)
+      })
+      .catch((error) => {
+        // 静默处理：下方以「-」占位，避免页面空白
+        if (!cancelled) setInfo(null)
+        console.error(error)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
   }, [])
 
-  useEffect(() => {
-    void fetchInfo()
-  }, [fetchInfo])
+  /** 手动刷新：loading 在事件中开启，避免 effect 内同步 setState */
+  const refresh = () => {
+    setLoading(true)
+    getAppInfo()
+      .then(setInfo)
+      .catch((error) => {
+        setInfo(null)
+        console.error(error)
+      })
+      .finally(() => setLoading(false))
+  }
 
   /** 统计卡数据 */
   const stats = [
@@ -56,7 +69,11 @@ const SystemStatusPage = () => {
           <h1 className="text-2xl font-semibold tracking-tight">系统状态</h1>
           <p className="text-sm text-muted-foreground">应用运行时信息（OpsInfo）</p>
         </div>
-        <Button variant="outline" onClick={fetchInfo} disabled={loading}>
+        <Button
+          variant="outline"
+          onClick={refresh}
+          disabled={loading}
+        >
           <RefreshCw className={`size-4 ${loading ? 'animate-spin' : ''}`} />
           刷新
         </Button>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { KeyRound, Link2, Unlink } from 'lucide-react'
 import { toast } from 'sonner'
 import dayjs from 'dayjs'
@@ -40,6 +40,8 @@ const SecurityProfilePage = () => {
   const passwordForm = useForm<PasswordFormValues>({
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   })
+  // 订阅新密码用于「确认密码」一致性校验，避免使用不可安全缓存的 form.watch()
+  const newPasswordValue = useWatch({ control: passwordForm.control, name: 'newPassword' })
 
   // OAuth 绑定账户
   const [accounts, setAccounts] = useState<OAuthAccount[]>([])
@@ -58,9 +60,23 @@ const SecurityProfilePage = () => {
     }
   }, [])
 
+  // 首屏加载：状态更新在 promise 回调中完成，并带取消保护
   useEffect(() => {
-    void fetchAccounts()
-  }, [fetchAccounts])
+    let cancelled = false
+    listBoundAccounts()
+      .then((data) => {
+        if (!cancelled) setAccounts(data)
+      })
+      .catch((error: Error) => {
+        if (!cancelled) toast.error(error.message || '获取绑定账户失败')
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAccounts(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleChangePassword = async (values: PasswordFormValues) => {
     setChangingPassword(true)
@@ -94,7 +110,8 @@ const SecurityProfilePage = () => {
   const handleBind = async (provider: string) => {
     try {
       const { url } = await getAuthorizeUrl(provider)
-      window.location.href = url
+      // 使用 assign 而非直接赋值 href，避免修改组件外部的只读属性
+      window.location.assign(url)
     } catch (error) {
       toast.error((error as Error).message || '获取授权链接失败')
     }
@@ -166,7 +183,7 @@ const SecurityProfilePage = () => {
                 {...passwordForm.register('confirmPassword', {
                   required: '请确认新密码',
                   validate: (value) =>
-                    value === passwordForm.watch('newPassword') || '两次输入的密码不一致',
+                    value === newPasswordValue || '两次输入的密码不一致',
                 })}
               />
               {passwordForm.formState.errors.confirmPassword && (

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { ChevronDown, ChevronRight, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from 'cn'
@@ -37,29 +37,25 @@ export function TreeSelectPopover({
   const [open, setOpen] = useState(false)
   // 后端顶层节点 parentId 常为 0，统一按「未选择」处理
   const effectiveValue = value || undefined
-  const [label, setLabel] = useState<string>()
 
-  // 回显当前选中项名称
-  useEffect(() => {
-    if (effectiveValue == null || !nodes) {
-      setLabel(undefined)
-      return
-    }
-    let found: string | undefined
-    const walk = (list: TreeNodeLike[]) => {
+  // 回显当前选中项名称：纯派生值，渲染期直接计算，无需 effect + state
+  const label = useMemo(() => {
+    if (effectiveValue == null || !nodes) return undefined
+
+    const findLabel = (list: TreeNodeLike[]): string | undefined => {
       for (const node of list) {
         if (node.id === effectiveValue) {
-          found = getLabel ? getLabel(node) : (node.name ?? `#${node.id}`)
-          return
+          return getLabel ? getLabel(node) : (node.name ?? `#${node.id}`)
         }
         if (node.children) {
-          walk(node.children)
-          if (found) return
+          const found = findLabel(node.children)
+          if (found) return found
         }
       }
+      return undefined
     }
-    walk(nodes)
-    setLabel(found ?? `#${effectiveValue}`)
+
+    return findLabel(nodes) ?? `#${effectiveValue}`
   }, [effectiveValue, nodes, getLabel])
 
   const renderNodes = (list: TreeNodeLike[], depth: number): ReactNode =>

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import MainLayout from '@/layouts/MainLayout'
 
@@ -17,11 +18,13 @@ describe('MainLayout', () => {
 
   it('renders grouped sidebar menu with active group expanded', () => {
     render(
-      <TooltipProvider>
-        <MemoryRouter initialEntries={['/integration/sources']}>
-          <MainLayout />
-        </MemoryRouter>
-      </TooltipProvider>,
+      <ThemeProvider>
+        <TooltipProvider>
+          <MemoryRouter initialEntries={['/integration/sources']}>
+            <MainLayout />
+          </MemoryRouter>
+        </TooltipProvider>
+      </ThemeProvider>,
     )
 
     // 侧边栏按业务域分组（SidebarGroupLabel 渲染）
