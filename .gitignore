@@ -45,6 +45,9 @@ frontend/dist-ssr/
 .workbuddy/
 overview.md
 
+# Trae 本地会话与计划产物
+.trae/
+
 # 操作系统 / 编辑器临时文件
 .DS_Store
 Thumbs.db
