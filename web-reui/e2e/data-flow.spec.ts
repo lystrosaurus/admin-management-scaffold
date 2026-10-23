@@ -73,10 +73,10 @@ test.describe('账号安全', () => {
 })
 
 test.describe('侧边栏导航', () => {
-  test('展开集成管理分组并跳转外部身份源', async ({ page }) => {
+  test('展开外部身份分组并跳转外部身份源', async ({ page }) => {
     await page.goto('/dashboard')
-    // 集成管理分组默认折叠，先点开触发器（button），再点子菜单链接
-    await page.getByRole('button', { name: '集成管理' }).click()
+    // 折叠模式下侧边栏分组默认收起，先点开触发器（button），再点子菜单链接
+    await page.getByRole('button', { name: '外部身份' }).click()
     await page.getByRole('link', { name: '外部身份源' }).click()
     await expect(page).toHaveURL(/\/integration\/sources$/)
     await expect(page.getByRole('button', { name: '新增身份源' })).toBeVisible()

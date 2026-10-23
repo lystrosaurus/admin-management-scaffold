@@ -28,9 +28,9 @@ test.describe('登录流程', () => {
 
     await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15_000 })
     await expect(page.getByRole('heading', { name: '仪表盘' })).toBeVisible()
-    // 侧边栏主导航可见（限定在侧边栏内，避开仪表盘快速入口的同名链接）
+    // 侧边栏主导航可见（限定在侧边栏内，避开内容区同名链接）
     await expect(
-      page.locator('[data-slot="sidebar"]').getByRole('link', { name: '用户管理' }),
+      page.locator('[data-slot="sidebar"]').getByRole('link', { name: '用户' }),
     ).toBeVisible()
   })
 

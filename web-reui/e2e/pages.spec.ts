@@ -5,20 +5,20 @@ import { test, expect, type Page } from '@playwright/test'
  * 面包屑标题由 MainLayout 的 breadcrumbMap 提供，是每个页面稳定的存在性断言。
  */
 
-/** 路由 → 期望的面包屑标题（与 MainLayout.menuItems 一致） */
+/** 路由 → 期望的面包屑标题（与 MainLayout.menuGroups 一致） */
 const routes: { path: string; breadcrumb: string }[] = [
   { path: '/dashboard', breadcrumb: '仪表盘' },
-  { path: '/users', breadcrumb: '用户管理' },
-  { path: '/roles', breadcrumb: '角色管理' },
-  { path: '/menus', breadcrumb: '菜单管理' },
-  { path: '/employees', breadcrumb: '员工管理' },
-  { path: '/org-units', breadcrumb: '组织管理' },
+  { path: '/users', breadcrumb: '用户' },
+  { path: '/roles', breadcrumb: '角色' },
+  { path: '/menus', breadcrumb: '菜单' },
+  { path: '/employees', breadcrumb: '员工' },
+  { path: '/org-units', breadcrumb: '组织' },
   { path: '/audit', breadcrumb: '审计日志' },
-  { path: '/dict', breadcrumb: '数据字典' },
+  { path: '/dict', breadcrumb: '字典' },
   { path: '/config-items', breadcrumb: '配置项' },
   { path: '/files', breadcrumb: '文件管理' },
   { path: '/ops', breadcrumb: '系统状态' },
-  { path: '/settings', breadcrumb: '系统配置' },
+  { path: '/settings', breadcrumb: '偏好设置' },
   { path: '/profile/security', breadcrumb: '账号安全' },
   { path: '/integration/sources', breadcrumb: '外部身份源' },
   { path: '/integration/principals', breadcrumb: '外部主体' },
