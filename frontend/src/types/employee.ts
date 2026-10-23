@@ -49,14 +49,15 @@ export interface UpdateEmployeeRequest {
 }
 
 /**
- * 员工查询参数
+ * 员工查询参数（与后端 EmployeeController.findPage 签名一致）
  */
 export interface EmployeeQueryParams {
   page?: number;
   size?: number;
-  name?: string;
-  employeeNo?: string;
-  orgUnitId?: number;
-  position?: string;
-  status?: Status;
+  /** 关键词，模糊匹配姓名 / 工号 / 手机号 */
+  keyword?: string;
+  /** 在职状态：ACTIVE / INACTIVE */
+  employmentStatus?: Status;
+  /** 主组织 ID */
+  orgId?: number;
 }

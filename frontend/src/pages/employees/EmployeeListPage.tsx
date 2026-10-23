@@ -259,15 +259,12 @@ const EmployeeListPage = () => {
         </Button>
       </div>
 
-      {/* 搜索表单 */}
+      {/* 搜索表单：后端只认 keyword / employmentStatus / orgId，不再分拆 name / employeeNo / status */}
       <Form form={searchForm} layout="inline" onFinish={handleSearch} style={{ marginBottom: 16 }}>
-        <Form.Item name="name" label="姓名">
-          <Input placeholder="请输入姓名" />
+        <Form.Item name="keyword" label="关键词">
+          <Input placeholder="姓名 / 工号 / 手机号" allowClear />
         </Form.Item>
-        <Form.Item name="employeeNo" label="工号">
-          <Input placeholder="请输入工号" />
-        </Form.Item>
-        <Form.Item name="orgUnitId" label="组织">
+        <Form.Item name="orgId" label="组织">
           <TreeSelect
             treeData={orgTreeData}
             placeholder="请选择组织"
@@ -276,7 +273,7 @@ const EmployeeListPage = () => {
             style={{ width: 200 }}
           />
         </Form.Item>
-        <Form.Item name="status" label="状态">
+        <Form.Item name="employmentStatus" label="状态">
           <Select placeholder="请选择状态" allowClear style={{ width: 120 }}>
             <Select.Option value="ACTIVE">启用</Select.Option>
             <Select.Option value="INACTIVE">停用</Select.Option>
