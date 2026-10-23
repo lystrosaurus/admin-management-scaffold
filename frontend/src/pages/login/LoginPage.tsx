@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { Form, Input, Button, Checkbox, Typography, Divider, Space, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -28,9 +28,19 @@ const oauthProviders = [
  * 包含用户名密码表单 + OAuth 三方登录入口
  */
 const LoginPage = () => {
+  const [form] = Form.useForm<LoginFormValues>();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
+
+  /** 回车提交：显式拦截默认行为后统一走表单校验，避免与原生隐式提交重复触发 */
+  const handleKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key !== 'Enter' || loading) {
+      return;
+    }
+    event.preventDefault();
+    form.submit();
+  };
 
   /** 表单提交：调用登录 API */
   const onFinish: FormProps<LoginFormValues>['onFinish'] = async (values) => {
@@ -69,9 +79,11 @@ const LoginPage = () => {
 
         {/* 登录表单 */}
         <Form<LoginFormValues>
+          form={form}
           name="login"
           initialValues={{ remember: true }}
           onFinish={onFinish}
+          onKeyDown={handleKeyDown}
           size="large"
           autoComplete="off"
         >
